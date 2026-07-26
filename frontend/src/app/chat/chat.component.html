@@ -1,0 +1,41 @@
+<section class="chat-layout">
+  <aside class="panel people">
+    <div class="people-heading">
+      <div><h2>Messages</h2><span>{{ users.length }} members</span></div>
+      <svg lucideMessageCircle aria-hidden="true"></svg>
+    </div>
+    <div class="member-search"><svg lucideSearch aria-hidden="true"></svg><span>Choose a member</span></div>
+    <div class="member-skeleton" *ngIf="loadingUsers"><i></i><span></span></div>
+    <div class="member-skeleton" *ngIf="loadingUsers"><i></i><span></span></div>
+    <p class="hint" *ngIf="!loadingUsers && users.length === 0">No other verified members yet.</p>
+    <div class="error" *ngIf="error"><span>{{ error }}</span><button type="button" (click)="loadUsers()"><svg lucideRefreshCw aria-hidden="true"></svg>Try again</button></div>
+    <button type="button" *ngFor="let user of users" [class.active]="selectedUser?.id === user.id" (click)="selectUser(user)">
+      <span class="member-avatar">{{ initials(user.fullName) }}<i [class.online]="isOnline(user.id)"></i></span>
+      <span class="member-copy"><strong>{{ user.fullName }}</strong><small [class.online-text]="isOnline(user.id)">{{ isOnline(user.id) ? 'Online now' : 'Offline' }}</small></span>
+    </button>
+  </aside>
+
+  <section class="panel thread">
+    <header>
+      <div *ngIf="selectedUser; else emptyHeader" class="thread-person">
+        <span class="member-avatar">{{ initials(selectedUser.fullName) }}<i [class.online]="isOnline(selectedUser.id)"></i></span>
+        <div><h1>{{ selectedUser.fullName }}</h1><span [class.online-text]="isOnline(selectedUser.id)">{{ isOnline(selectedUser.id) ? 'Online' : 'Offline' }}</span></div>
+      </div>
+      <ng-template #emptyHeader><div class="thread-person"><span class="thread-icon"><svg lucideMessageCircle aria-hidden="true"></svg></span><div><h1>Direct messages</h1><span>Private conversations</span></div></div></ng-template>
+      <svg *ngIf="selectedUser" class="verified-icon" lucideShieldCheck aria-label="Verified member"></svg>
+    </header>
+
+    <div class="messages">
+      <div class="empty" *ngIf="!selectedUser"><svg lucideMessageCircle aria-hidden="true"></svg><strong>Your conversations</strong><span>Select a member to start a secure conversation.</span></div>
+      <div class="bubble" *ngFor="let message of messages" [class.mine]="message.senderId === auth.session?.userId">
+        <span>{{ message.messageBody }}</span>
+        <small>{{ message.timestamp | date:'shortTime' }}</small>
+      </div>
+    </div>
+
+    <form class="send-box" (ngSubmit)="send()" *ngIf="selectedUser">
+      <input name="draft" [(ngModel)]="draft" placeholder="Write a message..." autocomplete="off" />
+      <button class="btn" type="submit" [disabled]="!draft.trim()" aria-label="Send message"><svg lucideSend aria-hidden="true"></svg><span>Send</span></button>
+    </form>
+  </section>
+</section>

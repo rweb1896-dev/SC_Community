@@ -1,0 +1,99 @@
+<section class="admin-page">
+  <header>
+    <div>
+      <p class="eyebrow">Moderation console</p>
+      <h1>Admin Panel</h1>
+    </div>
+    <button class="btn" type="button" (click)="generateCode()">Generate Invite Code</button>
+  </header>
+
+  <section class="stats" *ngIf="dashboard">
+    <div class="panel stat"><strong>{{ dashboard.totalUsers }}</strong><span>Total Users</span></div>
+    <div class="panel stat"><strong>{{ dashboard.pendingUsers }}</strong><span>Pending</span></div>
+    <div class="panel stat"><strong>{{ dashboard.verifiedUsers }}</strong><span>Verified</span></div>
+    <div class="panel stat"><strong>{{ dashboard.blockedUsers }}</strong><span>Blocked</span></div>
+    <div class="panel stat"><strong>{{ dashboard.activePosts }}</strong><span>Active Posts</span></div>
+  </section>
+
+  <section class="panel block meeting-approvals">
+    <div class="block-heading">
+      <div>
+        <h2>Meeting Approvals</h2>
+        <p>Review requests before a room becomes available to the network.</p>
+      </div>
+      <span class="request-count">{{ pendingMeetings.length }} pending</span>
+    </div>
+    <p class="admin-error" *ngIf="error">{{ error }}</p>
+    <div class="empty-approvals" *ngIf="pendingMeetings.length === 0">No meeting requests need review.</div>
+    <article class="meeting-request" *ngFor="let meeting of pendingMeetings">
+      <span class="meeting-avatar">{{ meeting.hostName.charAt(0) }}</span>
+      <div>
+        <strong>{{ meeting.title }}</strong>
+        <p>{{ meeting.agenda || 'No agenda was added.' }}</p>
+        <small>{{ meeting.hostName }} · {{ meeting.audience | titlecase }} · {{ meeting.requestedAt | date:'medium' }}</small>
+      </div>
+      <div class="actions">
+        <button class="btn secondary" type="button" (click)="approveMeeting(meeting)">Approve &amp; Go Live</button>
+        <button class="btn warn" type="button" (click)="rejectMeeting(meeting)">Reject</button>
+      </div>
+    </article>
+  </section>
+
+  <section class="panel block">
+    <h2>User Management</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Professional Group</th>
+            <th>ID Proof</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users">
+            <td>{{ user.fullName }}</td>
+            <td>{{ user.email }}</td>
+            <td><span class="badge">{{ user.status }}</span></td>
+            <td>
+              <select class="group-select" [ngModel]="user.professionalGroup" (ngModelChange)="updateProfessionalGroup(user, $event)">
+                <option *ngFor="let group of professionalGroups" [value]="group.value">{{ group.label }}</option>
+              </select>
+            </td>
+            <td><a *ngIf="user.idProofUrl" [href]="user.idProofUrl" target="_blank">View</a></td>
+            <td class="actions">
+              <button class="btn secondary" type="button" (click)="approve(user)" [disabled]="user.status === 'VERIFIED'">Approve</button>
+              <button class="btn warn" type="button" (click)="block(user)" [disabled]="user.status === 'BLOCKED'">Block</button>
+              <button class="btn secondary" type="button" (click)="unblock(user)" [disabled]="user.status !== 'BLOCKED'">Unblock</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="grid-two">
+    <div class="panel block">
+      <h2>Content Moderation</h2>
+      <article class="moderation-post" *ngFor="let post of posts">
+        <div>
+          <strong>{{ post.authorName }}</strong>
+          <p>{{ post.content }}</p>
+          <small>{{ post.categoryName }} · {{ post.createdAt | date:'medium' }}</small>
+        </div>
+        <button class="btn warn" type="button" (click)="hidePost(post)">Delete Post</button>
+      </article>
+    </div>
+
+    <div class="panel block">
+      <h2>Invite Codes</h2>
+      <div class="code" *ngFor="let code of codes">
+        <strong>{{ code.code }}</strong>
+        <span [class.used]="code.used">{{ code.used ? 'Used' : 'Available' }}</span>
+      </div>
+    </div>
+  </section>
+</section>

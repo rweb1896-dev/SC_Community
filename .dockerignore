@@ -1,0 +1,10 @@
+.git
+.idea
+.DS_Store
+**/.angular
+**/.vscode
+**/dist
+**/node_modules
+**/target
+**/*.log
+**/.env

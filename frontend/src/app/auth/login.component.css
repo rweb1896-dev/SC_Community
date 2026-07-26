@@ -1,0 +1,119 @@
+.auth-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(360px, 460px);
+  gap: clamp(32px, 7vw, 112px);
+  min-height: calc(100vh - 64px);
+  align-items: center;
+  padding: 54px clamp(18px, 7vw, 112px);
+  max-width: 1500px;
+  margin: auto;
+}
+
+.intro-kicker { display: flex; align-items: center; gap: 14px; color: #315db8; font-size: 12px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+
+.intro h1 {
+  margin: 16px 0 10px;
+  max-width: 700px;
+  color: #16241f;
+  font-size: clamp(40px, 5.7vw, 78px);
+  line-height: .98;
+  letter-spacing: 0;
+}
+
+.intro p {
+  max-width: 680px;
+  color: #607069;
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.trust-points { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 24px; }
+.trust-points span { border: 1px solid #d9e6df; border-radius: 999px; background: rgba(255,255,255,.62); color: #356a5f; padding: 8px 11px; font-size: 12px; font-weight: 850; }
+
+.logo {
+  display: inline-grid;
+  width: 74px;
+  height: 74px;
+  place-items: center;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #2563eb, #173f9e);
+  color: white;
+  font-size: 28px;
+  font-weight: 950;
+}
+
+blockquote {
+  max-width: 640px;
+  margin: 28px 0 8px;
+  border-left: 5px solid #14532d;
+  padding-left: 18px;
+  color: #1f2937;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.credit {
+  font-weight: 800;
+}
+
+.auth-panel {
+  padding: clamp(22px, 4vw, 34px);
+  box-shadow: 0 26px 60px rgba(22, 61, 48, .12);
+}
+
+.auth-heading { margin-bottom: 22px; }
+.auth-heading h2 { margin: 6px 0 6px; color: #17251f; font-size: 26px; letter-spacing: -.025em; }
+.auth-heading p { margin: 0; color: #758078; font-size: 14px; line-height: 1.5; }
+.eyebrow { color: #2563eb; font-size: 11px; font-weight: 950; letter-spacing: .12em; text-transform: uppercase; }
+
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.tabs button {
+  border: 1px solid #d8d1c4;
+  border-radius: 10px;
+  background: #f2f6f2;
+  padding: 11px;
+  font-weight: 850;
+}
+
+.tabs button.active {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: white;
+}
+
+form {
+  display: grid;
+  gap: 14px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.message {
+  margin: 16px 0 0;
+  border-radius: 10px;
+  background: #fff0ee;
+  padding: 10px 12px;
+  color: #9b3029;
+  font-weight: 750;
+}
+
+@media (max-width: 860px) {
+  .auth-page {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    padding-top: 38px;
+  }
+
+  .intro h1 { font-size: clamp(40px, 10vw, 62px); }
+}

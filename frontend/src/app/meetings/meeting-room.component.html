@@ -1,0 +1,71 @@
+<section class="room-page">
+  <header class="room-header">
+    <div>
+      <span class="room-live"><i></i> Live meeting</span>
+      <h1>{{ meeting?.title || 'Opening meeting...' }}</h1>
+      <p>{{ meeting?.hostName ? 'Hosted by ' + meeting?.hostName : 'Connecting securely' }}</p>
+    </div>
+    <div class="room-status">
+      <svg lucideShieldCheck aria-hidden="true"></svg>
+      <span>Admin approved</span>
+    </div>
+  </header>
+
+  <div class="room-body">
+    <main class="video-stage">
+      <div class="video-grid" [class.solo]="remoteParticipants.length === 0">
+        <article class="video-tile local">
+          <video #localVideo autoplay muted playsinline [class.hidden]="!localStream || !cameraEnabled"></video>
+          <div class="video-placeholder" *ngIf="!localStream || !cameraEnabled">
+            <span>{{ initials(auth.session?.fullName || 'You') }}</span>
+            <small>{{ localStream ? 'Camera off' : 'Listen-only mode' }}</small>
+          </div>
+          <footer><span>You</span><svg *ngIf="!micEnabled" lucideMicOff aria-label="Microphone muted"></svg></footer>
+        </article>
+
+        <article class="video-tile" *ngFor="let participant of remoteParticipants">
+          <video #remoteVideo [attr.data-user-id]="participant.userId" autoplay playsinline></video>
+          <footer><span>{{ participant.name }}</span></footer>
+        </article>
+      </div>
+
+      <div class="waiting" *ngIf="!loading && remoteParticipants.length === 0">
+        <svg lucideUsersRound aria-hidden="true"></svg>
+        <span>Waiting for eligible members to join</span>
+      </div>
+
+      <div class="loading-room" *ngIf="loading">
+        <span></span><strong>Preparing your camera and secure connection...</strong>
+      </div>
+    </main>
+
+    <aside class="room-info panel">
+      <div class="info-heading"><svg lucideVideo aria-hidden="true"></svg><div><strong>Room details</strong><span>{{ meeting?.participantCount || 1 }} participants</span></div></div>
+      <dl>
+        <div><dt>Audience</dt><dd>{{ meeting?.audience | titlecase }}</dd></div>
+        <div><dt>Approved by</dt><dd>{{ meeting?.approvedByName || 'Community admin' }}</dd></div>
+      </dl>
+      <div class="agenda" *ngIf="meeting?.agenda"><strong>Agenda</strong><p>{{ meeting?.agenda }}</p></div>
+      <div class="privacy-note"><svg lucideShieldCheck aria-hidden="true"></svg><span>Only approved, eligible members can enter this room.</span></div>
+    </aside>
+  </div>
+
+  <p class="room-error" *ngIf="error">{{ error }}</p>
+
+  <footer class="room-controls">
+    <button type="button" [class.off]="!micEnabled" [attr.aria-label]="micEnabled ? 'Mute microphone' : 'Unmute microphone'" [title]="micEnabled ? 'Mute microphone' : 'Unmute microphone'" (click)="toggleMic()">
+      <svg *ngIf="micEnabled" lucideMic aria-hidden="true"></svg>
+      <svg *ngIf="!micEnabled" lucideMicOff aria-hidden="true"></svg>
+    </button>
+    <button type="button" [class.off]="!cameraEnabled" [attr.aria-label]="cameraEnabled ? 'Turn camera off' : 'Turn camera on'" [title]="cameraEnabled ? 'Turn camera off' : 'Turn camera on'" (click)="toggleCamera()">
+      <svg *ngIf="cameraEnabled" lucideCamera aria-hidden="true"></svg>
+      <svg *ngIf="!cameraEnabled" lucideCameraOff aria-hidden="true"></svg>
+    </button>
+    <button class="leave" type="button" aria-label="Leave meeting" title="Leave meeting" (click)="leave()">
+      <svg lucideLogOut aria-hidden="true"></svg><span>Leave</span>
+    </button>
+    <button class="end" *ngIf="meeting?.canManage" type="button" aria-label="End meeting for everyone" title="End meeting for everyone" (click)="endMeeting()">
+      <svg lucidePhoneOff aria-hidden="true"></svg><span>End for all</span>
+    </button>
+  </footer>
+</section>

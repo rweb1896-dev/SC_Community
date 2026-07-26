@@ -1,0 +1,41 @@
+<header class="topbar">
+  <a routerLink="/feed" class="brand">
+    <span class="mark">SC</span>
+    <span class="brand-copy"><strong>Community</strong><small>Connect</small></span>
+  </a>
+  <form class="global-search" *ngIf="auth.session$ | async" (ngSubmit)="search()">
+    <svg lucideSearch aria-hidden="true"></svg>
+    <input name="globalSearch" [(ngModel)]="searchTerm" placeholder="Search people, posts and topics" aria-label="Search people, posts and topics" />
+    <button type="submit">Search</button>
+  </form>
+  <button class="menu-toggle" type="button" aria-label="Toggle navigation" (click)="menuOpen = !menuOpen">
+    <span></span><span></span><span></span>
+  </button>
+  <nav *ngIf="auth.session$ | async as session" [class.open]="menuOpen">
+    <a routerLink="/feed" routerLinkActive="active" (click)="closeMenu()"><svg lucideHouse aria-hidden="true"></svg><span>Home</span></a>
+    <a routerLink="/chat" routerLinkActive="active" (click)="closeMenu()"><svg lucideMessageCircle aria-hidden="true"></svg><span>Messages</span></a>
+    <a routerLink="/meetings" routerLinkActive="active" (click)="closeMenu()"><svg lucideVideo aria-hidden="true"></svg><span>Meetings</span></a>
+    <a *ngIf="session.role === 'ROLE_ADMIN'" routerLink="/admin" routerLinkActive="active" (click)="closeMenu()"><svg lucideShieldCheck aria-hidden="true"></svg><span>Admin</span></a>
+    <div class="profile-menu-wrap" (click)="$event.stopPropagation()">
+      <button class="profile-trigger" type="button" aria-label="Open profile menu" [attr.aria-expanded]="profileOpen" (click)="toggleProfile($event)">
+        <img class="profile-photo" src="/assets/default-profile.svg" [alt]="session.fullName + ' profile picture'" />
+        <svg lucideChevronDown aria-hidden="true"></svg>
+      </button>
+      <section class="profile-menu" *ngIf="profileOpen">
+        <div class="profile-menu-head">
+          <img class="profile-photo large" src="/assets/default-profile.svg" [alt]="session.fullName + ' profile picture'" />
+          <div>
+            <strong>{{ session.fullName }}</strong>
+            <span>{{ session.email }}</span>
+            <small>{{ session.role === 'ROLE_ADMIN' ? 'Administrator' : 'Community member' }}</small>
+          </div>
+        </div>
+      </section>
+    </div>
+    <button class="nav-logout" type="button" aria-label="Log out" title="Log out" (click)="logout()"><svg lucideLogOut aria-hidden="true"></svg></button>
+  </nav>
+</header>
+
+<main>
+  <router-outlet />
+</main>

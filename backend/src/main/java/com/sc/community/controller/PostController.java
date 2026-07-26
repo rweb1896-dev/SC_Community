@@ -1,0 +1,46 @@
+package com.sc.community.controller;
+
+import com.sc.community.dto.CommentDtos.CommentResponse;
+import com.sc.community.dto.CommentDtos.CreateCommentRequest;
+import com.sc.community.dto.PostDtos.CreatePostRequest;
+import com.sc.community.dto.PostDtos.PostResponse;
+import com.sc.community.service.PostService;
+import jakarta.validation.Valid;
+import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/posts")
+public class PostController {
+    private final PostService postService;
+
+    public PostController(PostService postService) {
+        this.postService = postService;
+    }
+
+    @GetMapping
+    public List<PostResponse> feed(@RequestParam(required = false) Long categoryId) {
+        return postService.feed(categoryId);
+    }
+
+    @PostMapping
+    public PostResponse create(@Valid @RequestBody CreatePostRequest request) {
+        return postService.create(request);
+    }
+
+    @GetMapping("/{postId}/comments")
+    public List<CommentResponse> comments(@PathVariable Long postId) {
+        return postService.comments(postId);
+    }
+
+    @PostMapping("/{postId}/comments")
+    public CommentResponse comment(@PathVariable Long postId, @Valid @RequestBody CreateCommentRequest request) {
+        return postService.comment(postId, request);
+    }
+}

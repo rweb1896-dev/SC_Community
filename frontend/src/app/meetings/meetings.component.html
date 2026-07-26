@@ -1,0 +1,114 @@
+<section class="meetings-page">
+  <main>
+    <header class="page-title">
+      <div class="title-icon"><svg lucideVideo aria-hidden="true"></svg></div>
+      <div>
+        <span>Community conversations</span>
+        <h1>Meetings</h1>
+        <p>Request once. An admin reviews it, then the room opens for the selected network.</p>
+      </div>
+    </header>
+
+    <form class="panel request-card" (ngSubmit)="requestMeeting()" #meetingRef="ngForm">
+      <div class="request-head">
+        <div>
+          <strong>Request a meeting</strong>
+          <span>Admin approval is required before anyone can join.</span>
+        </div>
+        <span class="approval-chip"><svg lucideBadgeCheck aria-hidden="true"></svg> Moderated</span>
+      </div>
+
+      <div class="request-grid">
+        <label>
+          <span>Meeting title</span>
+          <input required maxlength="140" name="title" [(ngModel)]="requestForm.title" placeholder="What would you like to discuss?" />
+        </label>
+        <label>
+          <span>Who can join?</span>
+          <select required name="audience" [(ngModel)]="requestForm.audience">
+            <option *ngFor="let audience of audiences" [value]="audience.value">{{ audience.label }} · {{ audience.description }}</option>
+          </select>
+        </label>
+      </div>
+
+      <label class="agenda-field">
+        <span>Short agenda <small>Optional</small></span>
+        <textarea maxlength="800" name="agenda" [(ngModel)]="requestForm.agenda" placeholder="Add context so the admin and members know what the meeting is about."></textarea>
+      </label>
+
+      <div class="request-footer">
+        <span><svg lucideClock3 aria-hidden="true"></svg> You will see the approval status here.</span>
+        <button class="primary-action" type="submit" [disabled]="meetingRef.invalid || submitting">
+          <svg lucideVideo aria-hidden="true"></svg>
+          {{ submitting ? 'Sending...' : 'Request meeting' }}
+        </button>
+      </div>
+    </form>
+
+    <p class="notice success" *ngIf="success">{{ success }}</p>
+    <p class="notice error" *ngIf="error">{{ error }}</p>
+
+    <section class="meeting-section">
+      <div class="section-heading">
+        <div><span class="live-dot"></span><h2>Live now</h2></div>
+        <span>{{ liveMeetings.length }} rooms</span>
+      </div>
+
+      <div class="meeting-skeleton panel" *ngIf="loading"><i></i><span></span><span></span></div>
+      <div class="empty-state panel" *ngIf="!loading && liveMeetings.length === 0">
+        <svg lucideRadio aria-hidden="true"></svg>
+        <strong>No live meetings right now</strong>
+        <span>Approved rooms will appear here automatically.</span>
+      </div>
+
+      <article class="panel meeting-card live" *ngFor="let meeting of liveMeetings">
+        <div class="meeting-icon"><svg lucideVideo aria-hidden="true"></svg><i></i></div>
+        <div class="meeting-copy">
+          <div class="meeting-meta"><span>Live</span><span>{{ audienceLabel(meeting.audience) }}</span></div>
+          <h3>{{ meeting.title }}</h3>
+          <p *ngIf="meeting.agenda">{{ meeting.agenda }}</p>
+          <small>Hosted by {{ meeting.hostName }} · {{ meeting.participantCount }} joined</small>
+        </div>
+        <button type="button" (click)="join(meeting)" [disabled]="!meeting.canJoin">
+          <svg lucideVideo aria-hidden="true"></svg>
+          {{ meeting.canJoin ? 'Join now' : 'Group only' }}
+        </button>
+      </article>
+    </section>
+
+    <section class="meeting-section" *ngIf="myRequests.length">
+      <div class="section-heading">
+        <div><h2>Your requests</h2></div>
+        <span>{{ myRequests.length }}</span>
+      </div>
+      <article class="panel request-row" *ngFor="let meeting of myRequests">
+        <span class="status" [class.live]="meeting.status === 'LIVE'" [class.rejected]="meeting.status === 'REJECTED'">
+          {{ meeting.status === 'PENDING_APPROVAL' ? 'Awaiting admin' : meeting.status }}
+        </span>
+        <div><strong>{{ meeting.title }}</strong><small>{{ audienceLabel(meeting.audience) }} · {{ meeting.requestedAt | date:'medium' }}</small></div>
+        <button *ngIf="meeting.status === 'LIVE'" type="button" (click)="join(meeting)">Enter room</button>
+        <span class="reason" *ngIf="meeting.status === 'REJECTED'">{{ meeting.rejectionReason || 'Not approved by admin' }}</span>
+      </article>
+    </section>
+  </main>
+
+  <aside>
+    <section class="panel info-card">
+      <h2>How approval works</h2>
+      <ol>
+        <li><span>1</span><div><strong>Send request</strong><small>Add a title and audience.</small></div></li>
+        <li><span>2</span><div><strong>Admin reviews</strong><small>Safety and purpose are checked.</small></div></li>
+        <li><span>3</span><div><strong>Room goes live</strong><small>Eligible members can join.</small></div></li>
+      </ol>
+    </section>
+
+    <section class="panel audience-card">
+      <h2>Audience groups</h2>
+      <div><svg lucideUsersRound aria-hidden="true"></svg><span>Everyone</span></div>
+      <div><svg lucideStethoscope aria-hidden="true"></svg><span>Doctors</span></div>
+      <div><svg lucideWrench aria-hidden="true"></svg><span>Engineers</span></div>
+      <div><svg lucideGraduationCap aria-hidden="true"></svg><span>Education</span></div>
+      <div><svg lucideHeartHandshake aria-hidden="true"></svg><span>Social workers</span></div>
+    </section>
+  </aside>
+</section>

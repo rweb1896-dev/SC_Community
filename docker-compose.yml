@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: sc-community-postgres
+    environment:
+      POSTGRES_DB: sc_con
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - sc-community-postgres:/var/lib/postgresql/data
+
+volumes:
+  sc-community-postgres:

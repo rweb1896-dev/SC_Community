@@ -1,0 +1,1 @@
+CREATE DATABASE sc_con;

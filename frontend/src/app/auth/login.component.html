@@ -1,0 +1,72 @@
+<section class="auth-page">
+  <div class="intro">
+    <div class="intro-kicker"><span class="logo">SC</span><span>Trusted community network</span></div>
+    <h1>Build a stronger community, together.</h1>
+    <p>Verified community help, opportunities, business support, open forum posts, and direct messages.</p>
+    <div class="trust-points"><span>Verified members</span><span>Local opportunities</span><span>Private messaging</span></div>
+    <blockquote>“Cultivation of mind should be the ultimate aim of human existence.”</blockquote>
+    <p class="credit">Dr. B. R. Ambedkar</p>
+  </div>
+
+  <div class="panel auth-panel">
+    <div class="auth-heading"><span class="eyebrow">Welcome back</span><h2>{{ mode === 'login' ? 'Sign in to your community' : 'Join the network' }}</h2><p>{{ mode === 'login' ? 'Continue where your community left off.' : 'Use your invite code to create a verified account.' }}</p></div>
+    <div class="tabs" aria-label="Authentication mode">
+      <button type="button" [class.active]="mode === 'login'" (click)="mode = 'login'">Login</button>
+      <button type="button" [class.active]="mode === 'register'" (click)="mode = 'register'">Sign Up</button>
+    </div>
+
+    <form *ngIf="mode === 'login'" (ngSubmit)="login()" #loginRef="ngForm">
+      <div class="field">
+        <label>Email</label>
+        <input required type="email" name="email" [(ngModel)]="loginForm.email" />
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input required type="password" name="password" [(ngModel)]="loginForm.password" />
+      </div>
+      <button class="btn" type="submit" [disabled]="loading || loginRef.invalid">{{ loading ? 'Signing in...' : 'Sign in' }}</button>
+    </form>
+
+    <form *ngIf="mode === 'register'" (ngSubmit)="register()" #registerRef="ngForm">
+      <div class="grid">
+        <div class="field">
+          <label>Full Name</label>
+          <input required name="fullName" [(ngModel)]="registerForm.fullName" />
+        </div>
+        <div class="field">
+          <label>Phone Number</label>
+          <input name="phoneNumber" [(ngModel)]="registerForm.phoneNumber" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input required type="email" name="registerEmail" [(ngModel)]="registerForm.email" />
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input required type="password" name="registerPassword" [(ngModel)]="registerForm.password" />
+      </div>
+      <div class="field">
+        <label>Verification / Invite Code</label>
+        <input required name="inviteCode" [(ngModel)]="registerForm.inviteCode" />
+      </div>
+      <div class="field">
+        <label>ID Proof URL</label>
+        <input required name="idProofUrl" [(ngModel)]="registerForm.idProofUrl" placeholder="https://..." />
+      </div>
+      <div class="field">
+        <label>Professional group</label>
+        <select name="professionalGroup" [(ngModel)]="registerForm.professionalGroup">
+          <option value="COMMUNITY">Community member</option>
+          <option value="DOCTOR">Doctor / Healthcare</option>
+          <option value="ENGINEER">Engineer / Technology</option>
+          <option value="EDUCATION">Education</option>
+          <option value="SOCIAL_WORKER">Social worker</option>
+        </select>
+      </div>
+      <button class="btn" type="submit" [disabled]="loading || registerRef.invalid">{{ loading ? 'Creating account...' : 'Create verified account' }}</button>
+    </form>
+
+    <p class="message" *ngIf="message">{{ message }}</p>
+  </div>
+</section>
