@@ -64,6 +64,8 @@ DB_PASSWORD
 JWT_SECRET
 APP_ADMIN_EMAIL
 APP_ADMIN_PASSWORD
+APP_OTP_CODE=1SC2
+APP_OTP_EXPOSE_CODE=true
 CORS_ALLOWED_ORIGINS
 DB_POOL_SIZE=2
 PORT=10000
@@ -96,6 +98,7 @@ Google Photos is not recommended for app image hosting because public links are 
 
 - Use a strong `JWT_SECRET`.
 - Change `APP_ADMIN_PASSWORD` before first production startup.
+- `1SC2` is a testing OTP only. Set `APP_OTP_EXPOSE_CODE=false` when real email/SMS delivery is connected.
 - Keep Neon password only in Render environment variables.
 - Confirm `/api/health` returns `UP`.
 - Test login, feed post creation, messages, admin approval, and meetings.

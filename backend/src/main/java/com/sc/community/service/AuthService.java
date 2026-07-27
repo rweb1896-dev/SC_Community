@@ -5,6 +5,8 @@ import com.sc.community.dto.LoginRequest;
 import com.sc.community.dto.RegisterRequest;
 import com.sc.community.dto.UserResponse;
 import com.sc.community.entity.User;
+import com.sc.community.entity.OtpChannel;
+import com.sc.community.entity.OtpPurpose;
 import com.sc.community.entity.ProfessionalGroup;
 import com.sc.community.entity.UserRole;
 import com.sc.community.entity.UserStatus;
@@ -28,24 +30,32 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final OtpService otpService;
 
     public AuthService(
             UserRepository userRepository,
             VerificationCodeRepository codeRepository,
             PasswordEncoder passwordEncoder,
             AuthenticationManager authenticationManager,
-            JwtService jwtService) {
+            JwtService jwtService,
+            OtpService otpService) {
         this.userRepository = userRepository;
         this.codeRepository = codeRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.otpService = otpService;
     }
 
     @Transactional
     public UserResponse register(RegisterRequest request) {
-        if (userRepository.existsByEmail(request.email())) {
+        String email = otpService.normalizeDestination(OtpChannel.EMAIL, request.email());
+        String phoneNumber = otpService.normalizeDestination(OtpChannel.MOBILE, request.phoneNumber());
+        if (userRepository.existsByEmail(email)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email is already registered");
+        }
+        if (userRepository.existsByPhoneNumber(phoneNumber)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Mobile number is already registered");
         }
 
         VerificationCode code = codeRepository.findByCode(request.inviteCode())
@@ -54,18 +64,21 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Verification code has already been used");
         }
 
+        otpService.consumeVerification(
+                request.emailVerificationToken(), OtpChannel.EMAIL, OtpPurpose.SIGNUP_EMAIL, email);
+        otpService.consumeVerification(
+                request.phoneVerificationToken(), OtpChannel.MOBILE, OtpPurpose.SIGNUP_MOBILE, phoneNumber);
+
         User user = new User();
-        user.setFullName(request.fullName());
-        user.setEmail(request.email().toLowerCase());
-        user.setPhoneNumber(request.phoneNumber());
+        user.setFullName(request.fullName().trim());
+        user.setEmail(email);
+        user.setPhoneNumber(phoneNumber);
         user.setPassword(passwordEncoder.encode(request.password()));
         user.setRole(UserRole.ROLE_USER);
-        user.setStatus(UserStatus.VERIFIED);
-        user.setIdProofUrl(request.idProofUrl());
+        user.setStatus(UserStatus.PENDING);
+        user.setIdProofUrl(request.idProofUrl().trim());
         user.setInviteCodeUsed(code.getCode());
-        user.setProfessionalGroup(request.professionalGroup() == null
-                ? ProfessionalGroup.COMMUNITY
-                : request.professionalGroup());
+        user.setProfessionalGroup(request.professionalGroup());
         User saved = userRepository.save(user);
 
         code.setUsed(true);

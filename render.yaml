@@ -20,5 +20,9 @@ services:
         sync: false
       - key: APP_ADMIN_PASSWORD
         sync: false
+      - key: APP_OTP_CODE
+        value: 1SC2
+      - key: APP_OTP_EXPOSE_CODE
+        value: true
       - key: DB_POOL_SIZE
         value: 2

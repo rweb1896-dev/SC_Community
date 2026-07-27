@@ -2,8 +2,16 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
-import { AuthResponse, UserResponse } from './models';
-import { ProfessionalGroup } from './models';
+import {
+  AuthResponse,
+  MessageResponse,
+  OtpChannel,
+  OtpPurpose,
+  OtpRequestResponse,
+  OtpVerifyResponse,
+  ProfessionalGroup,
+  UserResponse
+} from './models';
 
 const API = '/api';
 const SESSION_KEY = 'sc-connect-session';
@@ -27,8 +35,43 @@ export class AuthService {
     inviteCode: string;
     idProofUrl: string;
     professionalGroup: ProfessionalGroup;
+    emailVerificationToken: string;
+    phoneVerificationToken: string;
   }): Observable<UserResponse> {
     return this.http.post<UserResponse>(`${API}/auth/register`, payload);
+  }
+
+  requestOtp(
+    channel: OtpChannel,
+    purpose: OtpPurpose,
+    destination: string
+  ): Observable<OtpRequestResponse> {
+    return this.http.post<OtpRequestResponse>(`${API}/auth/otp/request`, {
+      channel,
+      purpose,
+      destination
+    });
+  }
+
+  verifyOtp(
+    channel: OtpChannel,
+    purpose: OtpPurpose,
+    destination: string,
+    code: string
+  ): Observable<OtpVerifyResponse> {
+    return this.http.post<OtpVerifyResponse>(`${API}/auth/otp/verify`, {
+      channel,
+      purpose,
+      destination,
+      code
+    });
+  }
+
+  resetPassword(resetToken: string, newPassword: string): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${API}/auth/password/reset`, {
+      resetToken,
+      newPassword
+    });
   }
 
   login(email: string, password: string): Observable<AuthResponse> {

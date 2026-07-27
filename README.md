@@ -4,8 +4,9 @@ Production-oriented full-stack community platform built with Angular, Spring Boo
 
 ## What Is Included
 
-- Invite-code gated registration with ID proof URL submission.
-- Invite-code registration verifies members immediately for local use; admins can still approve, block, and unblock accounts.
+- Invite-code gated registration with mandatory email OTP, mobile OTP, and ID proof URL.
+- New registrations remain pending until an admin reviews the ID proof and approves the account.
+- Password recovery works with either the registered email or mobile number.
 - JWT login for verified users only.
 - Blocked users cannot log in, post, comment, or send messages.
 - Admin dashboard, user approval/block/unblock, post hiding, and invite-code generation.
@@ -77,10 +78,20 @@ Initial invite code:
 
 - `WELCOME-SC-2026`
 
-Override bootstrap credentials with:
+Local/testing OTP for both email and mobile:
+
+- `1SC2`
+
+The OTP expires after 10 minutes, allows five attempts, and produces a one-time verification token. This fixed value is for testing only. Replace it with a real email/SMS delivery provider before a wider public launch.
+
+Override bootstrap credentials and OTP settings with:
 
 ```bash
-APP_ADMIN_EMAIL=admin@example.com APP_ADMIN_PASSWORD='strong-password' mvn spring-boot:run
+APP_ADMIN_EMAIL=admin@example.com \
+APP_ADMIN_PASSWORD='strong-password' \
+APP_OTP_CODE=1SC2 \
+APP_OTP_EXPOSE_CODE=true \
+mvn spring-boot:run
 ```
 
 ## Frontend
@@ -99,7 +110,14 @@ Open:
 http://localhost:4201
 ```
 
-The login page is prefilled with the bootstrap admin account for local testing.
+The signup form requires:
+
+- Verified email OTP
+- Verified mobile OTP
+- Strong password and confirmation
+- Unused admin invite code
+- Publicly viewable ID proof URL
+- Professional group
 
 The included Angular dev proxy points `/api`, `/ws-native`, and `/ws` to `http://localhost:8081` because port `8080` was already occupied on this machine during setup. The frontend also uses `4201` because `4200` was occupied. Change `frontend/proxy.conf.json` back to `8080` if you run the backend on the default port.
 

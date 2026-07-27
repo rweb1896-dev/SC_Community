@@ -3,70 +3,452 @@
     <div class="intro-kicker"><span class="logo">SC</span><span>Trusted community network</span></div>
     <h1>Build a stronger community, together.</h1>
     <p>Verified community help, opportunities, business support, open forum posts, and direct messages.</p>
-    <div class="trust-points"><span>Verified members</span><span>Local opportunities</span><span>Private messaging</span></div>
+    <div class="trust-points">
+      <span>Verified identity</span>
+      <span>Safer conversations</span>
+      <span>Private messaging</span>
+    </div>
     <blockquote>“Cultivation of mind should be the ultimate aim of human existence.”</blockquote>
     <p class="credit">Dr. B. R. Ambedkar</p>
   </div>
 
   <div class="panel auth-panel">
-    <div class="auth-heading"><span class="eyebrow">Welcome back</span><h2>{{ mode === 'login' ? 'Sign in to your community' : 'Join the network' }}</h2><p>{{ mode === 'login' ? 'Continue where your community left off.' : 'Use your invite code to create a verified account.' }}</p></div>
-    <div class="tabs" aria-label="Authentication mode">
-      <button type="button" [class.active]="mode === 'login'" (click)="mode = 'login'">Login</button>
-      <button type="button" [class.active]="mode === 'register'" (click)="mode = 'register'">Sign Up</button>
+    <button *ngIf="mode === 'forgot'" class="back-button" type="button" (click)="setMode('login')">
+      <svg lucideArrowLeft aria-hidden="true"></svg>
+      Back to login
+    </button>
+
+    <div class="auth-heading">
+      <span class="eyebrow">{{ mode === 'forgot' ? 'Account recovery' : 'Welcome' }}</span>
+      <h2>
+        {{ mode === 'login' ? 'Sign in to your community' : mode === 'register' ? 'Create verified account' : 'Reset your password' }}
+      </h2>
+      <p>
+        {{
+          mode === 'login'
+            ? 'Continue where your community left off.'
+            : mode === 'register'
+              ? 'Email, mobile, invite code and ID proof are required.'
+              : 'Verify your registered email or mobile number.'
+        }}
+      </p>
     </div>
 
-    <form *ngIf="mode === 'login'" (ngSubmit)="login()" #loginRef="ngForm">
+    <div *ngIf="mode !== 'forgot'" class="tabs" aria-label="Authentication mode">
+      <button type="button" [class.active]="mode === 'login'" (click)="setMode('login')">Login</button>
+      <button type="button" [class.active]="mode === 'register'" (click)="setMode('register')">Sign Up</button>
+    </div>
+
+    <form *ngIf="mode === 'login'" (ngSubmit)="login()" #loginRef="ngForm" novalidate>
       <div class="field">
-        <label>Email</label>
-        <input required type="email" name="email" [(ngModel)]="loginForm.email" />
+        <label for="login-email">Email</label>
+        <input
+          id="login-email"
+          required
+          type="email"
+          name="email"
+          autocomplete="email"
+          [(ngModel)]="loginForm.email"
+          #loginEmail="ngModel"
+        />
+        <small class="field-error" *ngIf="loginEmail.invalid && loginEmail.touched">Enter a valid email address.</small>
       </div>
+
       <div class="field">
-        <label>Password</label>
-        <input required type="password" name="password" [(ngModel)]="loginForm.password" />
+        <label for="login-password">Password</label>
+        <div class="password-control">
+          <input
+            id="login-password"
+            required
+            minlength="8"
+            [type]="showLoginPassword ? 'text' : 'password'"
+            name="password"
+            autocomplete="current-password"
+            [(ngModel)]="loginForm.password"
+          />
+          <button
+            class="visibility-button"
+            type="button"
+            [attr.aria-label]="showLoginPassword ? 'Hide password' : 'Show password'"
+            [title]="showLoginPassword ? 'Hide password' : 'Show password'"
+            (click)="showLoginPassword = !showLoginPassword"
+          >
+            <svg *ngIf="!showLoginPassword" lucideEye aria-hidden="true"></svg>
+            <svg *ngIf="showLoginPassword" lucideEyeOff aria-hidden="true"></svg>
+          </button>
+        </div>
       </div>
-      <button class="btn" type="submit" [disabled]="loading || loginRef.invalid">{{ loading ? 'Signing in...' : 'Sign in' }}</button>
+
+      <button class="forgot-link" type="button" (click)="setMode('forgot')">Forgot password?</button>
+      <button class="btn" type="submit" [disabled]="loading || loginRef.invalid">
+        {{ loading ? 'Signing in...' : 'Sign in' }}
+      </button>
     </form>
 
-    <form *ngIf="mode === 'register'" (ngSubmit)="register()" #registerRef="ngForm">
+    <form *ngIf="mode === 'register'" (ngSubmit)="register()" #registerRef="ngForm" novalidate>
       <div class="grid">
         <div class="field">
-          <label>Full Name</label>
-          <input required name="fullName" [(ngModel)]="registerForm.fullName" />
+          <label for="full-name">Full name</label>
+          <input
+            id="full-name"
+            required
+            minlength="2"
+            maxlength="100"
+            name="fullName"
+            autocomplete="name"
+            [(ngModel)]="registerForm.fullName"
+            #fullName="ngModel"
+          />
+          <small class="field-error" *ngIf="fullName.invalid && fullName.touched">Full name is required.</small>
         </div>
+
         <div class="field">
-          <label>Phone Number</label>
-          <input name="phoneNumber" [(ngModel)]="registerForm.phoneNumber" />
+          <label for="professional-group">Professional group</label>
+          <select
+            id="professional-group"
+            required
+            name="professionalGroup"
+            [(ngModel)]="registerForm.professionalGroup"
+          >
+            <option value="COMMUNITY">Community member</option>
+            <option value="DOCTOR">Doctor / Healthcare</option>
+            <option value="ENGINEER">Engineer / Technology</option>
+            <option value="EDUCATION">Education</option>
+            <option value="SOCIAL_WORKER">Social worker</option>
+          </select>
         </div>
       </div>
-      <div class="field">
-        <label>Email</label>
-        <input required type="email" name="registerEmail" [(ngModel)]="registerForm.email" />
+
+      <div class="verification-card" [class.verified]="emailVerification.verified">
+        <div class="verification-heading">
+          <span class="verification-icon"><svg lucideMail aria-hidden="true"></svg></span>
+          <span><strong>Email verification</strong><small>Required for login and recovery</small></span>
+          <svg *ngIf="emailVerification.verified" class="verified-check" lucideCheckCircle2 aria-label="Verified"></svg>
+        </div>
+        <div class="verification-row">
+          <div class="field">
+            <label for="register-email">Email</label>
+            <input
+              id="register-email"
+              required
+              type="email"
+              name="registerEmail"
+              autocomplete="email"
+              [(ngModel)]="registerForm.email"
+              (ngModelChange)="onIdentityChanged('EMAIL', $event)"
+              #registerEmail="ngModel"
+            />
+          </div>
+          <button
+            class="outline-button"
+            type="button"
+            [disabled]="registerEmail.invalid || emailVerification.verified || otpLoading !== ''"
+            (click)="requestSignupOtp('EMAIL')"
+          >
+            {{ emailVerification.requested ? 'Resend' : 'Send code' }}
+          </button>
+        </div>
+        <small class="field-error" *ngIf="registerEmail.invalid && registerEmail.touched">Enter a valid email address.</small>
+        <div class="verification-row otp-row" *ngIf="emailVerification.requested && !emailVerification.verified">
+          <div class="field">
+            <label for="email-otp">Email OTP</label>
+            <input
+              id="email-otp"
+              required
+              minlength="4"
+              maxlength="8"
+              pattern="[A-Za-z0-9]{4,8}"
+              name="emailOtp"
+              autocomplete="one-time-code"
+              placeholder="Enter code"
+              [(ngModel)]="emailVerification.code"
+            />
+          </div>
+          <button
+            class="verify-button"
+            type="button"
+            [disabled]="emailVerification.code.length < 4 || otpLoading !== ''"
+            (click)="verifySignupOtp('EMAIL')"
+          >
+            {{ otpLoading === 'email-verify' ? 'Checking...' : 'Verify' }}
+          </button>
+        </div>
       </div>
-      <div class="field">
-        <label>Password</label>
-        <input required type="password" name="registerPassword" [(ngModel)]="registerForm.password" />
+
+      <div class="verification-card" [class.verified]="phoneVerification.verified">
+        <div class="verification-heading">
+          <span class="verification-icon"><svg lucideSmartphone aria-hidden="true"></svg></span>
+          <span><strong>Mobile verification</strong><small>Required for secure recovery</small></span>
+          <svg *ngIf="phoneVerification.verified" class="verified-check" lucideCheckCircle2 aria-label="Verified"></svg>
+        </div>
+        <div class="verification-row">
+          <div class="field">
+            <label for="phone-number">Mobile number</label>
+            <input
+              id="phone-number"
+              required
+              type="tel"
+              name="phoneNumber"
+              autocomplete="tel"
+              inputmode="tel"
+              pattern="\+?[1-9][0-9]{9,14}"
+              placeholder="+91 9876543210"
+              [(ngModel)]="registerForm.phoneNumber"
+              (ngModelChange)="onIdentityChanged('MOBILE', $event)"
+              #phoneNumber="ngModel"
+            />
+          </div>
+          <button
+            class="outline-button"
+            type="button"
+            [disabled]="phoneNumber.invalid || phoneVerification.verified || otpLoading !== ''"
+            (click)="requestSignupOtp('MOBILE')"
+          >
+            {{ phoneVerification.requested ? 'Resend' : 'Send code' }}
+          </button>
+        </div>
+        <small class="field-error" *ngIf="phoneNumber.invalid && phoneNumber.touched">Use 10-15 digits, optionally with country code.</small>
+        <div class="verification-row otp-row" *ngIf="phoneVerification.requested && !phoneVerification.verified">
+          <div class="field">
+            <label for="phone-otp">Mobile OTP</label>
+            <input
+              id="phone-otp"
+              required
+              minlength="4"
+              maxlength="8"
+              pattern="[A-Za-z0-9]{4,8}"
+              name="phoneOtp"
+              autocomplete="one-time-code"
+              placeholder="Enter code"
+              [(ngModel)]="phoneVerification.code"
+            />
+          </div>
+          <button
+            class="verify-button"
+            type="button"
+            [disabled]="phoneVerification.code.length < 4 || otpLoading !== ''"
+            (click)="verifySignupOtp('MOBILE')"
+          >
+            {{ otpLoading === 'phone-verify' ? 'Checking...' : 'Verify' }}
+          </button>
+        </div>
       </div>
-      <div class="field">
-        <label>Verification / Invite Code</label>
-        <input required name="inviteCode" [(ngModel)]="registerForm.inviteCode" />
+
+      <div class="grid">
+        <div class="field">
+          <label for="register-password">Password</label>
+          <div class="password-control">
+            <input
+              id="register-password"
+              required
+              minlength="8"
+              maxlength="72"
+              pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,72}"
+              [type]="showRegisterPassword ? 'text' : 'password'"
+              name="registerPassword"
+              autocomplete="new-password"
+              [(ngModel)]="registerForm.password"
+              #registerPassword="ngModel"
+            />
+            <button class="visibility-button" type="button" title="Show or hide password" (click)="showRegisterPassword = !showRegisterPassword">
+              <svg *ngIf="!showRegisterPassword" lucideEye aria-hidden="true"></svg>
+              <svg *ngIf="showRegisterPassword" lucideEyeOff aria-hidden="true"></svg>
+            </button>
+          </div>
+          <small class="field-error" *ngIf="registerPassword.invalid && registerPassword.touched">
+            Use 8+ characters with uppercase, lowercase, number and symbol.
+          </small>
+        </div>
+
+        <div class="field">
+          <label for="confirm-password">Confirm password</label>
+          <div class="password-control">
+            <input
+              id="confirm-password"
+              required
+              minlength="8"
+              [type]="showRegisterConfirmPassword ? 'text' : 'password'"
+              name="confirmPassword"
+              autocomplete="new-password"
+              [(ngModel)]="registerForm.confirmPassword"
+            />
+            <button class="visibility-button" type="button" title="Show or hide password" (click)="showRegisterConfirmPassword = !showRegisterConfirmPassword">
+              <svg *ngIf="!showRegisterConfirmPassword" lucideEye aria-hidden="true"></svg>
+              <svg *ngIf="showRegisterConfirmPassword" lucideEyeOff aria-hidden="true"></svg>
+            </button>
+          </div>
+          <small class="field-error" *ngIf="registerForm.confirmPassword && registerForm.password !== registerForm.confirmPassword">
+            Passwords do not match.
+          </small>
+        </div>
       </div>
+
       <div class="field">
-        <label>ID Proof URL</label>
-        <input required name="idProofUrl" [(ngModel)]="registerForm.idProofUrl" placeholder="https://..." />
+        <label for="invite-code">Verification / invite code</label>
+        <input
+          id="invite-code"
+          required
+          maxlength="64"
+          name="inviteCode"
+          autocomplete="off"
+          placeholder="Code provided by admin"
+          [(ngModel)]="registerForm.inviteCode"
+        />
       </div>
+
       <div class="field">
-        <label>Professional group</label>
-        <select name="professionalGroup" [(ngModel)]="registerForm.professionalGroup">
-          <option value="COMMUNITY">Community member</option>
-          <option value="DOCTOR">Doctor / Healthcare</option>
-          <option value="ENGINEER">Engineer / Technology</option>
-          <option value="EDUCATION">Education</option>
-          <option value="SOCIAL_WORKER">Social worker</option>
-        </select>
+        <label for="id-proof">Government ID proof URL</label>
+        <input
+          id="id-proof"
+          required
+          type="url"
+          maxlength="1000"
+          pattern="https?://.+"
+          name="idProofUrl"
+          inputmode="url"
+          placeholder="https://drive.google.com/..."
+          [(ngModel)]="registerForm.idProofUrl"
+          #idProofUrl="ngModel"
+        />
+        <small class="field-help">Upload the image/PDF to Google Drive, enable “Anyone with the link”, then paste its URL.</small>
+        <small class="field-error" *ngIf="idProofUrl.invalid && idProofUrl.touched">A valid http(s) ID-proof URL is required.</small>
       </div>
-      <button class="btn" type="submit" [disabled]="loading || registerRef.invalid">{{ loading ? 'Creating account...' : 'Create verified account' }}</button>
+
+      <div class="verification-summary">
+        <span [class.done]="emailVerification.verified"><svg lucideShieldCheck aria-hidden="true"></svg>Email</span>
+        <span [class.done]="phoneVerification.verified"><svg lucideShieldCheck aria-hidden="true"></svg>Mobile</span>
+        <span [class.done]="registerForm.idProofUrl"><svg lucideShieldCheck aria-hidden="true"></svg>ID proof</span>
+      </div>
+
+      <button
+        class="btn"
+        type="submit"
+        [disabled]="
+          loading ||
+          registerRef.invalid ||
+          !emailVerification.verified ||
+          !phoneVerification.verified ||
+          registerForm.password !== registerForm.confirmPassword
+        "
+      >
+        {{ loading ? 'Submitting...' : 'Submit for admin approval' }}
+      </button>
     </form>
 
-    <p class="message" *ngIf="message">{{ message }}</p>
+    <form *ngIf="mode === 'forgot'" class="forgot-form" #forgotRef="ngForm" novalidate>
+      <div class="recovery-steps" aria-label="Password recovery progress">
+        <span [class.active]="forgotStep >= 1">1</span>
+        <i></i>
+        <span [class.active]="forgotStep >= 2">2</span>
+        <i></i>
+        <span [class.active]="forgotStep >= 3">3</span>
+      </div>
+
+      <ng-container *ngIf="forgotStep === 1">
+        <div class="channel-tabs">
+          <button type="button" [class.active]="forgotForm.channel === 'EMAIL'" (click)="setForgotChannel('EMAIL')">
+            <svg lucideMail aria-hidden="true"></svg>Email
+          </button>
+          <button type="button" [class.active]="forgotForm.channel === 'MOBILE'" (click)="setForgotChannel('MOBILE')">
+            <svg lucideSmartphone aria-hidden="true"></svg>Mobile
+          </button>
+        </div>
+        <div class="field">
+          <label for="recovery-destination">{{ forgotForm.channel === 'EMAIL' ? 'Registered email' : 'Registered mobile number' }}</label>
+          <input
+            id="recovery-destination"
+            required
+            [type]="forgotForm.channel === 'EMAIL' ? 'email' : 'tel'"
+            name="recoveryDestination"
+            [autocomplete]="forgotForm.channel === 'EMAIL' ? 'email' : 'tel'"
+            [pattern]="forgotForm.channel === 'EMAIL' ? '[^\\s@]+@[^\\s@]+\\.[^\\s@]+' : '\\+?[1-9][0-9]{9,14}'"
+            [(ngModel)]="forgotForm.destination"
+          />
+        </div>
+        <button class="btn" type="button" [disabled]="forgotRef.invalid || otpLoading !== ''" (click)="requestPasswordOtp()">
+          {{ otpLoading === 'forgot-request' ? 'Sending...' : 'Send reset code' }}
+        </button>
+      </ng-container>
+
+      <ng-container *ngIf="forgotStep === 2">
+        <div class="recovery-notice">
+          <svg lucideShieldCheck aria-hidden="true"></svg>
+          <span>Enter the code generated for <strong>{{ forgotForm.destination }}</strong></span>
+        </div>
+        <div class="field">
+          <label for="recovery-otp">Verification code</label>
+          <input
+            id="recovery-otp"
+            required
+            minlength="4"
+            maxlength="8"
+            pattern="[A-Za-z0-9]{4,8}"
+            name="recoveryOtp"
+            autocomplete="one-time-code"
+            [(ngModel)]="forgotForm.code"
+          />
+        </div>
+        <button class="btn" type="button" [disabled]="forgotForm.code.length < 4 || otpLoading !== ''" (click)="verifyPasswordOtp()">
+          {{ otpLoading === 'forgot-verify' ? 'Verifying...' : 'Verify code' }}
+        </button>
+        <button class="text-button" type="button" (click)="forgotStep = 1">Use different details</button>
+      </ng-container>
+
+      <ng-container *ngIf="forgotStep === 3">
+        <div class="field">
+          <label for="new-password">New password</label>
+          <div class="password-control">
+            <input
+              id="new-password"
+              required
+              minlength="8"
+              maxlength="72"
+              pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,72}"
+              [type]="showResetPassword ? 'text' : 'password'"
+              name="newPassword"
+              autocomplete="new-password"
+              [(ngModel)]="forgotForm.newPassword"
+            />
+            <button class="visibility-button" type="button" title="Show or hide password" (click)="showResetPassword = !showResetPassword">
+              <svg *ngIf="!showResetPassword" lucideEye aria-hidden="true"></svg>
+              <svg *ngIf="showResetPassword" lucideEyeOff aria-hidden="true"></svg>
+            </button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="confirm-new-password">Confirm new password</label>
+          <div class="password-control">
+            <input
+              id="confirm-new-password"
+              required
+              minlength="8"
+              [type]="showResetConfirmPassword ? 'text' : 'password'"
+              name="confirmNewPassword"
+              autocomplete="new-password"
+              [(ngModel)]="forgotForm.confirmPassword"
+            />
+            <button class="visibility-button" type="button" title="Show or hide password" (click)="showResetConfirmPassword = !showResetConfirmPassword">
+              <svg *ngIf="!showResetConfirmPassword" lucideEye aria-hidden="true"></svg>
+              <svg *ngIf="showResetConfirmPassword" lucideEyeOff aria-hidden="true"></svg>
+            </button>
+          </div>
+          <small class="field-error" *ngIf="forgotForm.confirmPassword && forgotForm.newPassword !== forgotForm.confirmPassword">
+            Passwords do not match.
+          </small>
+        </div>
+        <button
+          class="btn"
+          type="button"
+          [disabled]="loading || forgotRef.invalid || forgotForm.newPassword !== forgotForm.confirmPassword"
+          (click)="resetPassword()"
+        >
+          {{ loading ? 'Updating...' : 'Update password' }}
+        </button>
+      </ng-container>
+    </form>
+
+    <p class="message" [class.success]="messageTone === 'success'" [class.info]="messageTone === 'info'" *ngIf="message">
+      {{ message }}
+    </p>
   </div>
 </section>

@@ -4,6 +4,8 @@ export type PostStatus = 'ACTIVE' | 'FLAGGED' | 'BLOCKED';
 export type ProfessionalGroup = 'COMMUNITY' | 'DOCTOR' | 'ENGINEER' | 'EDUCATION' | 'SOCIAL_WORKER';
 export type MeetingAudience = 'ALL' | 'DOCTORS' | 'ENGINEERS' | 'EDUCATION' | 'SOCIAL_WORKERS';
 export type MeetingStatus = 'PENDING_APPROVAL' | 'LIVE' | 'REJECTED' | 'ENDED';
+export type OtpChannel = 'EMAIL' | 'MOBILE';
+export type OtpPurpose = 'SIGNUP_EMAIL' | 'SIGNUP_MOBILE' | 'PASSWORD_RESET';
 
 export interface AuthResponse {
   token: string;
@@ -13,6 +15,21 @@ export interface AuthResponse {
   role: UserRole;
   status: UserStatus;
   professionalGroup: ProfessionalGroup;
+}
+
+export interface OtpRequestResponse {
+  message: string;
+  expiresAt: string;
+  developmentCode?: string;
+}
+
+export interface OtpVerifyResponse {
+  verificationToken: string;
+  expiresAt: string;
+}
+
+export interface MessageResponse {
+  message: string;
 }
 
 export interface UserResponse {

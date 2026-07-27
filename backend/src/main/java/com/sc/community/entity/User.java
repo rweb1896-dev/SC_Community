@@ -24,7 +24,7 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(name = "phone_number")
+    @Column(name = "phone_number", unique = true, length = 20)
     private String phoneNumber;
 
     @Column(nullable = false)
@@ -38,7 +38,7 @@ public class User {
     @Column(nullable = false)
     private UserStatus status = UserStatus.PENDING;
 
-    @Column(name = "id_proof_url")
+    @Column(name = "id_proof_url", length = 1000)
     private String idProofUrl;
 
     @Column(name = "invite_code_used")
