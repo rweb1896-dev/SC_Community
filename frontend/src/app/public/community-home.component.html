@@ -1,0 +1,115 @@
+<section class="community-home">
+  <header class="community-hero">
+    <img src="/assets/leaders/br-ambedkar.jpg" alt="Dr. B. R. Ambedkar" />
+    <div class="hero-overlay"></div>
+    <div class="hero-copy">
+      <span>Verified community network</span>
+      <h1>SC Community Connect</h1>
+      <p>Leadership, learning, public events and community voices in one trusted place.</p>
+      <div class="hero-actions">
+        <a routerLink="/login">Join the community <svg lucideArrowRight></svg></a>
+        <a class="secondary" routerLink="/library"><svg lucideBookOpen></svg> Open library</a>
+      </div>
+    </div>
+    <a class="hero-credit" href="https://commons.wikimedia.org/wiki/File:Dr_Ambedkar.jpg" target="_blank" rel="noopener">Photo: Wikimedia Commons</a>
+  </header>
+
+  <p class="content-error" *ngIf="contentError">{{ contentError }}</p>
+
+  <section id="leaders" class="community-section leaders-band" data-community-section="leaders">
+    <header class="section-heading">
+      <div><span>Leadership archive</span><h2>People who shaped public life</h2><p>Explore their work, departments, contributions and community perspectives.</p></div>
+      <div class="rail-controls">
+        <button type="button" title="Previous leaders" aria-label="Previous leaders" (click)="scrollLeaders(-1)"><svg lucideChevronLeft></svg></button>
+        <button type="button" title="Next leaders" aria-label="Next leaders" (click)="scrollLeaders(1)"><svg lucideChevronRight></svg></button>
+      </div>
+    </header>
+    <div class="leader-rail" #leaderRail (mouseenter)="pauseLeaderRotation()" (mouseleave)="startLeaderRotation()" (focusin)="pauseLeaderRotation()" (focusout)="startLeaderRotation()">
+      <a class="leader-card" *ngFor="let leader of leaders; let i = index" [attr.data-leader-index]="i" [routerLink]="['/leaders', leader.id]">
+        <img [src]="leader.imageUrl" [alt]="leader.name" [style.object-position]="leader.imagePosition" />
+        <div><span>{{ leader.era }}</span><h3>{{ leader.name }}</h3><strong>{{ leader.role }}</strong><p>{{ leader.contribution }}</p><small>Read contribution and blogs <svg lucideArrowRight></svg></small></div>
+      </a>
+    </div>
+    <a class="section-link" routerLink="/leaders">View all leadership profiles <svg lucideArrowRight></svg></a>
+  </section>
+
+  <section id="blogs" class="community-section blogs-band" data-community-section="blogs">
+    <header class="section-heading">
+      <div><span>Community journal</span><h2>Ideas worth carrying forward</h2><p>Short editorial readings on constitutional values, representation, education and public service.</p></div>
+      <span class="section-count"><svg lucideNewspaper></svg>{{ blogPosts.length }} readings</span>
+    </header>
+    <div class="blog-layout">
+      <a class="featured-blog" [routerLink]="['/leaders', blogPosts[0].leaderId]" [queryParams]="{ article: blogPosts[0].articleIndex }">
+        <figure><img [src]="blogPosts[0].imageUrl" [alt]="blogPosts[0].leaderName" [style.object-position]="blogPosts[0].imagePosition" /></figure>
+        <div>
+          <span>Featured perspective</span>
+          <h3>{{ blogPosts[0].title }}</h3>
+          <p>{{ blogPosts[0].summary }}</p>
+          <small>{{ blogPosts[0].leaderName }} · {{ blogPosts[0].leaderRole }}</small>
+          <strong>Read article <svg lucideArrowRight></svg></strong>
+        </div>
+      </a>
+      <div class="blog-list">
+        <a *ngFor="let post of blogPosts | slice:1:5" [routerLink]="['/leaders', post.leaderId]" [queryParams]="{ article: post.articleIndex }">
+          <img [src]="post.imageUrl" [alt]="post.leaderName" [style.object-position]="post.imagePosition" />
+          <div><span>{{ post.leaderName }}</span><h3>{{ post.title }}</h3><p>{{ post.summary }}</p><small>Read article <svg lucideArrowRight></svg></small></div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section id="events" class="community-section events-band" data-community-section="events">
+    <header class="section-heading light-heading">
+      <div><span>Events and notices</span><h2>Meet, learn and participate</h2><p>Current dates and verified community announcements published by the admin team.</p></div>
+      <a class="outline-link" routerLink="/events">Full calendar <svg lucideArrowRight></svg></a>
+    </header>
+    <div class="event-layout">
+      <div class="event-list" *ngIf="scheduledEvents.length; else noEvents">
+        <article *ngFor="let event of scheduledEvents">
+          <time [attr.datetime]="event.eventAt"><strong>{{ event.eventAt | date:'dd' }}</strong><span>{{ event.eventAt | date:'MMM' }}</span></time>
+          <div><small>{{ event.eventAt | date:'EEEE, h:mm a' }}</small><h3>{{ event.title }}</h3><p>{{ event.summary }}</p><span><svg lucideMapPin></svg>{{ event.venue }}</span></div>
+        </article>
+      </div>
+      <ng-template #noEvents><div class="event-empty"><svg lucideCalendarDays></svg><p>No upcoming event is scheduled.</p></div></ng-template>
+      <aside class="notice-column">
+        <article *ngFor="let notice of notices | slice:0:3"><span>{{ notice.label }}</span><h3>{{ notice.title }}</h3><p>{{ notice.summary }}</p></article>
+      </aside>
+    </div>
+  </section>
+
+  <section id="gallery" class="community-section gallery-band" data-community-section="gallery">
+    <header class="section-heading">
+      <div><span>Community gallery</span><h2>Moments from the field</h2><p>Photos from workshops, meetings and public events.</p></div>
+      <span class="section-count"><svg lucideImages></svg>{{ galleryImages.length }} photos</span>
+    </header>
+    <div class="gallery-grid" *ngIf="galleryImages.length; else noGallery">
+      <figure *ngFor="let image of galleryImages | slice:0:8">
+        <img [src]="image.imageUrl" [alt]="image.title" loading="lazy" />
+        <figcaption><span>{{ image.eventTitle || 'SC Community Connect' }}</span><strong>{{ image.title }}</strong><p *ngIf="image.caption">{{ image.caption }}</p></figcaption>
+      </figure>
+    </div>
+    <ng-template #noGallery><div class="gallery-empty"><svg lucideImages></svg><p>Published event photos will appear here.</p></div></ng-template>
+  </section>
+
+  <section id="live" class="community-section live-band" data-community-section="live">
+    <header class="section-heading">
+      <div><span>Broadcast desk</span><h2>Live community conversations</h2><p>Podcasts and video sessions controlled from the admin broadcast desk.</p></div>
+      <span class="live-status" [class.on-air]="liveBroadcast"><i></i>{{ liveBroadcast ? 'On air now' : 'Currently off air' }}</span>
+    </header>
+    <div class="live-layout" *ngIf="liveBroadcast as live; else offAir">
+      <div class="live-player">
+        <iframe *ngIf="live.mediaType === 'YOUTUBE' && safeEmbedUrl" [src]="safeEmbedUrl" title="Live community video" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe>
+        <video *ngIf="live.mediaType === 'VIDEO'" [src]="live.mediaUrl" controls playsinline></video>
+        <div class="audio-stage" *ngIf="live.mediaType === 'PODCAST'"><svg lucideHeadphones></svg><strong>Live audio</strong><audio [src]="live.mediaUrl" controls></audio></div>
+      </div>
+      <article><span><i></i> Live</span><h3>{{ live.title }}</h3><strong>Hosted by {{ live.hostName }}</strong><p>{{ live.description }}</p><a routerLink="/live">Open broadcast desk <svg lucideArrowRight></svg></a></article>
+    </div>
+    <ng-template #offAir>
+      <div class="off-air">
+        <span><svg lucideRadio></svg></span>
+        <div><h3>The next programme will appear here automatically.</h3><p>Browse scheduled and completed podcasts and videos in the broadcast desk.</p></div>
+        <a routerLink="/live">View programmes <svg lucideArrowRight></svg></a>
+      </div>
+    </ng-template>
+  </section>
+</section>

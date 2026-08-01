@@ -1,0 +1,48 @@
+<section class="public-page live-page">
+  <header class="page-heading">
+    <div>
+      <p class="eyebrow">Community broadcast desk</p>
+      <h1>Live conversations</h1>
+      <p>Watch public video sessions and listen to podcasts published by the community administrator.</p>
+    </div>
+    <span class="connection-note"><i [class.on-air]="liveBroadcast"></i>{{ liveBroadcast ? 'On air now' : 'Checking live desk' }}</span>
+  </header>
+
+  <p class="error-state" *ngIf="error">{{ error }}</p>
+
+  <section class="live-stage" *ngIf="liveBroadcast as live; else offAir">
+    <div class="player">
+      <iframe *ngIf="live.mediaType === 'YOUTUBE' && safeEmbedUrl" [src]="safeEmbedUrl" title="Live community video" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+      <video *ngIf="live.mediaType === 'VIDEO'" [src]="live.mediaUrl" controls autoplay playsinline></video>
+      <div class="audio-player" *ngIf="live.mediaType === 'PODCAST'">
+        <svg lucideHeadphones aria-hidden="true"></svg><span>Live audio</span>
+        <audio [src]="live.mediaUrl" controls autoplay></audio>
+      </div>
+    </div>
+    <article class="live-copy">
+      <span class="live-badge"><i></i>Live</span>
+      <h2>{{ live.title }}</h2>
+      <strong>Hosted by {{ live.hostName }}</strong>
+      <p>{{ live.description }}</p>
+      <small>Playback status is controlled by the community admin.</small>
+    </article>
+  </section>
+
+  <ng-template #offAir>
+    <section class="off-air" *ngIf="!loading">
+      <div class="off-air-mark"><svg lucideRadio aria-hidden="true"></svg></div>
+      <div><span>Currently off air</span><h2>The next community broadcast will appear here.</h2><p>This page checks for a new live podcast or video automatically every ten seconds.</p></div>
+    </section>
+  </ng-template>
+
+  <section class="programme-section">
+    <div class="section-heading"><div><h2>Broadcast desk</h2><p>Scheduled, paused and completed programmes published by the admin.</p></div><span>{{ programmeArchive.length }} programmes</span></div>
+    <div class="programme-list" *ngIf="programmeArchive.length; else noProgrammes">
+      <article *ngFor="let item of programmeArchive">
+        <span class="programme-icon"><svg *ngIf="item.mediaType === 'PODCAST'" lucideHeadphones></svg><svg *ngIf="item.mediaType !== 'PODCAST'" lucideVideo></svg></span>
+        <div><span>{{ item.mediaType }} · {{ item.status }}</span><h2>{{ item.title }}</h2><p>{{ item.description }}</p><small><svg lucideClock3></svg>{{ item.scheduledAt ? (item.scheduledAt | date:'medium') : 'Published ' + (item.createdAt | date:'mediumDate') }}</small></div>
+      </article>
+    </div>
+    <ng-template #noProgrammes><div class="empty-state" *ngIf="!loading">No public broadcast has been published yet.</div></ng-template>
+  </section>
+</section>

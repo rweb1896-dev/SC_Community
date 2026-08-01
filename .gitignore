@@ -8,5 +8,6 @@
 frontend/.angular/
 frontend/dist/
 frontend/node_modules/
+frontend/artifacts/
 backend/target/
 *.log

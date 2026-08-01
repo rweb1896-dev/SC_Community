@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Category, Comment, Dashboard, InviteCode, Meeting, MeetingAudience, Message, Post, ProfessionalGroup, UserResponse, UserStatus } from './models';
+import { Broadcast, BroadcastMediaType, BroadcastStatus, Category, Comment, CommunityEvent, Dashboard, EventStatus, GalleryImage, InviteCode, Meeting, MeetingAudience, Message, Post, ProfessionalGroup, UserResponse, UserStatus } from './models';
 
 const API = '/api';
 
@@ -112,5 +112,86 @@ export class CommunityApiService {
 
   setProfessionalGroup(userId: number, professionalGroup: ProfessionalGroup) {
     return this.http.patch<UserResponse>(`${API}/admin/users/${userId}/professional-group`, { professionalGroup });
+  }
+
+  publicEvents() {
+    return this.http.get<CommunityEvent[]>(`${API}/public/events`);
+  }
+
+  publicBroadcasts() {
+    return this.http.get<Broadcast[]>(`${API}/public/broadcasts`);
+  }
+
+  publicGallery() {
+    return this.http.get<GalleryImage[]>(`${API}/public/gallery`);
+  }
+
+  adminEvents() {
+    return this.http.get<CommunityEvent[]>(`${API}/admin/content/events`);
+  }
+
+  createEvent(title: string, summary: string, venue: string, eventAt: string, registrationUrl: string) {
+    return this.http.post<CommunityEvent>(`${API}/admin/content/events`, {
+      title,
+      summary,
+      venue,
+      eventAt,
+      registrationUrl
+    });
+  }
+
+  updateEventStatus(eventId: number, status: EventStatus) {
+    return this.http.patch<CommunityEvent>(`${API}/admin/content/events/${eventId}/status`, { status });
+  }
+
+  deleteEvent(eventId: number) {
+    return this.http.delete<void>(`${API}/admin/content/events/${eventId}`);
+  }
+
+  adminBroadcasts() {
+    return this.http.get<Broadcast[]>(`${API}/admin/content/broadcasts`);
+  }
+
+  createBroadcast(
+    title: string,
+    description: string,
+    hostName: string,
+    mediaType: BroadcastMediaType,
+    mediaUrl: string,
+    scheduledAt?: string
+  ) {
+    return this.http.post<Broadcast>(`${API}/admin/content/broadcasts`, {
+      title,
+      description,
+      hostName,
+      mediaType,
+      mediaUrl,
+      scheduledAt: scheduledAt || null
+    });
+  }
+
+  updateBroadcastStatus(broadcastId: number, status: BroadcastStatus) {
+    return this.http.patch<Broadcast>(`${API}/admin/content/broadcasts/${broadcastId}/status`, { status });
+  }
+
+  deleteBroadcast(broadcastId: number) {
+    return this.http.delete<void>(`${API}/admin/content/broadcasts/${broadcastId}`);
+  }
+
+  adminGallery() {
+    return this.http.get<GalleryImage[]>(`${API}/admin/content/gallery`);
+  }
+
+  uploadGalleryImage(file: File, title: string, caption: string, eventId?: number) {
+    const body = new FormData();
+    body.append('file', file);
+    body.append('title', title);
+    if (caption.trim()) body.append('caption', caption.trim());
+    if (eventId) body.append('eventId', String(eventId));
+    return this.http.post<GalleryImage>(`${API}/admin/content/gallery`, body);
+  }
+
+  deleteGalleryImage(imageId: number) {
+    return this.http.delete<void>(`${API}/admin/content/gallery/${imageId}`);
   }
 }

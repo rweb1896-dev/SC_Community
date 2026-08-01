@@ -207,10 +207,10 @@
 .feed-hero {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 116px 112px;
+  grid-template-columns: minmax(0, 1fr) 126px 102px;
   gap: 12px;
   align-items: center;
-  min-height: 132px;
+  min-height: 164px;
   overflow: hidden;
   border: 0;
   padding: 16px;
@@ -221,21 +221,96 @@
 }
 
 .feed-hero h1 {
-  margin: 3px 0 7px;
-  font-size: 22px;
+  margin: 4px 0 2px;
+  font-size: 19px;
   line-height: 1.1;
 }
 
-.feed-hero blockquote {
-  margin: 0 0 4px;
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1.35;
+.feed-leader-copy {
+  display: grid;
+  align-content: center;
+  min-width: 0;
 }
 
-.feed-hero > div:first-child > span {
-  color: rgba(255, 255, 255, .76);
+.feed-leader-copy > strong {
+  color: #f4c55d;
+  font-size: 9px;
+}
+
+.feed-leader-copy > small {
+  overflow: hidden;
+  margin-top: 2px;
+  color: rgba(255, 255, 255, .7);
+  font-size: 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.feed-hero blockquote {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 8px 0 7px;
   font-size: 10px;
+  font-weight: 700;
+  line-height: 1.4;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.feed-leader-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.feed-leader-label > span {
+  border: 1px solid rgba(255, 255, 255, .25);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .1);
+  padding: 3px 6px;
+  color: #e7eaff;
+  font-size: 7px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.feed-leader-label > span.current {
+  background: rgba(29, 160, 120, .34);
+  color: #d8ffef;
+}
+
+.feed-leader-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.feed-leader-controls button {
+  display: grid;
+  width: 23px;
+  height: 23px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, .25);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .08);
+  color: #fff;
+  padding: 0;
+}
+
+.feed-leader-controls button:hover {
+  background: rgba(255, 255, 255, .18);
+}
+
+.feed-leader-controls svg {
+  width: 13px;
+  height: 13px;
+}
+
+.feed-leader-controls span {
+  min-width: 26px;
+  color: rgba(255, 255, 255, .72);
+  font-size: 8px;
+  text-align: center;
 }
 
 .eyebrow {
@@ -253,8 +328,8 @@
 
 .hero-portrait {
   position: relative;
-  width: 108px;
-  height: 122px;
+  width: 118px;
+  height: 146px;
   margin: 0;
   overflow: hidden;
   border: 3px solid rgba(255, 255, 255, .72);
@@ -265,7 +340,6 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 18%;
 }
 
 .hero-portrait figcaption {
@@ -279,6 +353,11 @@
   font-size: 8px;
   font-weight: 750;
   text-align: center;
+}
+
+.hero-portrait figcaption a {
+  color: #fff;
+  text-decoration: none;
 }
 
 .hero-stats {

@@ -1,0 +1,43 @@
+.library-totals { display: flex; gap: 8px; }
+.library-totals span { display: grid; min-width: 92px; justify-items: center; border: 1px solid #d8e0db; border-radius: 7px; background: #fff; padding: 10px; color: #77827c; font-size: 9px; font-weight: 750; }
+.library-totals strong { color: #2459c5; font-size: 21px; }
+.book-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.book-card { display: grid; grid-template-columns: 132px minmax(0, 1fr); gap: 18px; border: 1px solid #dce3df; border-radius: 8px; background: #fff; padding: 14px; box-shadow: 0 9px 24px rgba(29, 48, 39, .05); }
+.cover-link { color: inherit; text-decoration: none; }
+.digital-cover { position: relative; display: flex; width: 100%; aspect-ratio: 517 / 800; overflow: hidden; flex-direction: column; justify-content: space-between; border-radius: 5px; background: #2459c5; box-shadow: 0 10px 22px rgba(31, 42, 36, .2); color: #fff; padding: 14px 12px; }
+.digital-cover::after { position: absolute; right: -18px; bottom: 34px; left: -18px; height: 28px; border-top: 7px solid rgba(255,255,255,.72); border-bottom: 2px solid rgba(255,255,255,.42); content: ''; transform: rotate(-8deg); }
+.digital-cover[data-tone='TEAL'] { background: #087665; }
+.digital-cover[data-tone='GOLD'] { background: #d89a28; color: #1d2924; }
+.digital-cover[data-tone='CORAL'] { background: #b84e3f; }
+.digital-cover[data-tone='INK'] { background: #26352f; }
+.digital-cover[data-tone='GREEN'] { background: #47763f; }
+.digital-cover small, .digital-cover b, .digital-cover em, .digital-cover i { position: relative; z-index: 1; }
+.digital-cover small { font-size: 7px; font-weight: 900; text-transform: uppercase; }
+.digital-cover b { font-size: 15px; line-height: 1.15; overflow-wrap: anywhere; }
+.digital-cover em { font-size: 8px; font-style: normal; font-weight: 750; }
+.digital-cover i { position: absolute; right: 10px; bottom: 8px; font-size: 9px; font-style: normal; font-weight: 900; }
+.book-copy { display: flex; min-width: 0; flex-direction: column; padding: 4px 2px; }
+.book-format, .paid-label { display: inline-flex; width: max-content; align-items: center; gap: 5px; color: #147665; font-size: 9px; font-weight: 850; text-transform: uppercase; }
+.book-format svg, .paid-label svg { width: 13px; }
+.book-copy h2, .paid-card h2 { margin: 10px 0 4px; color: #233029; font-size: 17px; line-height: 1.25; }
+.book-copy > strong, .paid-card > div > strong { color: #3159b0; font-size: 10px; }
+.book-copy p, .paid-card p { margin: 12px 0; color: #69756e; font-size: 11px; line-height: 1.55; }
+.book-copy > a, .paid-card footer a { display: inline-flex; align-items: center; gap: 5px; margin-top: auto; color: #2459c5; font-size: 10px; font-weight: 850; text-decoration: none; }
+.book-copy > a svg, .paid-card footer svg { width: 13px; }
+.print-shelf { margin-top: 52px; }
+.paid-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.paid-card { display: grid; grid-template-columns: 142px minmax(0, 1fr); gap: 18px; border: 1px solid #dce3df; border-radius: 8px; background: #fff; padding: 14px; }
+.paid-card > a img { display: block; width: 100%; aspect-ratio: 517 / 800; border-radius: 5px; object-fit: cover; box-shadow: 0 10px 22px rgba(31, 42, 36, .2); }
+.paid-card > div { display: flex; min-width: 0; flex-direction: column; padding: 4px 2px; }
+.paid-card small { color: #79847e; font-size: 9px; line-height: 1.4; }
+.paid-card footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; border-top: 1px solid #e3e8e5; padding-top: 12px; }
+.paid-card footer b { color: #183c32; font-size: 16px; }
+@media (max-width: 900px) { .book-grid, .paid-grid { grid-template-columns: 1fr; } }
+@media (max-width: 560px) {
+  .library-totals { display: none; }
+  .book-card, .paid-card { grid-template-columns: 105px minmax(0, 1fr); gap: 13px; padding: 10px; }
+  .digital-cover { padding: 11px 9px; }
+  .digital-cover b { font-size: 11px; }
+  .book-copy h2, .paid-card h2 { font-size: 14px; }
+  .book-copy p, .paid-card p { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+}

@@ -6,6 +6,9 @@ export type MeetingAudience = 'ALL' | 'DOCTORS' | 'ENGINEERS' | 'EDUCATION' | 'S
 export type MeetingStatus = 'PENDING_APPROVAL' | 'LIVE' | 'REJECTED' | 'ENDED';
 export type OtpChannel = 'EMAIL' | 'MOBILE';
 export type OtpPurpose = 'SIGNUP_EMAIL' | 'SIGNUP_MOBILE' | 'PASSWORD_RESET';
+export type EventStatus = 'SCHEDULED' | 'CANCELLED' | 'COMPLETED';
+export type BroadcastMediaType = 'PODCAST' | 'VIDEO' | 'YOUTUBE';
+export type BroadcastStatus = 'DRAFT' | 'LIVE' | 'PAUSED' | 'ENDED';
 
 export interface AuthResponse {
   token: string;
@@ -126,4 +129,40 @@ export interface MeetingSignal {
   candidate?: string;
   sdpMid?: string;
   sdpMLineIndex?: number;
+}
+
+export interface CommunityEvent {
+  id: number;
+  title: string;
+  summary: string;
+  venue: string;
+  eventAt: string;
+  registrationUrl?: string;
+  status: EventStatus;
+  createdAt: string;
+}
+
+export interface Broadcast {
+  id: number;
+  title: string;
+  description: string;
+  hostName: string;
+  mediaType: BroadcastMediaType;
+  mediaUrl: string;
+  status: BroadcastStatus;
+  scheduledAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GalleryImage {
+  id: number;
+  eventId?: number;
+  eventTitle?: string;
+  title: string;
+  caption?: string;
+  imageUrl: string;
+  contentType: string;
+  sizeBytes: number;
+  createdAt: string;
 }

@@ -1,0 +1,60 @@
+<section class="public-page leaders-page">
+  <header class="page-heading">
+    <div>
+      <p class="eyebrow">People and public service</p>
+      <h1>Leadership archive</h1>
+      <p>Explore selected leaders across generations, their areas of work, public contributions and short editorial readings.</p>
+    </div>
+    <div class="archive-count"><strong>{{ leaders.length }}</strong><span>profiles</span></div>
+  </header>
+
+  <div class="leader-toolbar">
+    <div class="filter-group" aria-label="Filter leaders">
+      <button type="button" [class.active]="filter === 'ALL'" (click)="setFilter('ALL')">All</button>
+      <button type="button" [class.active]="filter === 'CURRENT'" (click)="setFilter('CURRENT')">Current</button>
+      <button type="button" [class.active]="filter === 'LEGACY'" (click)="setFilter('LEGACY')">Legacy</button>
+    </div>
+    <label class="leader-search">
+      <svg lucideSearch aria-hidden="true"></svg>
+      <input [(ngModel)]="query" placeholder="Search people or work" aria-label="Search leaders" />
+    </label>
+  </div>
+
+  <div class="rail-heading">
+    <div><h2>Browse profiles</h2><p>Scroll or use the arrow controls</p></div>
+    <div class="rail-controls">
+      <button type="button" title="Previous leaders" aria-label="Scroll leaders left" (click)="scrollLeaders(-1)"><svg lucideChevronLeft></svg></button>
+      <button type="button" title="Next leaders" aria-label="Scroll leaders right" (click)="scrollLeaders(1)"><svg lucideChevronRight></svg></button>
+    </div>
+  </div>
+
+  <div class="leader-rail" #leaderRail>
+    <a class="leader-card" *ngFor="let leader of visibleLeaders" [routerLink]="['/leaders', leader.id]">
+      <figure>
+        <img [src]="leader.imageUrl" [alt]="leader.name" [style.object-position]="leader.imagePosition" />
+        <span [class.current]="leader.era === 'CURRENT'">{{ leader.era === 'CURRENT' ? 'Current' : 'Legacy' }}</span>
+      </figure>
+      <div class="leader-card-copy">
+        <small>{{ leader.department }}</small>
+        <h2>{{ leader.name }}</h2>
+        <strong>{{ leader.role }}</strong>
+        <p>{{ leader.contribution }}</p>
+        <span class="open-profile">View contribution <svg lucideArrowRight aria-hidden="true"></svg></span>
+      </div>
+    </a>
+  </div>
+
+  <div class="empty-state" *ngIf="visibleLeaders.length === 0">No leader profile matches this search.</div>
+
+  <section class="contribution-index">
+    <div class="section-heading">
+      <div><h2>Contribution index</h2><p>A quick view of the public work covered in this archive.</p></div>
+    </div>
+    <a *ngFor="let leader of visibleLeaders" [routerLink]="['/leaders', leader.id]">
+      <img [src]="leader.imageUrl" [alt]="leader.name" [style.object-position]="leader.imagePosition" />
+      <span><strong>{{ leader.name }}</strong><small>{{ leader.role }}</small></span>
+      <p>{{ leader.contribution }}</p>
+      <svg lucideArrowRight aria-hidden="true"></svg>
+    </a>
+  </section>
+</section>

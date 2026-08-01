@@ -1,5 +1,5 @@
 <header class="topbar">
-  <a routerLink="/feed" class="brand">
+  <a routerLink="/community" class="brand" aria-label="Open SC Community Connect">
     <span class="mark">SC</span>
     <span class="brand-copy"><strong>Community</strong><small>Connect</small></span>
   </a>
@@ -11,7 +11,7 @@
   <button class="menu-toggle" type="button" aria-label="Toggle navigation" (click)="menuOpen = !menuOpen">
     <span></span><span></span><span></span>
   </button>
-  <nav *ngIf="auth.session$ | async as session" [class.open]="menuOpen">
+  <nav class="member-nav" *ngIf="auth.session$ | async as session" [class.open]="menuOpen">
     <a routerLink="/feed" routerLinkActive="active" (click)="closeMenu()"><svg lucideHouse aria-hidden="true"></svg><span>Home</span></a>
     <a routerLink="/chat" routerLinkActive="active" (click)="closeMenu()"><svg lucideMessageCircle aria-hidden="true"></svg><span>Messages</span></a>
     <a routerLink="/meetings" routerLinkActive="active" (click)="closeMenu()"><svg lucideVideo aria-hidden="true"></svg><span>Meetings</span></a>
@@ -33,6 +33,15 @@
       </section>
     </div>
     <button class="nav-logout" type="button" aria-label="Log out" title="Log out" (click)="logout()"><svg lucideLogOut aria-hidden="true"></svg></button>
+  </nav>
+  <nav class="public-nav" *ngIf="!(auth.session$ | async)" [class.open]="menuOpen">
+    <a [routerLink]="['/community']" fragment="leaders" [class.active]="isPublicSection('leaders')" (click)="selectPublicSection('leaders')"><svg lucideUsersRound aria-hidden="true"></svg><span>Leaders</span></a>
+    <a [routerLink]="['/community']" fragment="blogs" [class.active]="isPublicSection('blogs')" (click)="selectPublicSection('blogs')"><svg lucideNewspaper aria-hidden="true"></svg><span>Blogs</span></a>
+    <a [routerLink]="['/community']" fragment="events" [class.active]="isPublicSection('events')" (click)="selectPublicSection('events')"><svg lucideCalendarDays aria-hidden="true"></svg><span>Events</span></a>
+    <a [routerLink]="['/community']" fragment="gallery" [class.active]="isPublicSection('gallery')" (click)="selectPublicSection('gallery')"><svg lucideImages aria-hidden="true"></svg><span>Gallery</span></a>
+    <a routerLink="/library" routerLinkActive="active" (click)="closeMenu()"><svg lucideBookOpen aria-hidden="true"></svg><span>Library</span></a>
+    <a [routerLink]="['/community']" fragment="live" [class.active]="isPublicSection('live')" (click)="selectPublicSection('live')"><svg lucideRadio aria-hidden="true"></svg><span>Live</span></a>
+    <a class="sign-in-link" routerLink="/login" routerLinkActive="active" (click)="closeMenu()">Sign in</a>
   </nav>
 </header>
 

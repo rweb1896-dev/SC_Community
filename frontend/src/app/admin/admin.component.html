@@ -4,8 +4,40 @@
       <p class="eyebrow">Moderation console</p>
       <h1>Admin Panel</h1>
     </div>
-    <button class="btn" type="button" (click)="generateCode()">Generate Invite Code</button>
   </header>
+
+  <section class="panel invite-console">
+    <div class="invite-copy">
+      <p class="eyebrow">Member access</p>
+      <h2>Invite code</h2>
+      <span>Generate a single-use code and share it with a verified applicant.</span>
+    </div>
+
+    <div class="latest-code" *ngIf="latestCode; else noInviteCode">
+      <span>Latest available invite</span>
+      <strong>{{ latestCode.code }}</strong>
+      <button
+        class="copy-code"
+        type="button"
+        [title]="copiedCode === latestCode.code ? 'Copied' : 'Copy invite code'"
+        [attr.aria-label]="copiedCode === latestCode.code ? 'Invite code copied' : 'Copy invite code'"
+        (click)="copyInviteCode(latestCode.code)"
+      >
+        <svg *ngIf="copiedCode !== latestCode.code" lucideCopy aria-hidden="true"></svg>
+        <svg *ngIf="copiedCode === latestCode.code" lucideCheck aria-hidden="true"></svg>
+      </button>
+    </div>
+    <ng-template #noInviteCode>
+      <div class="latest-code empty"><span>No unused invite code yet</span></div>
+    </ng-template>
+
+    <button class="btn generate-code" type="button" [disabled]="generatingCode" (click)="generateCode()">
+      <svg lucidePlus aria-hidden="true"></svg>
+      {{ generatingCode ? 'Generating...' : 'Generate new code' }}
+    </button>
+  </section>
+
+  <p class="admin-error top-error" *ngIf="error">{{ error }}</p>
 
   <section class="stats" *ngIf="dashboard">
     <div class="panel stat"><strong>{{ dashboard.totalUsers }}</strong><span>Total Users</span></div>
@@ -13,6 +45,97 @@
     <div class="panel stat"><strong>{{ dashboard.verifiedUsers }}</strong><span>Verified</span></div>
     <div class="panel stat"><strong>{{ dashboard.blockedUsers }}</strong><span>Blocked</span></div>
     <div class="panel stat"><strong>{{ dashboard.activePosts }}</strong><span>Active Posts</span></div>
+  </section>
+
+  <section class="panel content-studio">
+    <header class="studio-heading">
+      <div><p class="eyebrow">Public publishing</p><h2>Content Studio</h2><span>Manage events, gallery photos and the live broadcast desk.</span></div>
+      <div class="studio-tabs" aria-label="Content type">
+        <button type="button" [class.active]="contentTab === 'events'" (click)="contentTab = 'events'"><svg lucideCalendarDays></svg>Events</button>
+        <button type="button" [class.active]="contentTab === 'broadcasts'" (click)="contentTab = 'broadcasts'"><svg lucideRadio></svg>Live media</button>
+        <button type="button" [class.active]="contentTab === 'gallery'" (click)="contentTab = 'gallery'"><svg lucideImages></svg>Gallery</button>
+      </div>
+    </header>
+
+    <div class="studio-layout" *ngIf="contentTab === 'events'">
+      <form class="studio-form" (ngSubmit)="createEvent()">
+        <div class="studio-form-heading"><strong>Publish an event</strong><span>It will appear immediately on Events &amp; Notices.</span></div>
+        <label>Event title<input name="eventTitle" maxlength="160" [(ngModel)]="eventForm.title" required /></label>
+        <label>Summary<textarea name="eventSummary" maxlength="1200" [(ngModel)]="eventForm.summary" required></textarea></label>
+        <div class="form-row"><label>Venue<input name="eventVenue" maxlength="180" [(ngModel)]="eventForm.venue" required /></label><label>Date and time<input name="eventAt" type="datetime-local" [(ngModel)]="eventForm.eventAt" required /></label></div>
+        <label>Registration URL <small>Optional</small><input name="registrationUrl" type="url" placeholder="https://" [(ngModel)]="eventForm.registrationUrl" /></label>
+        <button class="btn" type="submit" [disabled]="savingContent"><svg lucidePlus></svg>{{ savingContent ? 'Publishing...' : 'Publish event' }}</button>
+      </form>
+      <div class="studio-list">
+        <div class="studio-list-heading"><strong>Published events</strong><span>{{ events.length }} total</span></div>
+        <p class="studio-empty" *ngIf="events.length === 0">No event has been published.</p>
+        <article class="content-item" *ngFor="let event of events">
+          <span class="content-icon"><svg lucideCalendarDays></svg></span>
+          <div><span>{{ event.status }} · {{ event.eventAt | date:'medium' }}</span><strong>{{ event.title }}</strong><small>{{ event.venue }}</small></div>
+          <div class="icon-actions">
+            <button *ngIf="event.status !== 'COMPLETED'" type="button" title="Mark completed" (click)="setEventStatus(event, 'COMPLETED')"><svg lucideCheck></svg></button>
+            <button class="danger" type="button" title="Delete event" (click)="deleteEvent(event)"><svg lucideTrash2></svg></button>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <div class="studio-layout" *ngIf="contentTab === 'broadcasts'">
+      <form class="studio-form" (ngSubmit)="createBroadcast()">
+        <div class="studio-form-heading"><strong>Create a programme</strong><span>Add it first, then use Go live when ready.</span></div>
+        <label>Programme title<input name="broadcastTitle" maxlength="160" [(ngModel)]="broadcastForm.title" required /></label>
+        <label>Description<textarea name="broadcastDescription" maxlength="1200" [(ngModel)]="broadcastForm.description" required></textarea></label>
+        <div class="form-row"><label>Host name<input name="hostName" maxlength="120" [(ngModel)]="broadcastForm.hostName" required /></label><label>Media type<select name="mediaType" [(ngModel)]="broadcastForm.mediaType"><option value="YOUTUBE">YouTube</option><option value="VIDEO">Direct video</option><option value="PODCAST">Audio podcast</option></select></label></div>
+        <label>Media URL<input name="mediaUrl" type="url" placeholder="YouTube, MP4 or MP3 URL" [(ngModel)]="broadcastForm.mediaUrl" required /></label>
+        <label>Scheduled time <small>Optional</small><input name="scheduledAt" type="datetime-local" [(ngModel)]="broadcastForm.scheduledAt" /></label>
+        <button class="btn" type="submit" [disabled]="savingContent"><svg lucidePlus></svg>{{ savingContent ? 'Creating...' : 'Create programme' }}</button>
+      </form>
+      <div class="studio-list">
+        <div class="studio-list-heading"><strong>Broadcast queue</strong><span>{{ broadcasts.length }} programmes</span></div>
+        <p class="studio-empty" *ngIf="broadcasts.length === 0">No programme has been created.</p>
+        <article class="content-item broadcast-item" *ngFor="let broadcast of broadcasts" [class.live]="broadcast.status === 'LIVE'">
+          <span class="content-icon"><svg lucideRadio></svg></span>
+          <div><span>{{ broadcast.mediaType }} · {{ broadcast.status }}</span><strong>{{ broadcast.title }}</strong><small>{{ broadcast.hostName }}</small></div>
+          <div class="icon-actions">
+            <button *ngIf="broadcast.status !== 'LIVE' && broadcast.status !== 'ENDED'" type="button" title="Go live" (click)="setBroadcastStatus(broadcast, 'LIVE')"><svg lucidePlay></svg></button>
+            <button *ngIf="broadcast.status === 'LIVE'" type="button" title="Pause broadcast" (click)="setBroadcastStatus(broadcast, 'PAUSED')"><svg lucidePause></svg></button>
+            <button *ngIf="broadcast.status !== 'ENDED'" type="button" title="End broadcast" (click)="setBroadcastStatus(broadcast, 'ENDED')"><svg lucideSquare></svg></button>
+            <button class="danger" type="button" title="Delete programme" (click)="deleteBroadcast(broadcast)"><svg lucideTrash2></svg></button>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <div class="studio-layout" *ngIf="contentTab === 'gallery'">
+      <form class="studio-form" (ngSubmit)="uploadGalleryImage()">
+        <div class="studio-form-heading"><strong>Upload an event photo</strong><span>JPG or PNG, up to 8 MB.</span></div>
+        <label class="file-picker">
+          Photo
+          <input name="galleryFile" type="file" accept="image/jpeg,image/png" (change)="selectGalleryFile($event)" required />
+          <span><svg lucideUpload></svg>{{ galleryFileName || 'Choose image' }}</span>
+        </label>
+        <label>Photo title<input name="galleryTitle" maxlength="160" [(ngModel)]="galleryForm.title" required /></label>
+        <label>Caption <small>Optional</small><textarea name="galleryCaption" maxlength="500" [(ngModel)]="galleryForm.caption"></textarea></label>
+        <label>Related event <small>Optional</small>
+          <select name="galleryEvent" [(ngModel)]="galleryForm.eventId">
+            <option value="">General community photo</option>
+            <option *ngFor="let event of events" [ngValue]="event.id">{{ event.title }}</option>
+          </select>
+        </label>
+        <button class="btn" type="submit" [disabled]="savingContent || !galleryFile"><svg lucideUpload></svg>{{ savingContent ? 'Uploading...' : 'Publish photo' }}</button>
+      </form>
+      <div class="studio-list">
+        <div class="studio-list-heading"><strong>Published gallery</strong><span>{{ galleryImages.length }} photos</span></div>
+        <p class="studio-empty" *ngIf="galleryImages.length === 0">No gallery photo has been published.</p>
+        <article class="content-item gallery-admin-item" *ngFor="let image of galleryImages">
+          <img [src]="image.imageUrl" [alt]="image.title" />
+          <div><span>{{ image.eventTitle || 'Community gallery' }}</span><strong>{{ image.title }}</strong><small>{{ image.caption || (image.createdAt | date:'medium') }}</small></div>
+          <div class="icon-actions">
+            <button class="danger" type="button" title="Delete photo" (click)="deleteGalleryImage(image)"><svg lucideTrash2></svg></button>
+          </div>
+        </article>
+      </div>
+    </div>
   </section>
 
   <section class="panel block meeting-approvals">
@@ -23,7 +146,6 @@
       </div>
       <span class="request-count">{{ pendingMeetings.length }} pending</span>
     </div>
-    <p class="admin-error" *ngIf="error">{{ error }}</p>
     <div class="empty-approvals" *ngIf="pendingMeetings.length === 0">No meeting requests need review.</div>
     <article class="meeting-request" *ngFor="let meeting of pendingMeetings">
       <span class="meeting-avatar">{{ meeting.hostName.charAt(0) }}</span>
@@ -91,8 +213,18 @@
     <div class="panel block">
       <h2>Invite Codes</h2>
       <div class="code" *ngFor="let code of codes">
-        <strong>{{ code.code }}</strong>
+        <div><strong>{{ code.code }}</strong><small>{{ code.createdAt | date:'medium' }}</small></div>
         <span [class.used]="code.used">{{ code.used ? 'Used' : 'Available' }}</span>
+        <button
+          class="copy-code small"
+          type="button"
+          [title]="copiedCode === code.code ? 'Copied' : 'Copy invite code'"
+          [attr.aria-label]="'Copy invite code ' + code.code"
+          (click)="copyInviteCode(code.code)"
+        >
+          <svg *ngIf="copiedCode !== code.code" lucideCopy aria-hidden="true"></svg>
+          <svg *ngIf="copiedCode === code.code" lucideCheck aria-hidden="true"></svg>
+        </button>
       </div>
     </div>
   </section>

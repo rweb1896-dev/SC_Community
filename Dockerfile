@@ -11,7 +11,7 @@ COPY backend/pom.xml ./
 RUN mvn -B dependency:go-offline
 COPY backend/src ./src
 COPY --from=frontend-build /workspace/frontend/dist/frontend/browser ./src/main/resources/static
-RUN mvn -B clean package -DskipTests
+RUN mvn -B clean package
 
 FROM eclipse-temurin:17-jre-alpine
 RUN addgroup -S app && adduser -S app -G app

@@ -1,42 +1,53 @@
-<section class="auth-page">
-  <div class="intro">
-    <div class="intro-kicker"><span class="logo">SC</span><span>Trusted community network</span></div>
-    <h1>Build a stronger community, together.</h1>
-    <p>Verified community help, opportunities, business support, open forum posts, and direct messages.</p>
-    <div class="trust-points">
-      <span>Verified identity</span>
-      <span>Safer conversations</span>
-      <span>Private messaging</span>
+<section class="auth-page" [class.registering]="mode === 'register'">
+  <aside class="auth-visual" aria-label="SC Community Connect">
+    <img [src]="activeGallery?.imageUrl || '/assets/leaders/br-ambedkar.jpg'" [alt]="activeGallery?.title || 'Dr. B. R. Ambedkar'" />
+    <div class="visual-shade"></div>
+    <div class="visual-copy">
+      <span>{{ activeGallery?.eventTitle || 'SC Community Connect' }}</span>
+      <h1 *ngIf="activeGallery; else defaultVisualTitle" class="gallery-title">{{ activeGallery.title }}</h1>
+      <ng-template #defaultVisualTitle><h1>Community.<br />Knowledge.<br />Opportunity.</h1></ng-template>
+      <p>{{ activeGallery?.caption || 'A verified member network grounded in dignity, learning and public service.' }}</p>
+      <div class="visual-pagination" *ngIf="galleryImages.length > 1" aria-label="Event photo carousel">
+        <button *ngFor="let image of galleryImages; let i = index" type="button" [class.active]="i === activeGalleryIndex" [attr.aria-label]="'Show photo ' + (i + 1)" (click)="showGalleryImage(i)"></button>
+      </div>
     </div>
-    <blockquote>“Cultivation of mind should be the ultimate aim of human existence.”</blockquote>
-    <p class="credit">Dr. B. R. Ambedkar</p>
-  </div>
+    <a *ngIf="!activeGallery" class="photo-credit" href="https://commons.wikimedia.org/wiki/File:Dr_Ambedkar.jpg" target="_blank" rel="noopener">Photo: Wikimedia Commons</a>
+  </aside>
 
-  <div class="panel auth-panel">
+  <div class="panel auth-panel" [class.login-mode]="mode === 'login'" [class.register-mode]="mode === 'register'">
     <button *ngIf="mode === 'forgot'" class="back-button" type="button" (click)="setMode('login')">
       <svg lucideArrowLeft aria-hidden="true"></svg>
       Back to login
     </button>
 
     <div class="auth-heading">
-      <span class="eyebrow">{{ mode === 'forgot' ? 'Account recovery' : 'Welcome' }}</span>
+      <span *ngIf="mode !== 'login'" class="eyebrow">{{ mode === 'forgot' ? 'Account recovery' : 'Welcome' }}</span>
       <h2>
-        {{ mode === 'login' ? 'Sign in to your community' : mode === 'register' ? 'Create verified account' : 'Reset your password' }}
+        {{
+          mode === 'login'
+            ? 'Welcome Back'
+            : mode === 'register'
+              ? registerStep === 1
+                ? 'Create your profile'
+                : registerStep === 2
+                  ? 'Verify your details'
+                  : 'Secure your account'
+              : 'Reset your password'
+        }}
       </h2>
       <p>
         {{
           mode === 'login'
-            ? 'Continue where your community left off.'
+            ? 'Sign in to your account'
             : mode === 'register'
-              ? 'Email, mobile, invite code and ID proof are required.'
+              ? registerStep === 1
+                ? 'Start with the basic details your community will see.'
+                : registerStep === 2
+                  ? 'Confirm your email and mobile number with one-time codes.'
+                  : 'Add your invite, ID proof and a strong password.'
               : 'Verify your registered email or mobile number.'
         }}
       </p>
-    </div>
-
-    <div *ngIf="mode !== 'forgot'" class="tabs" aria-label="Authentication mode">
-      <button type="button" [class.active]="mode === 'login'" (click)="setMode('login')">Login</button>
-      <button type="button" [class.active]="mode === 'register'" (click)="setMode('register')">Sign Up</button>
     </div>
 
     <form *ngIf="mode === 'login'" (ngSubmit)="login()" #loginRef="ngForm" novalidate>
@@ -85,7 +96,21 @@
       </button>
     </form>
 
+    <p *ngIf="mode === 'login'" class="auth-switch">
+      Don't have an account?
+      <button type="button" (click)="setMode('register')">Sign Up</button>
+    </p>
+
     <form *ngIf="mode === 'register'" (ngSubmit)="register()" #registerRef="ngForm" novalidate>
+      <div class="registration-progress" aria-label="Sign-up progress">
+        <span [class.active]="registerStep >= 1"><b>1</b><small>Profile</small></span>
+        <i [class.active]="registerStep >= 2"></i>
+        <span [class.active]="registerStep >= 2"><b>2</b><small>Verify</small></span>
+        <i [class.active]="registerStep >= 3"></i>
+        <span [class.active]="registerStep >= 3"><b>3</b><small>Security</small></span>
+      </div>
+
+      <ng-container *ngIf="registerStep === 1">
       <div class="grid">
         <div class="field">
           <label for="full-name">Full name</label>
@@ -119,6 +144,14 @@
         </div>
       </div>
 
+      <div class="step-actions end">
+        <button class="btn" type="button" [disabled]="!canContinueProfile()" (click)="continueRegistration()">
+          Continue to verification
+        </button>
+      </div>
+      </ng-container>
+
+      <ng-container *ngIf="registerStep === 2">
       <div class="verification-card" [class.verified]="emailVerification.verified">
         <div class="verification-heading">
           <span class="verification-icon"><svg lucideMail aria-hidden="true"></svg></span>
@@ -234,6 +267,20 @@
         </div>
       </div>
 
+      <div class="step-actions">
+        <button class="btn secondary" type="button" (click)="backRegistration()">Back</button>
+        <button
+          class="btn"
+          type="button"
+          [disabled]="!emailVerification.verified || !phoneVerification.verified"
+          (click)="continueRegistration()"
+        >
+          Continue to security
+        </button>
+      </div>
+      </ng-container>
+
+      <ng-container *ngIf="registerStep === 3">
       <div class="grid">
         <div class="field">
           <label for="register-password">Password</label>
@@ -320,20 +367,19 @@
         <span [class.done]="registerForm.idProofUrl"><svg lucideShieldCheck aria-hidden="true"></svg>ID proof</span>
       </div>
 
-      <button
-        class="btn"
-        type="submit"
-        [disabled]="
-          loading ||
-          registerRef.invalid ||
-          !emailVerification.verified ||
-          !phoneVerification.verified ||
-          registerForm.password !== registerForm.confirmPassword
-        "
-      >
-        {{ loading ? 'Submitting...' : 'Submit for admin approval' }}
-      </button>
+      <div class="step-actions">
+        <button class="btn secondary" type="button" (click)="backRegistration()">Back</button>
+        <button class="btn" type="submit" [disabled]="loading || !canSubmitRegistration()">
+          {{ loading ? 'Submitting...' : 'Submit for admin approval' }}
+        </button>
+      </div>
+      </ng-container>
     </form>
+
+    <p *ngIf="mode === 'register'" class="auth-switch">
+      Already have an account?
+      <button type="button" (click)="setMode('login')">Login</button>
+    </p>
 
     <form *ngIf="mode === 'forgot'" class="forgot-form" #forgotRef="ngForm" novalidate>
       <div class="recovery-steps" aria-label="Password recovery progress">
@@ -451,4 +497,233 @@
       {{ message }}
     </p>
   </div>
+
+  <section
+    *ngIf="resourceSheetOpen"
+    class="resource-sheet-backdrop"
+    aria-label="Community resources"
+    (click)="closeResourceSheet()"
+  >
+    <div class="resource-sheet" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <header class="resource-sheet-header">
+        <div><span>SC Connect</span><strong>Community resources</strong></div>
+        <button type="button" title="Close resources" aria-label="Close resources" (click)="closeResourceSheet()">
+          <svg lucideX aria-hidden="true"></svg>
+        </button>
+      </header>
+      <ng-container *ngTemplateOutlet="resourceNavigation"></ng-container>
+      <div class="resource-sheet-body">
+        <ng-container *ngTemplateOutlet="resourceContent"></ng-container>
+      </div>
+    </div>
+  </section>
 </section>
+
+<ng-template #resourceNavigation>
+  <nav class="resource-tabs" aria-label="Community information" role="tablist">
+    <button type="button" role="tab" [class.active]="resourceView === 'about'" [attr.aria-selected]="resourceView === 'about'" (click)="setResourceView('about')">
+      <svg lucideInfo aria-hidden="true"></svg><span>About</span>
+    </button>
+    <button type="button" role="tab" [class.active]="resourceView === 'leaders'" [attr.aria-selected]="resourceView === 'leaders'" (click)="setResourceView('leaders')">
+      <svg lucideUsersRound aria-hidden="true"></svg><span>Leaders</span>
+    </button>
+    <button type="button" role="tab" [class.active]="resourceView === 'books'" [attr.aria-selected]="resourceView === 'books'" (click)="setResourceView('books')">
+      <svg lucideBookOpen aria-hidden="true"></svg><span>Books</span>
+    </button>
+    <button type="button" role="tab" [class.active]="resourceView === 'network'" [attr.aria-selected]="resourceView === 'network'" (click)="setResourceView('network')">
+      <svg lucideBuilding2 aria-hidden="true"></svg><span>Network</span>
+    </button>
+    <button type="button" role="tab" [class.active]="resourceView === 'notices'" [attr.aria-selected]="resourceView === 'notices'" (click)="setResourceView('notices')">
+      <svg lucideMegaphone aria-hidden="true"></svg><span>Notices</span>
+    </button>
+    <a class="help-link" href="mailto:help@scconnect.local">Help</a>
+  </nav>
+</ng-template>
+
+<ng-template #resourceContent>
+  <div *ngIf="resourceView === 'leaders'" class="leader-view">
+    <section class="leader-stage" aria-label="Community leader spotlight" aria-live="polite">
+      <figure class="leader-photo">
+        <img
+          [src]="activeLeader.imageUrl"
+          [alt]="activeLeader.name"
+          [style.object-position]="activeLeader.imagePosition"
+          width="520"
+          height="640"
+        />
+        <span class="era-badge" [class.current]="activeLeader.era === 'CURRENT'">
+          {{ activeLeader.era === 'CURRENT' ? 'Current leadership' : 'Legacy' }}
+        </span>
+      </figure>
+
+      <div class="leader-copy">
+        <span class="spotlight-label">Community voices</span>
+        <h1>Leadership that shaped equality.</h1>
+        <div class="leader-identity">
+          <h2>{{ activeLeader.name }}</h2>
+          <strong>{{ activeLeader.role }}</strong>
+          <span>{{ activeLeader.department }}</span>
+        </div>
+        <blockquote>{{ activeLeader.message }}</blockquote>
+        <div class="leader-footer">
+          <div class="leader-controls">
+            <button type="button" title="Previous leader" aria-label="Previous leader" (click)="previousLeader()">
+              <svg lucideChevronLeft aria-hidden="true"></svg>
+            </button>
+            <span>{{ activeLeaderIndex + 1 }} / {{ leaders.length }}</span>
+            <button type="button" title="Next leader" aria-label="Next leader" (click)="nextLeader()">
+              <svg lucideChevronRight aria-hidden="true"></svg>
+            </button>
+          </div>
+          <a [href]="activeLeader.photoSourceUrl" target="_blank" rel="noopener noreferrer">
+            Photo: {{ activeLeader.photoSourceLabel }}
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <div class="leader-rail" aria-label="Scroll through community leaders">
+      <button
+        *ngFor="let leader of leaders; let index = index"
+        type="button"
+        [class.active]="index === activeLeaderIndex"
+        [attr.aria-label]="'Show ' + leader.name"
+        [attr.aria-current]="index === activeLeaderIndex ? 'true' : null"
+        (click)="showLeader(index)"
+      >
+        <img [src]="leader.imageUrl" [alt]="leader.name" [style.object-position]="leader.imagePosition" />
+        <span><strong>{{ leader.name }}</strong><small>{{ leader.era === 'CURRENT' ? 'Current' : 'Legacy' }}</small></span>
+      </button>
+    </div>
+  </div>
+
+  <section *ngIf="resourceView === 'about'" class="resource-panel about-view" aria-labelledby="about-title">
+    <header class="resource-view-header">
+      <span class="resource-view-icon green"><svg lucideInfo aria-hidden="true"></svg></span>
+      <div><span>About us</span><h1 id="about-title">A trusted space for community progress.</h1></div>
+    </header>
+    <div class="about-copy">
+      <p>
+        SC Community Connect brings members together around education, constitutional awareness,
+        opportunity, public service and mutual support.
+      </p>
+      <strong>Our purpose</strong>
+      <p>
+        Make useful knowledge easier to reach, recognise people doing meaningful work and build
+        respectful connections across professions and generations.
+      </p>
+    </div>
+    <div class="principle-list" aria-label="Community principles">
+      <article><b>01</b><span><strong>Learn</strong><small>Books, history and constitutional knowledge</small></span></article>
+      <article><b>02</b><span><strong>Connect</strong><small>Members, social workers and organisations</small></span></article>
+      <article><b>03</b><span><strong>Contribute</strong><small>Respectful help, mentorship and public service</small></span></article>
+    </div>
+  </section>
+
+  <section *ngIf="resourceView === 'books'" class="resource-panel library-view" aria-labelledby="books-title">
+    <header class="library-header">
+      <div class="library-heading">
+        <span class="resource-view-icon blue"><svg lucideBookOpen aria-hidden="true"></svg></span>
+        <div><span>SC reading room</span><h1 id="books-title">Read, learn and carry the ideas forward.</h1></div>
+      </div>
+      <div class="library-summary" aria-label="Library collection summary">
+        <span><strong>{{ books.length }}</strong><small>Free PDFs</small></span>
+        <span><strong>{{ paidBooks.length }}</strong><small>Publisher editions</small></span>
+      </div>
+    </header>
+
+    <div class="library-scroll">
+      <section class="library-shelf" aria-labelledby="free-books-title">
+        <header class="shelf-heading">
+          <div><span>Open shelf</span><h2 id="free-books-title">Free public reading</h2></div>
+          <small>Official and institutional PDF sources</small>
+        </header>
+        <div class="library-grid">
+          <article *ngFor="let book of books; let index = index" class="library-book">
+            <a class="book-cover-link" [href]="book.pdfUrl" target="_blank" rel="noopener noreferrer" [attr.aria-label]="'Open ' + book.title + ' PDF'">
+              <span class="digital-cover" [attr.data-tone]="book.coverTone">
+                <small>SC Digital Library</small>
+                <b>{{ book.title }}</b>
+                <em>{{ book.author }}</em>
+                <i>{{ (index + 1).toString().padStart(2, '0') }}</i>
+              </span>
+            </a>
+            <div class="library-book-copy">
+              <span class="access-badge free">Free PDF</span>
+              <h3>{{ book.title }}</h3>
+              <strong>{{ book.author }}</strong>
+              <p>{{ book.summary }}</p>
+              <small>{{ book.source }} · {{ book.language }}</small>
+              <a class="library-action" [href]="book.pdfUrl" target="_blank" rel="noopener noreferrer">
+                <svg lucideFileText aria-hidden="true"></svg>Read PDF
+              </a>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="library-shelf paid-shelf" aria-labelledby="paid-books-title">
+        <header class="shelf-heading">
+          <div><span>Bookstore shelf</span><h2 id="paid-books-title">Publisher editions</h2></div>
+          <small>Printed and digital editions from publisher listings</small>
+        </header>
+        <div class="library-grid paid-grid">
+          <article *ngFor="let book of paidBooks" class="library-book paid-book">
+            <a class="book-cover-link" [href]="book.storeUrl" target="_blank" rel="noopener noreferrer" [attr.aria-label]="'View ' + book.title + ' publisher edition'">
+              <img class="publisher-cover" [src]="book.coverImageUrl" [alt]="book.title + ' cover'" />
+            </a>
+            <div class="library-book-copy">
+              <span class="access-badge paid">Paid edition</span>
+              <h3>{{ book.title }}</h3>
+              <strong>{{ book.author }}</strong>
+              <p>{{ book.summary }}</p>
+              <small>{{ book.format }} · {{ book.source }}</small>
+              <div class="paid-action-row">
+                <b>{{ book.price }}</b>
+                <a class="library-action paid-action" [href]="book.storeUrl" target="_blank" rel="noopener noreferrer">
+                  View edition<svg lucideExternalLink aria-hidden="true"></svg>
+                </a>
+              </div>
+            </div>
+          </article>
+        </div>
+        <p class="price-note">Publisher prices shown for reference and may change on the linked store.</p>
+      </section>
+    </div>
+  </section>
+
+  <section *ngIf="resourceView === 'network'" class="resource-panel" aria-labelledby="network-title">
+    <header class="resource-view-header compact">
+      <span class="resource-view-icon gold"><svg lucideBuilding2 aria-hidden="true"></svg></span>
+      <div><span>People and organisations</span><h1 id="network-title">Social action network</h1></div>
+    </header>
+    <div class="resource-list network-list">
+      <h2>Social workers</h2>
+      <a *ngFor="let worker of socialWorkers" class="network-row" [href]="worker.profileUrl" target="_blank" rel="noopener noreferrer">
+        <span class="person-initials">{{ worker.name.charAt(0) }}</span>
+        <span><strong>{{ worker.name }}</strong><small>{{ worker.role }}</small><p>{{ worker.focus }}</p></span>
+        <svg lucideExternalLink aria-hidden="true"></svg>
+      </a>
+      <h2>NGOs and community organisations</h2>
+      <a *ngFor="let organisation of organisations" class="network-row organisation-row" [href]="organisation.websiteUrl" target="_blank" rel="noopener noreferrer">
+        <span class="organisation-mark"><svg lucideBuilding2 aria-hidden="true"></svg></span>
+        <span><strong>{{ organisation.name }}</strong><small>{{ organisation.type }}</small><p>{{ organisation.focus }}</p></span>
+        <svg lucideExternalLink aria-hidden="true"></svg>
+      </a>
+    </div>
+  </section>
+
+  <section *ngIf="resourceView === 'notices'" class="resource-panel" aria-labelledby="notices-title">
+    <header class="resource-view-header compact">
+      <span class="resource-view-icon coral"><svg lucideMegaphone aria-hidden="true"></svg></span>
+      <div><span>Public notice board</span><h1 id="notices-title">Community notices</h1></div>
+      <b class="resource-count">{{ notices.length }} active</b>
+    </header>
+    <div class="resource-list notice-list">
+      <article *ngFor="let notice of notices" class="notice-row" [attr.data-tone]="notice.tone">
+        <span class="notice-marker"></span>
+        <span><small>{{ notice.label }}</small><strong>{{ notice.title }}</strong><p>{{ notice.summary }}</p></span>
+      </article>
+    </div>
+  </section>
+</ng-template>

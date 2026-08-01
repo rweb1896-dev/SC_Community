@@ -1,0 +1,46 @@
+.back-link { display: inline-flex; align-items: center; gap: 7px; margin-bottom: 22px; color: #3159b0; font-size: 12px; font-weight: 800; text-decoration: none; }
+.back-link svg { width: 16px; }
+.profile-layout { display: grid; grid-template-columns: minmax(280px, 440px) minmax(0, 1fr); min-height: 590px; overflow: hidden; border: 1px solid #dbe3de; border-radius: 8px; background: #fff; box-shadow: 0 16px 38px rgba(28, 45, 37, .07); }
+.profile-photo { display: grid; grid-template-rows: minmax(0, 1fr) auto; min-height: 0; margin: 0; background: #e2e8e4; }
+.profile-photo img { width: 100%; height: 100%; min-height: 0; object-fit: cover; }
+.profile-photo figcaption { background: #f2f5f3; padding: 9px 12px; color: #7b8580; font-size: 9px; }
+.profile-photo figcaption a { color: #3159b0; }
+.profile-copy { display: flex; flex-direction: column; justify-content: center; padding: clamp(32px, 6vw, 82px); }
+.era { width: max-content; border-radius: 999px; background: #e9f5f0; padding: 6px 9px; color: #0b7563; font-size: 9px; font-weight: 900; text-transform: uppercase; }
+.profile-copy h1 { margin: 15px 0 6px; color: #17231e; font-size: clamp(38px, 5vw, 64px); line-height: 1; letter-spacing: 0; }
+.profile-copy > strong { color: #2858b7; font-size: 15px; }
+.department { margin: 5px 0 26px; color: #738078; font-size: 11px; }
+.lead { max-width: 700px; margin: 0; color: #4f5d56; font-size: 15px; line-height: 1.75; }
+.profile-copy blockquote { margin: 30px 0; border-left: 3px solid #e1ac45; padding: 4px 0 4px 18px; color: #27342e; font-size: 18px; font-weight: 700; line-height: 1.55; }
+.profile-nav { display: flex; gap: 8px; }
+.profile-nav button { display: inline-flex; height: 38px; align-items: center; gap: 5px; border: 1px solid #d8e0db; border-radius: 6px; background: #fff; color: #3159b0; padding: 0 12px; font-size: 11px; font-weight: 800; }
+.profile-nav svg { width: 15px; }
+.impact-grid { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid #dbe3de; border-bottom: 1px solid #dbe3de; }
+.impact-grid article { min-height: 150px; border-right: 1px solid #dbe3de; padding: 24px; }
+.impact-grid article:last-child { border-right: 0; }
+.impact-grid span { color: #1a7767; font-size: 10px; font-weight: 900; text-transform: uppercase; }
+.impact-grid p { margin: 12px 0 0; color: #48564f; font-size: 13px; line-height: 1.65; }
+.reading-section { margin-top: 50px; }
+.reading-layout { display: grid; grid-template-columns: minmax(260px, .8fr) minmax(0, 1.4fr); gap: 28px; }
+.article-list { display: grid; align-content: start; gap: 7px; }
+.article-list button { display: grid; grid-template-columns: 30px minmax(0, 1fr) 18px; align-items: start; gap: 10px; border: 1px solid #dbe3de; border-radius: 7px; background: #fff; padding: 15px; color: #29362f; text-align: left; }
+.article-list button.active { border-color: #8fabe6; background: #edf3ff; }
+.article-list button > svg { width: 17px; color: #3159b0; }
+.article-list button > span { display: grid; gap: 5px; }
+.article-list strong { font-size: 12px; line-height: 1.35; }
+.article-list small { color: #6c7871; font-size: 9px; line-height: 1.5; }
+.article-reader { border-left: 1px solid #dbe3de; padding: 8px 0 20px 32px; }
+.article-reader > span { color: #1a7767; font-size: 9px; font-weight: 900; text-transform: uppercase; }
+.article-reader h2 { margin: 8px 0 7px; color: #1e2b25; font-size: 27px; }
+.article-reader p { color: #536159; font-size: 14px; line-height: 1.8; }
+.article-reader .article-summary { margin-top: 0; color: #3159b0; font-weight: 700; }
+@media (max-width: 800px) {
+  .profile-layout { grid-template-columns: 1fr; }
+  .profile-photo { height: 390px; }
+  .profile-copy { padding: 28px 22px; }
+  .profile-copy h1 { font-size: 38px; }
+  .impact-grid, .reading-layout { grid-template-columns: 1fr; }
+  .impact-grid article { min-height: auto; border-right: 0; border-bottom: 1px solid #dbe3de; }
+  .impact-grid article:last-child { border-bottom: 0; }
+  .article-reader { border-top: 1px solid #dbe3de; border-left: 0; padding: 26px 0 0; }
+}

@@ -4,8 +4,32 @@ import { adminGuard } from './core/admin.guard';
 
 export const routes: Routes = [
   {
+    path: 'community',
+    loadComponent: () => import('./public/community-home.component').then((module) => module.CommunityHomeComponent)
+  },
+  {
     path: 'login',
     loadComponent: () => import('./auth/login.component').then((module) => module.LoginComponent)
+  },
+  {
+    path: 'leaders',
+    loadComponent: () => import('./public/leaders.component').then((module) => module.LeadersComponent)
+  },
+  {
+    path: 'leaders/:leaderId',
+    loadComponent: () => import('./public/leader-detail.component').then((module) => module.LeaderDetailComponent)
+  },
+  {
+    path: 'library',
+    loadComponent: () => import('./public/library.component').then((module) => module.LibraryComponent)
+  },
+  {
+    path: 'events',
+    loadComponent: () => import('./public/events.component').then((module) => module.EventsComponent)
+  },
+  {
+    path: 'live',
+    loadComponent: () => import('./public/live.component').then((module) => module.LiveComponent)
   },
   {
     path: 'feed',
@@ -32,6 +56,6 @@ export const routes: Routes = [
     loadComponent: () => import('./admin/admin.component').then((module) => module.AdminComponent),
     canActivate: [authGuard, adminGuard]
   },
-  { path: '', pathMatch: 'full', redirectTo: 'feed' },
-  { path: '**', redirectTo: 'feed' }
+  { path: '', pathMatch: 'full', redirectTo: 'community' },
+  { path: '**', redirectTo: 'community' }
 ];

@@ -1,21 +1,41 @@
-import { Component } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
   LucideArrowLeft,
+  LucideBookOpen,
+  LucideBuilding2,
   LucideCheckCircle2,
+  LucideChevronLeft,
+  LucideChevronRight,
   LucideEye,
   LucideEyeOff,
+  LucideExternalLink,
+  LucideFileText,
+  LucideInfo,
   LucideMail,
+  LucideMegaphone,
   LucideShieldCheck,
-  LucideSmartphone
+  LucideSmartphone,
+  LucideUsersRound,
+  LucideX
 } from '@lucide/angular';
 import { AuthService } from '../core/auth.service';
-import { OtpChannel, OtpPurpose } from '../core/models';
+import { GalleryImage, OtpChannel, OtpPurpose } from '../core/models';
+import { CommunityApiService } from '../core/community-api.service';
+import { COMMUNITY_LEADERS } from '../core/community-leaders';
+import {
+  COMMUNITY_BOOKS,
+  COMMUNITY_NOTICES,
+  COMMUNITY_ORGANISATIONS,
+  PAID_COMMUNITY_BOOKS,
+  SOCIAL_WORKERS
+} from '../core/community-resources';
 
 type AuthMode = 'login' | 'register' | 'forgot';
 type MessageTone = 'error' | 'success' | 'info';
+type ResourceView = 'about' | 'leaders' | 'books' | 'network' | 'notices';
 
 interface VerificationState {
   requested: boolean;
@@ -33,18 +53,40 @@ interface VerificationState {
     CommonModule,
     FormsModule,
     LucideArrowLeft,
+    LucideBookOpen,
+    LucideBuilding2,
     LucideCheckCircle2,
+    LucideChevronLeft,
+    LucideChevronRight,
     LucideEye,
     LucideEyeOff,
+    LucideExternalLink,
+    LucideFileText,
+    LucideInfo,
     LucideMail,
+    LucideMegaphone,
     LucideShieldCheck,
-    LucideSmartphone
+    LucideSmartphone,
+    LucideUsersRound,
+    LucideX
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit, OnDestroy {
   mode: AuthMode = 'login';
+  registerStep: 1 | 2 | 3 = 1;
+  activeLeaderIndex = 0;
+  activeGalleryIndex = 0;
+  galleryImages: GalleryImage[] = [];
+  readonly leaders = COMMUNITY_LEADERS;
+  readonly books = COMMUNITY_BOOKS;
+  readonly paidBooks = PAID_COMMUNITY_BOOKS;
+  readonly socialWorkers = SOCIAL_WORKERS;
+  readonly organisations = COMMUNITY_ORGANISATIONS;
+  readonly notices = COMMUNITY_NOTICES;
+  resourceView: ResourceView = 'leaders';
+  resourceSheetOpen = false;
   loading = false;
   otpLoading = '';
   message = '';
@@ -79,16 +121,91 @@ export class LoginComponent {
     confirmPassword: '',
     developmentCode: ''
   };
+  private leaderTimer?: ReturnType<typeof setInterval>;
+  private galleryTimer?: ReturnType<typeof setInterval>;
 
-  constructor(private auth: AuthService, private router: Router) {}
+  constructor(private auth: AuthService, private router: Router, private api: CommunityApiService) {}
+
+  get activeLeader() {
+    return this.leaders[this.activeLeaderIndex];
+  }
+
+  get activeGallery(): GalleryImage | undefined {
+    return this.galleryImages[this.activeGalleryIndex];
+  }
+
+  ngOnInit(): void {
+    document.body.classList.add('auth-lock');
+    this.resumeLeaderRotation();
+    this.api.publicGallery().subscribe({
+      next: (images) => {
+        this.galleryImages = images;
+        this.activeGalleryIndex = 0;
+        this.startGalleryRotation();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    document.body.classList.remove('auth-lock');
+    this.pauseLeaderRotation();
+    this.pauseGalleryRotation();
+  }
+
+  showGalleryImage(index: number): void {
+    this.activeGalleryIndex = index;
+    this.startGalleryRotation();
+  }
+
+  private startGalleryRotation(): void {
+    this.pauseGalleryRotation();
+    if (this.galleryImages.length < 2) return;
+    this.galleryTimer = setInterval(() => {
+      this.activeGalleryIndex = (this.activeGalleryIndex + 1) % this.galleryImages.length;
+    }, 5500);
+  }
+
+  private pauseGalleryRotation(): void {
+    if (this.galleryTimer) clearInterval(this.galleryTimer);
+    this.galleryTimer = undefined;
+  }
 
   setMode(mode: AuthMode): void {
     this.mode = mode;
     this.loading = false;
     this.otpLoading = '';
     this.message = '';
+    if (mode === 'register') {
+      this.registerStep = 1;
+    }
     if (mode === 'forgot') {
       this.resetForgotFlow();
+    }
+  }
+
+  setResourceView(view: ResourceView): void {
+    this.resourceView = view;
+    if (view === 'leaders') {
+      this.resumeLeaderRotation();
+    } else {
+      this.pauseLeaderRotation();
+    }
+  }
+
+  openResourceSheet(view: ResourceView = 'books'): void {
+    this.resourceSheetOpen = true;
+    this.setResourceView(view);
+  }
+
+  closeResourceSheet(): void {
+    this.resourceSheetOpen = false;
+    this.resumeLeaderRotation();
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  closeResourcesOnEscape(event: KeyboardEvent): void {
+    if (event.key === 'Escape' && this.resourceSheetOpen) {
+      this.closeResourceSheet();
     }
   }
 
@@ -105,6 +222,10 @@ export class LoginComponent {
   }
 
   register(): void {
+    if (!this.canSubmitRegistration()) {
+      this.setMessage('Complete all registration steps before submitting your account.', 'error');
+      return;
+    }
     if (!this.emailVerification.verified || !this.phoneVerification.verified) {
       this.setMessage('Verify both email and mobile number before creating your account.', 'error');
       return;
@@ -124,6 +245,7 @@ export class LoginComponent {
           'success'
         );
         this.mode = 'login';
+        this.registerStep = 1;
         this.loading = false;
       },
       error: (error) => {
@@ -131,6 +253,76 @@ export class LoginComponent {
         this.loading = false;
       }
     });
+  }
+
+  continueRegistration(): void {
+    this.clearMessage();
+    if (this.registerStep === 1 && this.canContinueProfile()) {
+      this.registerStep = 2;
+      return;
+    }
+    if (this.registerStep === 2 && this.emailVerification.verified && this.phoneVerification.verified) {
+      this.registerStep = 3;
+    }
+  }
+
+  backRegistration(): void {
+    this.clearMessage();
+    if (this.registerStep > 1) {
+      this.registerStep = (this.registerStep - 1) as 1 | 2 | 3;
+    }
+  }
+
+  canContinueProfile(): boolean {
+    return this.registerForm.fullName.trim().length >= 2;
+  }
+
+  canSubmitRegistration(): boolean {
+    const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,72}$/.test(
+      this.registerForm.password
+    );
+    return (
+      this.canContinueProfile() &&
+      this.registerForm.inviteCode.trim().length > 0 &&
+      /^https?:\/\/\S+$/i.test(this.registerForm.idProofUrl.trim()) &&
+      this.emailVerification.verified &&
+      this.phoneVerification.verified &&
+      strongPassword &&
+      this.registerForm.password === this.registerForm.confirmPassword
+    );
+  }
+
+  showLeader(index: number): void {
+    this.activeLeaderIndex = (index + this.leaders.length) % this.leaders.length;
+    this.restartLeaderRotation();
+  }
+
+  previousLeader(): void {
+    this.showLeader(this.activeLeaderIndex - 1);
+  }
+
+  nextLeader(): void {
+    this.showLeader(this.activeLeaderIndex + 1);
+  }
+
+  pauseLeaderRotation(): void {
+    if (this.leaderTimer) {
+      clearInterval(this.leaderTimer);
+      this.leaderTimer = undefined;
+    }
+  }
+
+  resumeLeaderRotation(): void {
+    if (!this.leaderTimer) {
+      this.leaderTimer = setInterval(() => {
+        this.activeLeaderIndex = (this.activeLeaderIndex + 1) % this.leaders.length;
+      }, 6500);
+    }
+  }
+
+  private restartLeaderRotation(): void {
+    this.pauseLeaderRotation();
+    this.resumeLeaderRotation();
   }
 
   requestSignupOtp(channel: OtpChannel): void {

@@ -4,6 +4,7 @@
 **/.angular
 **/.vscode
 **/dist
+**/artifacts
 **/node_modules
 **/target
 **/*.log

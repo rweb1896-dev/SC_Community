@@ -2,15 +2,16 @@ import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { LucideBookOpen, LucideBriefcaseBusiness, LucideEllipsis, LucideHeartPulse, LucideHouse, LucideMessageCircle, LucideShare2, LucideShieldCheck, LucideSiren, LucideSquarePen, LucideStore, LucideThumbsUp, LucideUsersRound } from '@lucide/angular';
+import { LucideBookOpen, LucideBriefcaseBusiness, LucideChevronLeft, LucideChevronRight, LucideEllipsis, LucideHeartPulse, LucideHouse, LucideMessageCircle, LucideShare2, LucideShieldCheck, LucideSiren, LucideSquarePen, LucideStore, LucideThumbsUp, LucideUsersRound } from '@lucide/angular';
 import { Category, Comment, Post, UserResponse } from '../core/models';
 import { CommunityApiService } from '../core/community-api.service';
 import { AuthService } from '../core/auth.service';
+import { COMMUNITY_LEADERS } from '../core/community-leaders';
 
 @Component({
   selector: 'app-feed',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, LucideBookOpen, LucideBriefcaseBusiness, LucideEllipsis, LucideHeartPulse, LucideHouse, LucideMessageCircle, LucideShare2, LucideShieldCheck, LucideSiren, LucideSquarePen, LucideStore, LucideThumbsUp, LucideUsersRound],
+  imports: [CommonModule, FormsModule, RouterLink, LucideBookOpen, LucideBriefcaseBusiness, LucideChevronLeft, LucideChevronRight, LucideEllipsis, LucideHeartPulse, LucideHouse, LucideMessageCircle, LucideShare2, LucideShieldCheck, LucideSiren, LucideSquarePen, LucideStore, LucideThumbsUp, LucideUsersRound],
   templateUrl: './feed.component.html',
   styleUrl: './feed.component.css'
 })
@@ -30,6 +31,13 @@ export class FeedComponent implements OnInit, OnDestroy {
   composerOpen = false;
   showScrollTop = false;
   searchTerm = '';
+  activeLeaderIndex = 0;
+  readonly leaders = COMMUNITY_LEADERS;
+  private leaderTimer?: ReturnType<typeof setInterval>;
+
+  get activeLeader() {
+    return this.leaders[this.activeLeaderIndex];
+  }
 
   get visiblePosts(): Post[] {
     const query = this.searchTerm.trim().toLowerCase();
@@ -63,6 +71,7 @@ export class FeedComponent implements OnInit, OnDestroy {
       error: () => this.members = []
     });
     this.loadPosts();
+    this.leaderTimer = setInterval(() => this.rotateLeader(1), 6500);
   }
 
   loadPosts(categoryId?: number): void {
@@ -118,7 +127,14 @@ export class FeedComponent implements OnInit, OnDestroy {
     this.feedScroller?.nativeElement.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  ngOnDestroy(): void { document.body.classList.remove('feed-lock'); }
+  ngOnDestroy(): void {
+    document.body.classList.remove('feed-lock');
+    if (this.leaderTimer) clearInterval(this.leaderTimer);
+  }
+
+  rotateLeader(direction: number): void {
+    this.activeLeaderIndex = (this.activeLeaderIndex + direction + this.leaders.length) % this.leaders.length;
+  }
 
   toggleComments(postId: number): void {
     if (this.comments[postId]) {

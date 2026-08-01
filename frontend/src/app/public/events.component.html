@@ -1,0 +1,39 @@
+<section class="public-page events-page">
+  <header class="page-heading">
+    <div>
+      <p class="eyebrow">Notices and calendar</p>
+      <h1>What is happening</h1>
+      <p>Verified community announcements, upcoming programmes and registration details in one clear calendar.</p>
+    </div>
+  </header>
+
+  <p class="error-state" *ngIf="error">{{ error }}</p>
+
+  <section class="events-section">
+    <div class="section-heading"><div><h2>Upcoming events</h2><p>Dates and venues are published by the community administrator.</p></div><span>{{ scheduledEvents.length }} scheduled</span></div>
+    <div class="event-list" *ngIf="!loading && scheduledEvents.length; else eventEmpty">
+      <article *ngFor="let event of scheduledEvents">
+        <time [attr.datetime]="event.eventAt"><strong>{{ event.eventAt | date:'dd' }}</strong><span>{{ event.eventAt | date:'MMM' }}</span><small>{{ event.eventAt | date:'yyyy' }}</small></time>
+        <div class="event-copy">
+          <span>{{ event.eventAt | date:'EEEE, h:mm a' }}</span>
+          <h2>{{ event.title }}</h2>
+          <p>{{ event.summary }}</p>
+          <small><svg lucideMapPin aria-hidden="true"></svg>{{ event.venue }}</small>
+        </div>
+        <a *ngIf="event.registrationUrl" [href]="event.registrationUrl" target="_blank" rel="noopener">Register <svg lucideExternalLink></svg></a>
+      </article>
+    </div>
+    <ng-template #eventEmpty><div class="empty-state" *ngIf="!loading"><svg lucideCalendarDays></svg><p>No event has been scheduled yet.</p></div></ng-template>
+    <div class="loading-list" *ngIf="loading"><span></span><span></span></div>
+  </section>
+
+  <section class="notice-section">
+    <div class="section-heading"><div><h2>Community notices</h2><p>Important service, membership and safety updates.</p></div></div>
+    <div class="notice-grid">
+      <article *ngFor="let notice of notices" [attr.data-tone]="notice.tone">
+        <svg lucideMegaphone aria-hidden="true"></svg>
+        <span>{{ notice.label }}</span><h2>{{ notice.title }}</h2><p>{{ notice.summary }}</p>
+      </article>
+    </div>
+  </section>
+</section>

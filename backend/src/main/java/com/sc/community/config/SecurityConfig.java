@@ -18,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -44,11 +45,25 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .headers(headers -> headers
+                        .contentSecurityPolicy(csp -> csp.policyDirectives(
+                                "default-src 'self'; "
+                                        + "base-uri 'self'; object-src 'none'; frame-ancestors 'none'; "
+                                        + "script-src 'self'; style-src 'self' 'unsafe-inline'; "
+                                        + "img-src 'self' data: blob: https:; font-src 'self' data:; "
+                                        + "media-src 'self' blob: https:; "
+                                        + "frame-src https://www.youtube.com https://www.youtube-nocookie.com; "
+                                        + "connect-src 'self' ws: wss:; form-action 'self'"))
+                        .referrerPolicy(referrer -> referrer.policy(
+                                ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+                        .permissionsPolicyHeader(permissions -> permissions.policy(
+                                "camera=(self), microphone=(self), geolocation=()")))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/index.html", "/favicon.svg", "/assets/**", "/*.js", "/*.css",
-                                "/login", "/feed", "/chat", "/meetings", "/meetings/**", "/admin").permitAll()
-                        .requestMatchers("/api/auth/**", "/api/health", "/ws/**", "/ws-native/**").permitAll()
+                        .requestMatchers("/", "/error", "/index.html", "/favicon.svg", "/assets/**", "/*.js", "/*.css",
+                                "/community", "/login", "/leaders", "/leaders/**", "/library", "/events", "/live",
+                                "/feed", "/chat", "/meetings", "/meetings/**", "/admin").permitAll()
+                        .requestMatchers("/api/auth/**", "/api/health", "/api/public/**", "/ws/**", "/ws-native/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/meetings/**").authenticated()
                         .anyRequest().authenticated()
@@ -61,7 +76,10 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(allowedOrigins.split(",")));
+        configuration.setAllowedOrigins(List.of(allowedOrigins.split(",")).stream()
+                .map(String::trim)
+                .filter(value -> !value.isBlank())
+                .toList());
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

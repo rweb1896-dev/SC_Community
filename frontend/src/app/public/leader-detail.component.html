@@ -1,0 +1,48 @@
+<section class="public-page leader-detail" *ngIf="leader">
+  <a class="back-link" routerLink="/leaders"><svg lucideArrowLeft aria-hidden="true"></svg>All leaders</a>
+
+  <div class="profile-layout">
+    <figure class="profile-photo">
+      <img [src]="leader.imageUrl" [alt]="leader.name" [style.object-position]="leader.imagePosition" />
+      <figcaption>Photo: <a [href]="leader.photoSourceUrl" target="_blank" rel="noopener">{{ leader.photoSourceLabel }}</a></figcaption>
+    </figure>
+    <article class="profile-copy">
+      <span class="era">{{ leader.era === 'CURRENT' ? 'Current leadership' : 'Leadership legacy' }}</span>
+      <h1>{{ leader.name }}</h1>
+      <strong>{{ leader.role }}</strong>
+      <p class="department">{{ leader.department }}</p>
+      <p class="lead">{{ leader.overview }}</p>
+      <blockquote>{{ leader.message }}</blockquote>
+      <div class="profile-nav">
+        <button type="button" (click)="move(-1)"><svg lucideChevronLeft></svg>Previous</button>
+        <button type="button" (click)="move(1)">Next<svg lucideChevronRight></svg></button>
+      </div>
+    </article>
+  </div>
+
+  <section class="impact-section">
+    <div class="section-heading"><div><h2>Public contribution</h2><p>{{ leader.contribution }}</p></div></div>
+    <div class="impact-grid">
+      <article *ngFor="let item of leader.highlights"><span>{{ item.label }}</span><p>{{ item.text }}</p></article>
+    </div>
+  </section>
+
+  <section id="profile-blogs" class="reading-section">
+    <div class="section-heading"><div><h2>Blogs and perspectives</h2><p>Short editorial readings on the ideas and public work connected to this profile.</p></div></div>
+    <div class="reading-layout">
+      <nav class="article-list" aria-label="Profile articles">
+        <button *ngFor="let article of leader.articles; let index = index" type="button" [class.active]="selectedArticle === index" (click)="selectedArticle = index">
+          <svg lucideBookOpen aria-hidden="true"></svg>
+          <span><strong>{{ article.title }}</strong><small>{{ article.summary }}</small></span>
+          <svg lucideArrowRight aria-hidden="true"></svg>
+        </button>
+      </nav>
+      <article class="article-reader">
+        <span>Editorial note</span>
+        <h2>{{ leader.articles[selectedArticle].title }}</h2>
+        <p class="article-summary">{{ leader.articles[selectedArticle].summary }}</p>
+        <p *ngFor="let paragraph of leader.articles[selectedArticle].body">{{ paragraph }}</p>
+      </article>
+    </div>
+  </section>
+</section>

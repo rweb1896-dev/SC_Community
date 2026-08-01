@@ -36,16 +36,40 @@
       </button>
     </section>
 
-    <section class="feed-hero panel inspiration-card">
-      <div>
-        <p class="eyebrow">Daily inspiration</p>
-        <h1>{{ selectedCategoryName() }}</h1>
-        <blockquote><span class="quote-mark">“</span>Be educated, be organized and be agitated.</blockquote>
-        <span>Dr. B. R. Ambedkar</span>
+    <section class="feed-hero panel inspiration-card" aria-label="Community leader spotlight" aria-live="polite">
+      <div class="feed-leader-copy">
+        <div class="feed-leader-label">
+          <p class="eyebrow">Community leader</p>
+          <span [class.current]="activeLeader.era === 'CURRENT'">
+            {{ activeLeader.era === 'CURRENT' ? 'Current' : 'Legacy' }}
+          </span>
+        </div>
+        <h1>{{ activeLeader.name }}</h1>
+        <strong>{{ activeLeader.role }}</strong>
+        <small>{{ activeLeader.department }}</small>
+        <blockquote>{{ activeLeader.message }}</blockquote>
+        <div class="feed-leader-controls">
+          <button type="button" title="Previous leader" aria-label="Previous leader" (click)="rotateLeader(-1)">
+            <svg lucideChevronLeft aria-hidden="true"></svg>
+          </button>
+          <span>{{ activeLeaderIndex + 1 }} / {{ leaders.length }}</span>
+          <button type="button" title="Next leader" aria-label="Next leader" (click)="rotateLeader(1)">
+            <svg lucideChevronRight aria-hidden="true"></svg>
+          </button>
+        </div>
       </div>
       <figure class="hero-portrait">
-        <img src="/assets/ambedkar-color.jpg" alt="Dr. B. R. Ambedkar" width="434" height="520" loading="eager" />
-        <figcaption>Dr. B. R. Ambedkar</figcaption>
+        <img
+          [src]="activeLeader.imageUrl"
+          [alt]="activeLeader.name"
+          [style.object-position]="activeLeader.imagePosition"
+          width="434"
+          height="520"
+          loading="eager"
+        />
+        <figcaption>
+          <a [href]="activeLeader.photoSourceUrl" target="_blank" rel="noopener noreferrer">Photo source</a>
+        </figcaption>
       </figure>
       <div class="hero-stats">
         <div><strong>{{ posts.length }}</strong><span>Active posts</span></div>

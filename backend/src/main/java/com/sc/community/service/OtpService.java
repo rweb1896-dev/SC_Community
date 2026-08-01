@@ -41,7 +41,7 @@ public class OtpService {
             OtpChallengeRepository challengeRepository,
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            @Value("${app.otp.fixed-code:1SC2}") String fixedCode,
+            @Value("${app.otp.fixed-code:}") String fixedCode,
             @Value("${app.otp.expose-code:true}") boolean exposeCode,
             @Value("${app.otp.expiry-minutes:10}") long expiryMinutes,
             @Value("${app.otp.resend-cooldown-seconds:30}") long resendCooldownSeconds) {
