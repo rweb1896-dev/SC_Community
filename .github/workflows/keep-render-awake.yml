@@ -1,0 +1,16 @@
+name: Keep Render Service Warm
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Ping Render health endpoint
+        run: |
+          curl --fail --silent --show-error --max-time 120 \
+            https://sc-community-connect.onrender.com/api/health
