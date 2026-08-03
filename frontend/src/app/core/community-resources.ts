@@ -48,8 +48,8 @@ export const COMMUNITY_BOOKS: readonly CommunityBook[] = [
     author: 'Dr. B. R. Ambedkar',
     summary: 'Volume 1 of the official collected writings, including Castes in India and Annihilation of Caste.',
     language: 'English',
-    source: 'Dr. Ambedkar Foundation',
-    pdfUrl: 'https://drambedkarwritings.gov.in/upload/uploadfiles/files/Volume_01.pdf',
+    source: 'Ministry of External Affairs',
+    pdfUrl: 'https://www.mea.gov.in/images/CPV/Volume1.pdf',
     coverTone: 'BLUE'
   },
   {
@@ -58,8 +58,8 @@ export const COMMUNITY_BOOKS: readonly CommunityBook[] = [
     author: 'Dr. B. R. Ambedkar',
     summary: 'An official volume from the Government of India digital collection of Ambedkar writings and speeches.',
     language: 'English',
-    source: 'Dr. Ambedkar Foundation',
-    pdfUrl: 'https://drambedkarwritings.gov.in/upload/uploadfiles/files/Volume_03.pdf',
+    source: 'Ministry of External Affairs',
+    pdfUrl: 'https://www.mea.gov.in/images/CPV/Volume3.pdf',
     coverTone: 'TEAL'
   },
   {
@@ -68,8 +68,8 @@ export const COMMUNITY_BOOKS: readonly CommunityBook[] = [
     author: 'Dr. B. R. Ambedkar',
     summary: 'Volume 7 brings together two major historical studies of caste and untouchability.',
     language: 'English',
-    source: 'Dr. Ambedkar Foundation',
-    pdfUrl: 'https://drambedkarwritings.gov.in/upload/uploadfiles/files/Volume_07.pdf',
+    source: 'Ministry of External Affairs',
+    pdfUrl: 'https://www.mea.gov.in/images/CPV/Volume7.pdf',
     coverTone: 'GOLD'
   },
   {
@@ -78,8 +78,8 @@ export const COMMUNITY_BOOKS: readonly CommunityBook[] = [
     author: 'Government of Maharashtra',
     summary: 'Speeches, correspondence and source material documenting Ambedkar\'s work for an equal society.',
     language: 'English',
-    source: 'Dr. Ambedkar Foundation',
-    pdfUrl: 'https://www.drambedkarwritings.gov.in/upload/uploadfiles/files/Volume_17_01.pdf',
+    source: 'Ministry of External Affairs',
+    pdfUrl: 'https://www.mea.gov.in/images/CPV/Volume17_Part_I.pdf',
     coverTone: 'CORAL'
   },
   {

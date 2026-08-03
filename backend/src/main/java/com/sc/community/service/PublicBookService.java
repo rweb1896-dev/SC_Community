@@ -98,16 +98,16 @@ public class PublicBookService {
         return Map.ofEntries(
                 entry("ambedkar-volume-01", new BookSource(
                         "Annihilation of Caste and Other Writings.pdf",
-                        "https://drambedkarwritings.gov.in/upload/uploadfiles/files/Volume_01.pdf")),
+                        "https://www.mea.gov.in/images/CPV/Volume1.pdf")),
                 entry("ambedkar-volume-03", new BookSource(
                         "Dr. Babasaheb Ambedkar Writings and Speeches Vol. 3.pdf",
-                        "https://drambedkarwritings.gov.in/upload/uploadfiles/files/Volume_03.pdf")),
+                        "https://www.mea.gov.in/images/CPV/Volume3.pdf")),
                 entry("ambedkar-volume-07", new BookSource(
                         "Who Were the Shudras and The Untouchables.pdf",
-                        "https://drambedkarwritings.gov.in/upload/uploadfiles/files/Volume_07.pdf")),
+                        "https://www.mea.gov.in/images/CPV/Volume7.pdf")),
                 entry("ambedkar-volume-17-01", new BookSource(
                         "Dr. B. R. Ambedkar and His Egalitarian Revolution.pdf",
-                        "https://www.drambedkarwritings.gov.in/upload/uploadfiles/files/Volume_17_01.pdf")),
+                        "https://www.mea.gov.in/images/CPV/Volume17_Part_I.pdf")),
                 entry("constitution-2024", new BookSource(
                         "The Constitution of India 2024 Edition.pdf",
                         "https://lddashboard.legislative.gov.in/sites/default/files/coi/COI_2024.pdf")),
