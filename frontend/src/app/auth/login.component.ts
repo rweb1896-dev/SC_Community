@@ -27,6 +27,7 @@ import { CommunityApiService } from '../core/community-api.service';
 import { COMMUNITY_LEADERS } from '../core/community-leaders';
 import {
   COMMUNITY_BOOKS,
+  type CommunityBook,
   COMMUNITY_NOTICES,
   COMMUNITY_ORGANISATIONS,
   PAID_COMMUNITY_BOOKS,
@@ -132,6 +133,10 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   get activeGallery(): GalleryImage | undefined {
     return this.galleryImages[this.activeGalleryIndex];
+  }
+
+  pdfHref(book: CommunityBook): string {
+    return `/api/public/books/${encodeURIComponent(book.id)}/pdf`;
   }
 
   ngOnInit(): void {

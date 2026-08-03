@@ -640,7 +640,7 @@
         </header>
         <div class="library-grid">
           <article *ngFor="let book of books; let index = index" class="library-book">
-            <a class="book-cover-link" [href]="book.pdfUrl" target="_blank" rel="noopener noreferrer" [attr.aria-label]="'Open ' + book.title + ' PDF'">
+            <a class="book-cover-link" [href]="pdfHref(book)" target="_blank" rel="noopener noreferrer" [attr.aria-label]="'Open ' + book.title + ' PDF'">
               <span class="digital-cover" [attr.data-tone]="book.coverTone">
                 <small>SC Digital Library</small>
                 <b>{{ book.title }}</b>
@@ -654,9 +654,10 @@
               <strong>{{ book.author }}</strong>
               <p>{{ book.summary }}</p>
               <small>{{ book.source }} · {{ book.language }}</small>
-              <a class="library-action" [href]="book.pdfUrl" target="_blank" rel="noopener noreferrer">
+              <a class="library-action" [href]="pdfHref(book)" target="_blank" rel="noopener noreferrer">
                 <svg lucideFileText aria-hidden="true"></svg>Read PDF
               </a>
+              <small class="pdf-fallback">Reader issue? <a [href]="book.pdfUrl" target="_blank" rel="noopener noreferrer">Open official source</a>.</small>
             </div>
           </article>
         </div>

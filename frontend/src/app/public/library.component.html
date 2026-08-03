@@ -12,7 +12,7 @@
     <div class="section-heading"><div><h2>Open digital collection</h2><p>Official and institutional PDFs available without payment.</p></div><span>Opens in a new tab</span></div>
     <div class="book-grid">
       <article class="book-card" *ngFor="let book of books">
-        <a class="cover-link" [href]="book.pdfUrl" target="_blank" rel="noopener">
+        <a class="cover-link" [href]="pdfHref(book)" target="_blank" rel="noopener">
           <span class="digital-cover" [attr.data-tone]="book.coverTone">
             <small>{{ book.source }}</small><b>{{ book.title }}</b><em>{{ book.author }}</em><i>PDF</i>
           </span>
@@ -22,7 +22,8 @@
           <h2>{{ book.title }}</h2>
           <strong>{{ book.author }}</strong>
           <p>{{ book.summary }}</p>
-          <a [href]="book.pdfUrl" target="_blank" rel="noopener">Read PDF <svg lucideExternalLink></svg></a>
+          <a [href]="pdfHref(book)" target="_blank" rel="noopener">Read PDF <svg lucideExternalLink></svg></a>
+          <small class="pdf-fallback">Reader issue? <a [href]="book.pdfUrl" target="_blank" rel="noopener">Open official source</a>.</small>
         </div>
       </article>
     </div>

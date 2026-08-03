@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { LucideExternalLink, LucideFileText, LucideShoppingBag } from '@lucide/angular';
-import { COMMUNITY_BOOKS, PAID_COMMUNITY_BOOKS } from '../core/community-resources';
+import { COMMUNITY_BOOKS, type CommunityBook, PAID_COMMUNITY_BOOKS } from '../core/community-resources';
 
 @Component({
   selector: 'app-library',
@@ -13,4 +13,8 @@ import { COMMUNITY_BOOKS, PAID_COMMUNITY_BOOKS } from '../core/community-resourc
 export class LibraryComponent {
   readonly books = COMMUNITY_BOOKS;
   readonly paidBooks = PAID_COMMUNITY_BOOKS;
+
+  pdfHref(book: CommunityBook): string {
+    return `/api/public/books/${encodeURIComponent(book.id)}/pdf`;
+  }
 }

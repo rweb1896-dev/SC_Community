@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth.guard';
 import { adminGuard } from './core/admin.guard';
+import { guestGuard } from './core/guest.guard';
 
 export const routes: Routes = [
   {
@@ -9,7 +10,8 @@ export const routes: Routes = [
   },
   {
     path: 'login',
-    loadComponent: () => import('./auth/login.component').then((module) => module.LoginComponent)
+    loadComponent: () => import('./auth/login.component').then((module) => module.LoginComponent),
+    canActivate: [guestGuard]
   },
   {
     path: 'leaders',

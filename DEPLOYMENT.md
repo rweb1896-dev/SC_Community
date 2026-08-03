@@ -72,6 +72,8 @@ BOOTSTRAP_DEFAULT_INVITE_ENABLED=false
 BOOTSTRAP_SAMPLE_CONTENT_ENABLED=false
 CORS_ALLOWED_ORIGINS
 DB_POOL_SIZE=2
+SPRING_JPA_HIBERNATE_DDL_AUTO=validate
+SPRING_SQL_INIT_MODE=never
 PORT=10000
 ```
 
@@ -92,7 +94,7 @@ Member post images and ID proof references still use URLs. Store sensitive ID do
 - Use a strong `JWT_SECRET`.
 - Change `APP_ADMIN_PASSWORD` before first production startup.
 - Connect a real email/SMS OTP provider before public sign-up; production must keep `APP_OTP_CODE` empty and `APP_OTP_EXPOSE_CODE=false`.
-- Replace `ddl-auto=update` with versioned database migrations before the first stable production release.
+- Keep production on `SPRING_JPA_HIBERNATE_DDL_AUTO=validate` and `SPRING_SQL_INIT_MODE=never`; use versioned migrations before changing the live schema.
 - Add centralized error monitoring and an external rate limit for authentication endpoints.
 - Keep Neon password only in Render environment variables.
 - Confirm `/api/health` returns `UP`.

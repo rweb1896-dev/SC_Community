@@ -14,7 +14,7 @@ import {
 } from './models';
 
 const API = '/api';
-const SESSION_KEY = 'sc-connect-session';
+export const SESSION_KEY = 'sc-connect-session';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -25,6 +25,14 @@ export class AuthService {
 
   get session(): AuthResponse | null {
     return this.sessionSubject.value;
+  }
+
+  isAuthenticated(): boolean {
+    return this.session !== null;
+  }
+
+  isAdmin(): boolean {
+    return this.session?.role === 'ROLE_ADMIN';
   }
 
   register(payload: {
@@ -77,20 +85,64 @@ export class AuthService {
   login(email: string, password: string): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${API}/auth/login`, { email, password }).pipe(
       tap((session) => {
-        localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+        this.storage()?.setItem(SESSION_KEY, JSON.stringify(session));
         this.sessionSubject.next(session);
       })
     );
   }
 
   logout(): void {
-    localStorage.removeItem(SESSION_KEY);
+    this.clearSession(false);
+    this.router.navigateByUrl('/community');
+  }
+
+  clearSession(navigate = true): void {
+    this.storage()?.removeItem(SESSION_KEY);
     this.sessionSubject.next(null);
-    this.router.navigateByUrl('/login');
+    if (navigate && !this.router.url.startsWith('/login')) {
+      this.router.navigateByUrl('/login');
+    }
   }
 
   private restore(): AuthResponse | null {
-    const value = localStorage.getItem(SESSION_KEY);
-    return value ? JSON.parse(value) as AuthResponse : null;
+    const storage = this.storage();
+    if (!storage) return null;
+
+    try {
+      const value = storage.getItem(SESSION_KEY);
+      if (!value) return null;
+
+      const session = JSON.parse(value) as Partial<AuthResponse>;
+      if (!this.isUsableSession(session)) {
+        storage.removeItem(SESSION_KEY);
+        return null;
+      }
+      return session as AuthResponse;
+    } catch {
+      storage.removeItem(SESSION_KEY);
+      return null;
+    }
+  }
+
+  private isUsableSession(session: Partial<AuthResponse>): boolean {
+    if (!session.token || !session.email || typeof session.userId !== 'number' || !session.role) return false;
+    const parts = session.token.split('.');
+    if (parts.length !== 3) return false;
+
+    try {
+      const payload = JSON.parse(this.decodeBase64Url(parts[1])) as { exp?: number };
+      return typeof payload.exp === 'number' && payload.exp * 1000 > Date.now();
+    } catch {
+      return false;
+    }
+  }
+
+  private decodeBase64Url(value: string): string {
+    const base64 = value.replace(/-/g, '+').replace(/_/g, '/');
+    return atob(base64.padEnd(base64.length + (4 - base64.length % 4) % 4, '='));
+  }
+
+  private storage(): Storage | null {
+    return typeof localStorage === 'undefined' ? null : localStorage;
   }
 }

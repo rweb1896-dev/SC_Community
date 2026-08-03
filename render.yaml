@@ -28,3 +28,7 @@ services:
         value: false
       - key: DB_POOL_SIZE
         value: 2
+      - key: SPRING_JPA_HIBERNATE_DDL_AUTO
+        value: validate
+      - key: SPRING_SQL_INIT_MODE
+        value: never

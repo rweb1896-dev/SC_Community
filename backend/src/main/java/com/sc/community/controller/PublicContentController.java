@@ -3,6 +3,7 @@ package com.sc.community.controller;
 import com.sc.community.dto.PublicContentDtos.BroadcastResponse;
 import com.sc.community.dto.PublicContentDtos.EventResponse;
 import com.sc.community.dto.PublicContentDtos.GalleryImageResponse;
+import com.sc.community.service.PublicBookService;
 import com.sc.community.service.PublicContentService;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -20,9 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/public")
 public class PublicContentController {
+    private final PublicBookService bookService;
     private final PublicContentService contentService;
 
-    public PublicContentController(PublicContentService contentService) {
+    public PublicContentController(PublicBookService bookService, PublicContentService contentService) {
+        this.bookService = bookService;
         this.contentService = contentService;
     }
 
@@ -39,6 +42,19 @@ public class PublicContentController {
     @GetMapping("/gallery")
     public List<GalleryImageResponse> gallery() {
         return contentService.gallery();
+    }
+
+    @GetMapping("/books/{bookId}/pdf")
+    public ResponseEntity<byte[]> bookPdf(@PathVariable String bookId) {
+        PublicBookService.PdfData pdf = bookService.pdf(bookId);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .contentLength(pdf.sizeBytes())
+                .cacheControl(CacheControl.maxAge(Duration.ofHours(6)).cachePublic())
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition.inline().filename(pdf.fileName(), StandardCharsets.UTF_8).build().toString())
+                .header("X-Content-Type-Options", "nosniff")
+                .body(pdf.data());
     }
 
     @GetMapping("/gallery/{imageId}/image")

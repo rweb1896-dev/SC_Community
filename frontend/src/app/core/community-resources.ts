@@ -1,4 +1,5 @@
 export interface CommunityBook {
+  id: string;
   title: string;
   author: string;
   summary: string;
@@ -42,6 +43,7 @@ export interface CommunityNotice {
 
 export const COMMUNITY_BOOKS: readonly CommunityBook[] = [
   {
+    id: 'ambedkar-volume-01',
     title: 'Annihilation of Caste and Other Writings',
     author: 'Dr. B. R. Ambedkar',
     summary: 'Volume 1 of the official collected writings, including Castes in India and Annihilation of Caste.',
@@ -51,6 +53,7 @@ export const COMMUNITY_BOOKS: readonly CommunityBook[] = [
     coverTone: 'BLUE'
   },
   {
+    id: 'ambedkar-volume-03',
     title: 'Dr. Babasaheb Ambedkar: Writings and Speeches, Vol. 3',
     author: 'Dr. B. R. Ambedkar',
     summary: 'An official volume from the Government of India digital collection of Ambedkar writings and speeches.',
@@ -60,6 +63,7 @@ export const COMMUNITY_BOOKS: readonly CommunityBook[] = [
     coverTone: 'TEAL'
   },
   {
+    id: 'ambedkar-volume-07',
     title: 'Who Were the Shudras? / The Untouchables',
     author: 'Dr. B. R. Ambedkar',
     summary: 'Volume 7 brings together two major historical studies of caste and untouchability.',
@@ -69,6 +73,7 @@ export const COMMUNITY_BOOKS: readonly CommunityBook[] = [
     coverTone: 'GOLD'
   },
   {
+    id: 'ambedkar-volume-17-01',
     title: 'Dr. B. R. Ambedkar and His Egalitarian Revolution',
     author: 'Government of Maharashtra',
     summary: 'Speeches, correspondence and source material documenting Ambedkar\'s work for an equal society.',
@@ -78,6 +83,7 @@ export const COMMUNITY_BOOKS: readonly CommunityBook[] = [
     coverTone: 'CORAL'
   },
   {
+    id: 'constitution-2024',
     title: 'The Constitution of India, 2024 Edition',
     author: 'Legislative Department, Government of India',
     summary: 'The official constitutional text for reading fundamental rights, duties and democratic safeguards.',
@@ -87,12 +93,13 @@ export const COMMUNITY_BOOKS: readonly CommunityBook[] = [
     coverTone: 'INK'
   },
   {
-    title: 'Babu Jagjivan Ram: A Profile',
-    author: 'Babu Jagjivan Ram National Foundation',
-    summary: 'A biographical profile covering Jagjivan Ram\'s public life, parliamentary work and national service.',
+    id: 'jagjivan-ram-profile',
+    title: 'Selected Speeches of Babu Jagjivan Ram, Vol. 7',
+    author: 'Babu Jagjivan Ram',
+    summary: 'A verified public PDF volume of speeches and parliamentary perspectives from Jagjivan Ram\'s public life.',
     language: 'English',
-    source: 'Babu Jagjivan Ram Foundation',
-    pdfUrl: 'https://jagjivanramfoundation.nic.in/pdf/Speeches%20in%20Parliament/JAGJIVAN%20RAM-PROFILE.pdf',
+    source: 'Ministry of External Affairs',
+    pdfUrl: 'https://www.mea.gov.in/images/CPV/VolumeH7.pdf',
     coverTone: 'GREEN'
   }
 ];
