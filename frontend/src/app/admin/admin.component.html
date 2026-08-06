@@ -83,6 +83,35 @@
     </form>
   </div>
 
+  <section class="panel invite-request-console">
+    <header class="request-console-heading">
+      <div><p class="eyebrow">Applicant access</p><h2>Invite requests</h2><span>Approve verified applicants to issue a secure single-use code.</span></div>
+      <span class="request-count">{{ inviteRequests.length }} pending</span>
+    </header>
+
+    <div class="approved-request-result" *ngIf="approvedInviteRequest">
+      <span class="approval-check"><svg lucideCheck aria-hidden="true"></svg></span>
+      <div>
+        <span>Code generated for {{ approvedInviteRequest.fullName }}</span>
+        <strong>{{ approvedInviteRequest.inviteCode }}</strong>
+        <pre>{{ approvedInviteMessage }}</pre>
+      </div>
+      <button class="copy-message" type="button" (click)="copyApprovedInviteMessage()">
+        <svg *ngIf="!copiedApprovedMessage" lucideCopy></svg><svg *ngIf="copiedApprovedMessage" lucideCheck></svg>
+        {{ copiedApprovedMessage ? 'Copied' : 'Copy message' }}
+      </button>
+    </div>
+
+    <p class="request-empty" *ngIf="inviteRequests.length === 0 && !approvedInviteRequest">No invite-code request is pending.</p>
+    <article class="invite-request-row" *ngFor="let request of inviteRequests">
+      <span class="request-avatar">{{ request.fullName.charAt(0) }}</span>
+      <div><strong>{{ request.fullName }}</strong><span>{{ request.email }} · {{ request.phoneNumber }}</span><small>Requested {{ request.requestedAt | date:'medium' }}</small></div>
+      <button class="btn approve-request" type="button" [disabled]="approvingInviteRequestId === request.id" (click)="approveInviteRequest(request)">
+        <svg lucideCheck></svg>{{ approvingInviteRequestId === request.id ? 'Generating...' : 'Approve & generate code' }}
+      </button>
+    </article>
+  </section>
+
   <p class="admin-error top-error" *ngIf="error">{{ error }}</p>
 
   <section class="stats" *ngIf="dashboard">

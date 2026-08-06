@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CommunityApiService } from '../core/community-api.service';
-import { Broadcast, BroadcastMediaType, BroadcastStatus, CommunityEvent, Dashboard, EventStatus, GalleryImage, InviteCode, Meeting, Post, ProfessionalGroup, UserResponse } from '../core/models';
+import { Broadcast, BroadcastMediaType, BroadcastStatus, CommunityEvent, Dashboard, EventStatus, GalleryImage, InviteCode, InviteRequest, Meeting, Post, ProfessionalGroup, UserResponse } from '../core/models';
 import { MeetingSocketService } from '../core/meeting-socket.service';
 import { auditTime, interval, Subscription } from 'rxjs';
 import { LucideCalendarDays, LucideCheck, LucideCopy, LucideImages, LucideMail, LucidePause, LucidePlay, LucidePlus, LucideRadio, LucideSend, LucideSmartphone, LucideSquare, LucideTrash2, LucideUpload, LucideX } from '@lucide/angular';
@@ -29,6 +29,10 @@ export class AdminComponent implements OnInit, OnDestroy {
   generatingCode = false;
   copiedCode = '';
   copiedInviteMessage = false;
+  copiedApprovedMessage = false;
+  inviteRequests: InviteRequest[] = [];
+  approvedInviteRequest?: InviteRequest;
+  approvingInviteRequestId?: number;
   invitePanelOpen = false;
   inviteChannel: 'EMAIL' | 'MOBILE' = 'EMAIL';
   inviteRecipient = '';
@@ -61,19 +65,28 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   get inviteRegistrationUrl(): string {
     if (!this.latestCode) return '';
-    return `${window.location.origin}/login?mode=register&invite=${encodeURIComponent(this.latestCode.code)}`;
+    return this.registrationUrlFor(this.latestCode.code);
   }
 
   get inviteMessage(): string {
     if (!this.latestCode) return '';
-    return `You're invited to join SC Community Connect.\n\nRegister here: ${this.inviteRegistrationUrl}\nInvite code: ${this.latestCode.code}\nEmail OTP: SC1E\nMobile OTP: SC2M\n\nThis invite code can be used once.`;
+    return this.messageForCode(this.latestCode.code);
+  }
+
+  get approvedInviteMessage(): string {
+    return this.approvedInviteRequest?.inviteCode
+      ? this.messageForCode(this.approvedInviteRequest.inviteCode)
+      : '';
   }
 
   ngOnInit(): void {
     this.refresh();
     this.meetingSocket.connect();
     this.subscriptions.add(this.meetingSocket.updates$.pipe(auditTime(250)).subscribe(() => this.loadPendingMeetings()));
-    this.subscriptions.add(interval(15000).subscribe(() => this.loadPendingMeetings()));
+    this.subscriptions.add(interval(15000).subscribe(() => {
+      this.loadPendingMeetings();
+      this.loadInviteRequests();
+    }));
   }
 
   refresh(): void {
@@ -86,6 +99,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.api.posts().subscribe((posts) => this.posts = posts);
     this.loadContent();
     this.loadPendingMeetings();
+    this.loadInviteRequests();
   }
 
   createEvent(): void {
@@ -277,6 +291,34 @@ export class AdminComponent implements OnInit, OnDestroy {
     });
   }
 
+  copyApprovedInviteMessage(): void {
+    if (!this.approvedInviteMessage) return;
+    navigator.clipboard.writeText(this.approvedInviteMessage).then(() => {
+      this.copiedApprovedMessage = true;
+      setTimeout(() => this.copiedApprovedMessage = false, 1800);
+    }).catch(() => this.error = 'Copy failed. Select the message and copy it manually.');
+  }
+
+  approveInviteRequest(request: InviteRequest): void {
+    this.error = '';
+    this.approvingInviteRequestId = request.id;
+    this.api.approveInviteRequest(request.id).subscribe({
+      next: (approved) => {
+        this.approvedInviteRequest = approved;
+        this.inviteRequests = this.inviteRequests.filter((item) => item.id !== request.id);
+        this.approvingInviteRequestId = undefined;
+        this.api.inviteCodes().subscribe((codes) => {
+          this.codes = [...codes].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+          this.latestCode = this.codes.find((code) => !code.used);
+        });
+      },
+      error: (error) => {
+        this.error = error.error?.detail || 'Invite request could not be approved';
+        this.approvingInviteRequestId = undefined;
+      }
+    });
+  }
+
   openInvitePanel(): void {
     if (!this.latestCode) return;
     this.inviteRecipient = '';
@@ -343,6 +385,21 @@ export class AdminComponent implements OnInit, OnDestroy {
       next: (meetings) => this.pendingMeetings = meetings,
       error: (error) => this.error = error.error?.detail || 'Meeting requests could not be loaded'
     });
+  }
+
+  private loadInviteRequests(): void {
+    this.api.inviteRequests().subscribe({
+      next: (requests) => this.inviteRequests = requests,
+      error: (error) => this.error = error.error?.detail || 'Invite requests could not be loaded'
+    });
+  }
+
+  private registrationUrlFor(code: string): string {
+    return `${window.location.origin}/login?mode=register&invite=${encodeURIComponent(code)}`;
+  }
+
+  private messageForCode(code: string): string {
+    return `You're invited to join SC Community Connect.\n\nRegister here: ${this.registrationUrlFor(code)}\nInvite code: ${code}\nEmail OTP: SC1E\nMobile OTP: SC2M\n\nThis invite code can be used once.`;
   }
 
   private loadContent(): void {

@@ -9,6 +9,7 @@ export type OtpPurpose = 'SIGNUP_EMAIL' | 'SIGNUP_MOBILE' | 'PASSWORD_RESET';
 export type EventStatus = 'SCHEDULED' | 'CANCELLED' | 'COMPLETED';
 export type BroadcastMediaType = 'PODCAST' | 'VIDEO' | 'YOUTUBE';
 export type BroadcastStatus = 'DRAFT' | 'LIVE' | 'PAUSED' | 'ENDED';
+export type InviteRequestStatus = 'PENDING' | 'APPROVED';
 
 export interface AuthResponse {
   token: string;
@@ -98,6 +99,18 @@ export interface InviteCode {
   code: string;
   used: boolean;
   createdAt: string;
+}
+
+export interface InviteRequest {
+  id: number;
+  requestToken: string;
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  status: InviteRequestStatus;
+  inviteCode?: string;
+  requestedAt: string;
+  approvedAt?: string;
 }
 
 export interface Meeting {

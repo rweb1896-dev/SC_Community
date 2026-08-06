@@ -13,6 +13,7 @@ import com.sc.community.entity.UserStatus;
 import com.sc.community.entity.VerificationCode;
 import com.sc.community.repository.UserRepository;
 import com.sc.community.repository.VerificationCodeRepository;
+import com.sc.community.repository.InviteRequestRepository;
 import com.sc.community.security.JwtService;
 import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final OtpService otpService;
+    private final InviteRequestRepository inviteRequestRepository;
 
     public AuthService(
             UserRepository userRepository,
@@ -38,13 +40,15 @@ public class AuthService {
             PasswordEncoder passwordEncoder,
             AuthenticationManager authenticationManager,
             JwtService jwtService,
-            OtpService otpService) {
+            OtpService otpService,
+            InviteRequestRepository inviteRequestRepository) {
         this.userRepository = userRepository;
         this.codeRepository = codeRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.otpService = otpService;
+        this.inviteRequestRepository = inviteRequestRepository;
     }
 
     @Transactional
@@ -63,6 +67,13 @@ public class AuthService {
         if (code.isUsed()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Verification code has already been used");
         }
+        inviteRequestRepository.findByVerificationCodeId(code.getId()).ifPresent(inviteRequest -> {
+            if (!inviteRequest.getEmail().equals(email) || !inviteRequest.getPhoneNumber().equals(phoneNumber)) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "This invite code belongs to a different verified applicant");
+            }
+        });
 
         otpService.consumeVerification(
                 request.emailVerificationToken(), OtpChannel.EMAIL, OtpPurpose.SIGNUP_EMAIL, email);
@@ -75,7 +86,7 @@ public class AuthService {
         user.setPhoneNumber(phoneNumber);
         user.setPassword(passwordEncoder.encode(request.password()));
         user.setRole(UserRole.ROLE_USER);
-        user.setStatus(UserStatus.PENDING);
+        user.setStatus(UserStatus.VERIFIED);
         String idProofUrl = request.idProofUrl() == null ? "" : request.idProofUrl().trim();
         user.setIdProofUrl(idProofUrl.isBlank() ? null : idProofUrl);
         user.setInviteCodeUsed(code.getCode());

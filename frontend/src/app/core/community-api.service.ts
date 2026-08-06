@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Broadcast, BroadcastMediaType, BroadcastStatus, Category, Comment, CommunityEvent, Dashboard, EventStatus, GalleryImage, InviteCode, Meeting, MeetingAudience, Message, Post, ProfessionalGroup, UserResponse, UserStatus } from './models';
+import { Broadcast, BroadcastMediaType, BroadcastStatus, Category, Comment, CommunityEvent, Dashboard, EventStatus, GalleryImage, InviteCode, InviteRequest, Meeting, MeetingAudience, Message, Post, ProfessionalGroup, UserResponse, UserStatus } from './models';
 
 const API = '/api';
 
@@ -72,6 +72,14 @@ export class CommunityApiService {
 
   generateInviteCode() {
     return this.http.post<InviteCode>(`${API}/admin/invite-codes`, {});
+  }
+
+  inviteRequests() {
+    return this.http.get<InviteRequest[]>(`${API}/admin/invite-requests`);
+  }
+
+  approveInviteRequest(requestId: number) {
+    return this.http.patch<InviteRequest>(`${API}/admin/invite-requests/${requestId}/approve`, {});
   }
 
   meetings() {

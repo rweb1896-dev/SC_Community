@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import {
   AuthResponse,
+  InviteRequest,
   MessageResponse,
   OtpChannel,
   OtpPurpose,
@@ -80,6 +81,23 @@ export class AuthService {
       resetToken,
       newPassword
     });
+  }
+
+  requestInviteCode(payload: {
+    fullName: string;
+    email: string;
+    phoneNumber: string;
+    emailVerificationToken: string;
+    phoneVerificationToken: string;
+  }): Observable<InviteRequest> {
+    return this.http.post<InviteRequest>(`${API}/auth/invite-requests`, payload);
+  }
+
+  inviteRequestStatus(requestToken: string): Observable<InviteRequest> {
+    return this.http.post<InviteRequest>(
+      `${API}/auth/invite-requests/${encodeURIComponent(requestToken)}/status`,
+      {}
+    );
   }
 
   login(email: string, password: string): Observable<AuthResponse> {

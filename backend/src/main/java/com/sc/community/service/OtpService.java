@@ -140,6 +140,17 @@ public class OtpService {
         challengeRepository.save(challenge);
     }
 
+    public void validateVerification(
+            String verificationToken,
+            OtpChannel channel,
+            OtpPurpose purpose,
+            String destination) {
+        VerificationCodeMatch match = verificationMatch(verificationToken, channel, purpose, destination);
+        if (!match.valid()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Verification does not match your details");
+        }
+    }
+
     @Transactional
     public MessageResponse resetPassword(PasswordResetRequest request) {
         OtpChallenge challenge = requireVerifiedToken(request.resetToken(), OtpPurpose.PASSWORD_RESET);
@@ -173,6 +184,17 @@ public class OtpService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Verification is incomplete");
         }
         return challenge;
+    }
+
+    private VerificationCodeMatch verificationMatch(
+            String verificationToken,
+            OtpChannel channel,
+            OtpPurpose purpose,
+            String destination) {
+        OtpChallenge challenge = requireVerifiedToken(verificationToken, purpose);
+        String normalizedDestination = normalizeDestination(channel, destination);
+        return new VerificationCodeMatch(
+                challenge.getChannel() == channel && challenge.getDestination().equals(normalizedDestination));
     }
 
     private void validateActiveChallenge(OtpChallenge challenge) {
@@ -216,5 +238,8 @@ public class OtpService {
 
     private String normalizeConfiguredCode(String code) {
         return code == null ? "" : code.trim().toUpperCase(Locale.ROOT);
+    }
+
+    private record VerificationCodeMatch(boolean valid) {
     }
 }

@@ -99,5 +99,5 @@ Member post images and ID proof references still use URLs. Store sensitive ID do
 - Add centralized error monitoring and an external rate limit for authentication endpoints.
 - Keep Neon password only in Render environment variables.
 - Confirm `/api/health` returns `UP`.
-- Test login, feed post creation, messages, admin approval, and meetings.
+- Test invite request/approval, registration, login, feed post creation, messages, and meetings.
 - Keep a weekly Neon export/backup while testing.

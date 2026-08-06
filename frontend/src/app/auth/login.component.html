@@ -343,6 +343,26 @@
         />
       </div>
 
+      <div class="invite-request-box" *ngIf="!registerForm.inviteCode || inviteRequest">
+        <ng-container *ngIf="!inviteRequest">
+          <span class="request-visual"><svg lucideKeyRound aria-hidden="true"></svg></span>
+          <div><strong>Don't have an invite code?</strong><small>Send a secure request to the admin. Keep this page open for automatic approval updates.</small></div>
+          <button class="outline-button request-invite-button" type="button" [disabled]="inviteRequestLoading" (click)="requestInviteCode()">
+            {{ inviteRequestLoading ? 'Sending request...' : 'Request code' }}
+          </button>
+        </ng-container>
+        <ng-container *ngIf="inviteRequest?.status === 'PENDING'">
+          <span class="request-visual pending"><svg lucideClock3 aria-hidden="true"></svg><i></i></span>
+          <div><strong>Request pending</strong><small>Waiting for admin approval. This status updates automatically.</small></div>
+          <span class="pending-pill"><i></i>Pending</span>
+        </ng-container>
+        <ng-container *ngIf="inviteRequest?.status === 'APPROVED'">
+          <span class="request-visual approved"><svg lucideCheckCircle2 aria-hidden="true"></svg></span>
+          <div><strong>Request approved</strong><small>Your single-use code <b>{{ inviteRequest?.inviteCode }}</b> has been added above.</small></div>
+          <span class="approved-pill">Approved</span>
+        </ng-container>
+      </div>
+
       <div class="field">
         <label for="id-proof">Government ID proof URL <small>Optional</small></label>
         <input

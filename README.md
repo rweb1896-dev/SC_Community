@@ -5,11 +5,12 @@ Production-oriented full-stack community platform built with Angular, Spring Boo
 ## What Is Included
 
 - Invite-code gated registration with mandatory email and mobile OTP; the ID proof URL is optional.
-- New registrations remain pending until an admin reviews the ID proof and approves the account.
+- Applicants can request an invite code after verifying email and mobile; admin approval generates a single-use code bound to those verified details.
+- A valid invite code completes registration as a verified account without a second manual user-approval step.
 - Password recovery works with either the registered email or mobile number.
 - JWT login for verified users only.
 - Blocked users cannot log in, post, comment, or send messages.
-- Admin dashboard, user approval/block/unblock, post hiding, and invite-code generation.
+- Admin dashboard, invite-request approval, user block/unblock, post hiding, and invite-code generation.
 - Categorized community feed for Health Help, Job Updates, Business Growth, and Open Forum/SOS.
 - Direct messaging over Spring WebSocket/STOMP with REST conversation history.
 

@@ -80,6 +80,11 @@ public class AdminService {
 
     @Transactional
     public InviteCodeResponse generateInviteCode() {
+        return InviteCodeResponse.from(createInviteCode());
+    }
+
+    @Transactional
+    public VerificationCode createInviteCode() {
         VerificationCode code = new VerificationCode();
         String value;
         do {
@@ -90,7 +95,7 @@ public class AdminService {
 
         code.setCode(value);
         code.setCreatedByAdmin(currentUserService.currentUser());
-        return InviteCodeResponse.from(codeRepository.save(code));
+        return codeRepository.save(code);
     }
 
     public List<InviteCodeResponse> codes() {

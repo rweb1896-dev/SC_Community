@@ -10,12 +10,14 @@ import static org.mockito.Mockito.when;
 import com.sc.community.dto.RegisterRequest;
 import com.sc.community.entity.OtpChannel;
 import com.sc.community.entity.OtpPurpose;
+import com.sc.community.entity.InviteRequest;
 import com.sc.community.entity.ProfessionalGroup;
 import com.sc.community.entity.User;
 import com.sc.community.entity.UserStatus;
 import com.sc.community.entity.VerificationCode;
 import com.sc.community.repository.UserRepository;
 import com.sc.community.repository.VerificationCodeRepository;
+import com.sc.community.repository.InviteRequestRepository;
 import com.sc.community.security.JwtService;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,6 +38,7 @@ class AuthServiceTest {
     @Mock private AuthenticationManager authenticationManager;
     @Mock private JwtService jwtService;
     @Mock private OtpService otpService;
+    @Mock private InviteRequestRepository inviteRequestRepository;
 
     private AuthService service;
 
@@ -47,11 +50,12 @@ class AuthServiceTest {
                 passwordEncoder,
                 authenticationManager,
                 jwtService,
-                otpService);
+                otpService,
+                inviteRequestRepository);
     }
 
     @Test
-    void registersPendingUserAfterBothOtpChecksAndConsumesInvite() {
+    void registersVerifiedUserAfterBothOtpChecksAndConsumesInvite() {
         RegisterRequest request = validRequest();
         VerificationCode invite = new VerificationCode();
         invite.setCode(request.inviteCode());
@@ -72,7 +76,7 @@ class AuthServiceTest {
         var response = service.register(request);
 
         assertThat(response.id()).isEqualTo(42L);
-        assertThat(response.status()).isEqualTo(UserStatus.PENDING);
+        assertThat(response.status()).isEqualTo(UserStatus.VERIFIED);
         assertThat(response.email()).isEqualTo("member@example.com");
         assertThat(response.phoneNumber()).isEqualTo("+919876543210");
         assertThat(response.inviteCodeUsed()).isEqualTo(request.inviteCode());
@@ -135,7 +139,32 @@ class AuthServiceTest {
         var response = service.register(request);
 
         assertThat(response.idProofUrl()).isNull();
-        assertThat(response.status()).isEqualTo(UserStatus.PENDING);
+        assertThat(response.status()).isEqualTo(UserStatus.VERIFIED);
+    }
+
+    @Test
+    void rejectsApprovedRequestCodeForDifferentVerifiedApplicant() {
+        RegisterRequest request = validRequest();
+        VerificationCode invite = new VerificationCode();
+        invite.setId(99L);
+        invite.setCode(request.inviteCode());
+        InviteRequest owner = new InviteRequest();
+        owner.setEmail("someone-else@example.com");
+        owner.setPhoneNumber("+919999999999");
+
+        when(otpService.normalizeDestination(OtpChannel.EMAIL, request.email()))
+                .thenReturn("member@example.com");
+        when(otpService.normalizeDestination(OtpChannel.MOBILE, request.phoneNumber()))
+                .thenReturn("+919876543210");
+        when(codeRepository.findByCode(request.inviteCode())).thenReturn(Optional.of(invite));
+        when(inviteRequestRepository.findByVerificationCodeId(99L)).thenReturn(Optional.of(owner));
+
+        assertThatThrownBy(() -> service.register(request))
+                .isInstanceOfSatisfying(ResponseStatusException.class, error -> {
+                    assertThat(error.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+                    assertThat(error.getReason()).contains("different verified applicant");
+                });
+        verify(userRepository, never()).save(any(User.class));
     }
 
     private RegisterRequest validRequest() {

@@ -7,6 +7,7 @@ import {
   LucideBookOpen,
   LucideBuilding2,
   LucideCheckCircle2,
+  LucideClock3,
   LucideChevronLeft,
   LucideChevronRight,
   LucideEye,
@@ -14,6 +15,7 @@ import {
   LucideExternalLink,
   LucideFileText,
   LucideInfo,
+  LucideKeyRound,
   LucideMail,
   LucideMegaphone,
   LucideShieldCheck,
@@ -22,7 +24,7 @@ import {
   LucideX
 } from '@lucide/angular';
 import { AuthService } from '../core/auth.service';
-import { GalleryImage, OtpChannel, OtpPurpose } from '../core/models';
+import { GalleryImage, InviteRequest, OtpChannel, OtpPurpose } from '../core/models';
 import { CommunityApiService } from '../core/community-api.service';
 import { COMMUNITY_LEADERS } from '../core/community-leaders';
 import {
@@ -47,6 +49,8 @@ interface VerificationState {
   developmentCode: string;
 }
 
+const INVITE_REQUEST_KEY = 'sc-connect-invite-request';
+
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -57,6 +61,7 @@ interface VerificationState {
     LucideBookOpen,
     LucideBuilding2,
     LucideCheckCircle2,
+    LucideClock3,
     LucideChevronLeft,
     LucideChevronRight,
     LucideEye,
@@ -64,6 +69,7 @@ interface VerificationState {
     LucideExternalLink,
     LucideFileText,
     LucideInfo,
+    LucideKeyRound,
     LucideMail,
     LucideMegaphone,
     LucideShieldCheck,
@@ -112,6 +118,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   };
   emailVerification = this.newVerificationState();
   phoneVerification = this.newVerificationState();
+  inviteRequest?: InviteRequest;
+  inviteRequestLoading = false;
   forgotStep: 1 | 2 | 3 = 1;
   forgotForm = {
     channel: 'EMAIL' as OtpChannel,
@@ -124,6 +132,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   };
   private leaderTimer?: ReturnType<typeof setInterval>;
   private galleryTimer?: ReturnType<typeof setInterval>;
+  private inviteRequestTimer?: ReturnType<typeof setInterval>;
 
   constructor(private auth: AuthService, private router: Router, private api: CommunityApiService, private route: ActivatedRoute) {}
 
@@ -147,6 +156,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.registerStep = 1;
       this.registerForm.inviteCode = invitedCode || '';
     }
+    this.restoreInviteRequest();
     this.resumeLeaderRotation();
     this.api.publicGallery().subscribe({
       next: (images) => {
@@ -161,6 +171,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     document.body.classList.remove('auth-lock');
     this.pauseLeaderRotation();
     this.pauseGalleryRotation();
+    this.stopInviteRequestPolling();
   }
 
   showGalleryImage(index: number): void {
@@ -251,8 +262,9 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.registerForm.phoneVerificationToken = this.phoneVerification.token;
     this.auth.register(this.registerForm).subscribe({
       next: () => {
+        this.clearStoredInviteRequest();
         this.setMessage(
-          'Registration submitted. An admin will review your ID proof before login.',
+          'Registration complete. Your verified account is ready to use.',
           'success'
         );
         this.mode = 'login';
@@ -394,6 +406,93 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (state.destination && state.destination !== this.normalizeDestination(channel, value)) {
       this.resetVerificationState(state);
     }
+  }
+
+  requestInviteCode(): void {
+    if (!this.emailVerification.verified || !this.phoneVerification.verified) {
+      this.setMessage('Verify both email and mobile number before requesting an invite code.', 'error');
+      return;
+    }
+
+    this.inviteRequestLoading = true;
+    this.clearMessage();
+    this.auth.requestInviteCode({
+      fullName: this.registerForm.fullName,
+      email: this.registerForm.email,
+      phoneNumber: this.normalizeDestination('MOBILE', this.registerForm.phoneNumber),
+      emailVerificationToken: this.emailVerification.token,
+      phoneVerificationToken: this.phoneVerification.token
+    }).subscribe({
+      next: (request) => {
+        this.inviteRequestLoading = false;
+        this.applyInviteRequest(request);
+        this.storeInviteRequest(request.requestToken);
+        this.setMessage('Invite request sent. It will appear here automatically after admin approval.', 'info');
+        this.startInviteRequestPolling();
+      },
+      error: (error) => {
+        this.inviteRequestLoading = false;
+        this.showError(error, 'Invite request could not be sent');
+      }
+    });
+  }
+
+  private startInviteRequestPolling(): void {
+    this.stopInviteRequestPolling();
+    if (!this.inviteRequest || this.inviteRequest.status === 'APPROVED') return;
+    this.inviteRequestTimer = setInterval(() => this.refreshInviteRequest(), 5000);
+  }
+
+  private stopInviteRequestPolling(): void {
+    if (this.inviteRequestTimer) clearInterval(this.inviteRequestTimer);
+    this.inviteRequestTimer = undefined;
+  }
+
+  private refreshInviteRequest(): void {
+    if (!this.inviteRequest?.requestToken) return;
+    this.auth.inviteRequestStatus(this.inviteRequest.requestToken).subscribe({
+      next: (request) => {
+        const wasPending = this.inviteRequest?.status === 'PENDING';
+        this.applyInviteRequest(request);
+        if (wasPending && request.status === 'APPROVED') {
+          this.setMessage('Your invite request was approved. The code has been added automatically.', 'success');
+        }
+      },
+      error: () => this.stopInviteRequestPolling()
+    });
+  }
+
+  private applyInviteRequest(request: InviteRequest): void {
+    this.inviteRequest = request;
+    if (!this.registerForm.fullName) this.registerForm.fullName = request.fullName;
+    if (!this.registerForm.email) this.registerForm.email = request.email;
+    if (!this.registerForm.phoneNumber) this.registerForm.phoneNumber = request.phoneNumber;
+    if (request.status === 'APPROVED' && request.inviteCode) {
+      this.registerForm.inviteCode = request.inviteCode;
+      this.stopInviteRequestPolling();
+    }
+  }
+
+  private restoreInviteRequest(): void {
+    if (typeof localStorage === 'undefined') return;
+    const requestToken = localStorage.getItem(INVITE_REQUEST_KEY);
+    if (!requestToken) return;
+    this.auth.inviteRequestStatus(requestToken).subscribe({
+      next: (request) => {
+        this.applyInviteRequest(request);
+        this.startInviteRequestPolling();
+      },
+      error: () => this.clearStoredInviteRequest()
+    });
+  }
+
+  private storeInviteRequest(requestToken: string): void {
+    if (typeof localStorage !== 'undefined') localStorage.setItem(INVITE_REQUEST_KEY, requestToken);
+  }
+
+  private clearStoredInviteRequest(): void {
+    if (typeof localStorage !== 'undefined') localStorage.removeItem(INVITE_REQUEST_KEY);
+    this.stopInviteRequestPolling();
   }
 
   setForgotChannel(channel: OtpChannel): void {

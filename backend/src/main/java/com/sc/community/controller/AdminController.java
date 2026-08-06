@@ -4,8 +4,10 @@ import com.sc.community.dto.AdminDtos.DashboardResponse;
 import com.sc.community.dto.AdminDtos.InviteCodeResponse;
 import com.sc.community.dto.AdminDtos.UpdateProfessionalGroupRequest;
 import com.sc.community.dto.UserResponse;
+import com.sc.community.dto.InviteRequestDtos.InviteRequestResponse;
 import com.sc.community.entity.UserStatus;
 import com.sc.community.service.AdminService;
+import com.sc.community.service.InviteRequestService;
 import java.util.List;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,9 +23,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/admin")
 public class AdminController {
     private final AdminService adminService;
+    private final InviteRequestService inviteRequestService;
 
-    public AdminController(AdminService adminService) {
+    public AdminController(AdminService adminService, InviteRequestService inviteRequestService) {
         this.adminService = adminService;
+        this.inviteRequestService = inviteRequestService;
     }
 
     @GetMapping("/dashboard")
@@ -71,5 +75,15 @@ public class AdminController {
     @GetMapping("/invite-codes")
     public List<InviteCodeResponse> codes() {
         return adminService.codes();
+    }
+
+    @GetMapping("/invite-requests")
+    public List<InviteRequestResponse> inviteRequests() {
+        return inviteRequestService.pending();
+    }
+
+    @PatchMapping("/invite-requests/{requestId}/approve")
+    public InviteRequestResponse approveInviteRequest(@PathVariable Long requestId) {
+        return inviteRequestService.approve(requestId);
     }
 }

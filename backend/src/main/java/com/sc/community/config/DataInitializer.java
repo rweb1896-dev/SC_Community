@@ -1,12 +1,14 @@
 package com.sc.community.config;
 
 import com.sc.community.entity.CommunityEvent;
+import com.sc.community.entity.Category;
 import com.sc.community.entity.User;
 import com.sc.community.entity.UserRole;
 import com.sc.community.entity.UserStatus;
 import com.sc.community.entity.ProfessionalGroup;
 import com.sc.community.entity.VerificationCode;
 import com.sc.community.repository.CommunityEventRepository;
+import com.sc.community.repository.CategoryRepository;
 import com.sc.community.repository.UserRepository;
 import com.sc.community.repository.VerificationCodeRepository;
 import java.time.Instant;
@@ -23,6 +25,7 @@ public class DataInitializer implements CommandLineRunner {
     private final UserRepository userRepository;
     private final VerificationCodeRepository codeRepository;
     private final CommunityEventRepository eventRepository;
+    private final CategoryRepository categoryRepository;
     private final PasswordEncoder passwordEncoder;
     private final String adminEmail;
     private final String adminPassword;
@@ -33,6 +36,7 @@ public class DataInitializer implements CommandLineRunner {
             UserRepository userRepository,
             VerificationCodeRepository codeRepository,
             CommunityEventRepository eventRepository,
+            CategoryRepository categoryRepository,
             PasswordEncoder passwordEncoder,
             @Value("${APP_ADMIN_EMAIL:admin@scconnect.local}") String adminEmail,
             @Value("${APP_ADMIN_PASSWORD:Admin@12345}") String adminPassword,
@@ -41,6 +45,7 @@ public class DataInitializer implements CommandLineRunner {
         this.userRepository = userRepository;
         this.codeRepository = codeRepository;
         this.eventRepository = eventRepository;
+        this.categoryRepository = categoryRepository;
         this.passwordEncoder = passwordEncoder;
         this.adminEmail = adminEmail;
         this.adminPassword = adminPassword;
@@ -50,6 +55,11 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        seedCategory("Health Help", "Requests and resources for medical help, blood donation, care, and wellness.");
+        seedCategory("Job Updates", "Career opportunities, referrals, exam alerts, and professional guidance.");
+        seedCategory("Business Growth", "Local businesses, entrepreneurship, vendor support, and collaboration.");
+        seedCategory("Open Forum/SOS", "Community discussions, urgent support, and open announcements.");
+
         User admin = userRepository.findByEmail(adminEmail).orElseGet(() -> {
             User user = new User();
             user.setFullName("SC Community Admin");
@@ -93,6 +103,14 @@ public class DataInitializer implements CommandLineRunner {
         event.setVenue(venue);
         event.setEventAt(eventAt);
         return event;
+    }
+
+    private void seedCategory(String name, String description) {
+        if (categoryRepository.findByName(name).isPresent()) return;
+        Category category = new Category();
+        category.setName(name);
+        category.setDescription(description);
+        categoryRepository.save(category);
     }
 
     private Instant scheduledAt(int daysFromNow, int hour, int minute) {
