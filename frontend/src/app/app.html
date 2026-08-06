@@ -15,6 +15,7 @@
     <a routerLink="/feed" routerLinkActive="active" (click)="closeMenu()"><svg lucideHouse aria-hidden="true"></svg><span>Home</span></a>
     <a routerLink="/chat" routerLinkActive="active" (click)="closeMenu()"><svg lucideMessageCircle aria-hidden="true"></svg><span>Messages</span></a>
     <a routerLink="/meetings" routerLinkActive="active" (click)="closeMenu()"><svg lucideVideo aria-hidden="true"></svg><span>Meetings</span></a>
+    <button class="nav-invite" type="button" (click)="openInviteWorkspace()"><svg lucideKeyRound aria-hidden="true"></svg><span>Invite</span><i *ngIf="inviteRequest?.status === 'PENDING'"></i></button>
     <a *ngIf="session.role === 'ROLE_ADMIN'" routerLink="/admin" routerLinkActive="active" (click)="closeMenu()"><svg lucideShieldCheck aria-hidden="true"></svg><span>Admin</span></a>
     <div class="profile-menu-wrap" (click)="$event.stopPropagation()">
       <button class="profile-trigger" type="button" aria-label="Open profile menu" [attr.aria-expanded]="profileOpen" (click)="toggleProfile($event)">
@@ -44,6 +45,50 @@
     <a class="sign-in-link" routerLink="/login" routerLinkActive="active" (click)="closeMenu()">Sign in</a>
   </nav>
 </header>
+
+<div class="member-invite-backdrop" *ngIf="inviteWorkspaceOpen" (click)="closeInviteWorkspace()">
+  <section class="member-invite-modal" (click)="$event.stopPropagation()">
+    <button class="member-invite-close" type="button" aria-label="Close invite request" (click)="closeInviteWorkspace()"><svg lucideX></svg></button>
+
+    <ng-container *ngIf="!inviteRequest">
+      <span class="invite-modal-icon"><svg lucideKeyRound></svg></span>
+      <p class="invite-modal-kicker">Member privilege</p>
+      <h2>Request an invite code</h2>
+      <p>Enter the email or mobile number of the person you want to invite. An administrator will review your request.</p>
+      <div class="member-channel-tabs"><button type="button" [class.active]="inviteRecipientMode === 'EMAIL'" (click)="inviteRecipientMode = 'EMAIL'; inviteRecipient = ''">Email</button><button type="button" [class.active]="inviteRecipientMode === 'MOBILE'" (click)="inviteRecipientMode = 'MOBILE'; inviteRecipient = ''">Mobile</button></div>
+      <label>{{ inviteRecipientMode === 'EMAIL' ? 'Invitee email address' : 'Invitee mobile number' }}
+        <input [(ngModel)]="inviteRecipient" [type]="inviteRecipientMode === 'EMAIL' ? 'email' : 'tel'" [placeholder]="inviteRecipientMode === 'EMAIL' ? 'person@example.com' : '+91 9876543210'" />
+      </label>
+      <button class="member-primary-action" type="button" [disabled]="inviteLoading || !inviteRecipient.trim()" (click)="requestMemberInvite()"><svg lucideSend></svg>{{ inviteLoading ? 'Sending request...' : 'Send request to admin' }}</button>
+    </ng-container>
+
+    <ng-container *ngIf="inviteRequest?.status === 'PENDING'">
+      <span class="invite-modal-icon pending"><svg lucideClock3></svg><i></i></span>
+      <p class="invite-modal-kicker">Request submitted</p><h2>Admin review pending</h2>
+      <p>Your invite request for <strong>{{ inviteRequest?.recipientEmail || inviteRequest?.recipientMobile }}</strong> is safely queued. This status updates automatically.</p>
+      <div class="invite-progress"><span></span><span></span><span></span></div>
+      <small>Requested {{ inviteRequest?.requestedAt | date:'medium' }}</small>
+    </ng-container>
+
+    <ng-container *ngIf="inviteRequest?.status === 'REJECTED'">
+      <span class="invite-modal-icon rejected"><svg lucideX></svg></span>
+      <p class="invite-modal-kicker">Review complete</p><h2>Request not approved</h2>
+      <p>{{ inviteRequest?.rejectionReason || 'The administrator did not approve this invite request.' }}</p>
+      <button class="member-secondary-action" type="button" (click)="newMemberInviteRequest()">Make another request</button>
+    </ng-container>
+
+    <ng-container *ngIf="inviteRequest?.status === 'APPROVED'">
+      <span class="invite-modal-icon approved"><svg lucideCheck></svg></span>
+      <p class="invite-modal-kicker">Approved by admin</p><h2>Your invite is ready</h2>
+      <p>Send this complete registration message to <strong>{{ inviteRequest?.recipientEmail || inviteRequest?.recipientMobile }}</strong>.</p>
+      <pre class="member-invite-message">{{ memberInviteMessage }}</pre>
+      <div class="member-result-actions"><button type="button" (click)="copyMemberInvite()"><svg *ngIf="!inviteCopied" lucideCopy></svg><svg *ngIf="inviteCopied" lucideCheck></svg>{{ inviteCopied ? 'Copied' : 'Copy' }}</button><button type="button" (click)="shareMemberInvite()"><svg lucideShare2></svg>Share</button></div>
+      <button class="member-new-request" type="button" (click)="newMemberInviteRequest()">Request another code</button>
+    </ng-container>
+
+    <p class="member-invite-error" *ngIf="inviteFeedback">{{ inviteFeedback }}</p>
+  </section>
+</div>
 
 <main>
   <router-outlet />

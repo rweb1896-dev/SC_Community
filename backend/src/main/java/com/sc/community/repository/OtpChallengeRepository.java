@@ -23,4 +23,7 @@ public interface OtpChallengeRepository extends JpaRepository<OtpChallenge, Long
 
     List<OtpChallenge> findByPurposeAndDestinationStartingWithAndVerifiedAtIsNullAndUsedAtIsNullOrderByCreatedAtAsc(
             OtpPurpose purpose, String destinationPrefix);
+
+    List<OtpChallenge> findByPurposeAndDestinationStartingWithOrderByCreatedAtDesc(
+            OtpPurpose purpose, String destinationPrefix);
 }

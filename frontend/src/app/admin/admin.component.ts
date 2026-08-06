@@ -2,15 +2,17 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CommunityApiService } from '../core/community-api.service';
-import { Broadcast, BroadcastMediaType, BroadcastStatus, CommunityEvent, Dashboard, EventStatus, GalleryImage, InviteCode, InviteRequest, Meeting, Post, ProfessionalGroup, UserResponse } from '../core/models';
+import { Broadcast, BroadcastMediaType, BroadcastStatus, CommunityEvent, Dashboard, EventStatus, GalleryImage, InviteCode, InviteRequest, ManagedContent, ManagedContentInput, ManagedContentStatus, MemberInviteRequest, Meeting, Post, ProfessionalGroup, UserResponse } from '../core/models';
 import { MeetingSocketService } from '../core/meeting-socket.service';
 import { auditTime, interval, Subscription } from 'rxjs';
-import { LucideCalendarDays, LucideCheck, LucideCopy, LucideImages, LucideMail, LucidePause, LucidePlay, LucidePlus, LucideRadio, LucideSend, LucideSmartphone, LucideSquare, LucideTrash2, LucideUpload, LucideX } from '@lucide/angular';
+import { LucideBan, LucideBookOpen, LucideCalendarDays, LucideCheck, LucideCopy, LucideImages, LucideMail, LucidePause, LucidePlay, LucidePlus, LucideRadio, LucideRotateCcw, LucideSend, LucideSmartphone, LucideSquare, LucideTrash2, LucideUpload, LucideUserRound, LucideX } from '@lucide/angular';
+import { COMMUNITY_LEADERS } from '../core/community-leaders';
+import { COMMUNITY_BOOKS, PAID_COMMUNITY_BOOKS } from '../core/community-resources';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideCalendarDays, LucideCheck, LucideCopy, LucideImages, LucideMail, LucidePause, LucidePlay, LucidePlus, LucideRadio, LucideSend, LucideSmartphone, LucideSquare, LucideTrash2, LucideUpload, LucideX],
+  imports: [CommonModule, FormsModule, LucideBan, LucideBookOpen, LucideCalendarDays, LucideCheck, LucideCopy, LucideImages, LucideMail, LucidePause, LucidePlay, LucidePlus, LucideRadio, LucideRotateCcw, LucideSend, LucideSmartphone, LucideSquare, LucideTrash2, LucideUpload, LucideUserRound, LucideX],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.css'
 })
@@ -31,13 +33,18 @@ export class AdminComponent implements OnInit, OnDestroy {
   copiedInviteMessage = false;
   copiedApprovedMessage = false;
   inviteRequests: InviteRequest[] = [];
+  memberInviteRequests: MemberInviteRequest[] = [];
   approvedInviteRequest?: InviteRequest;
   approvingInviteRequestId?: number;
   invitePanelOpen = false;
   inviteChannel: 'EMAIL' | 'MOBILE' = 'EMAIL';
   inviteRecipient = '';
   inviteFeedback = '';
-  contentTab: 'events' | 'broadcasts' | 'gallery' = 'events';
+  contentTab: 'leaders' | 'books' | 'events' | 'broadcasts' | 'gallery' = 'leaders';
+  managedContent: ManagedContent[] = [];
+  managingRecordId?: number;
+  leaderForm = { name: '', role: '', contribution: '', era: 'CURRENT', department: '', imageUrl: '', overview: '' };
+  bookForm = { title: '', author: '', summary: '', kind: 'FREE', languageOrFormat: 'English', url: '', imageUrl: '', sourceOrPrice: '' };
   savingContent = false;
   eventForm = { title: '', summary: '', venue: '', eventAt: '', registrationUrl: '' };
   broadcastForm = {
@@ -59,6 +66,24 @@ export class AdminComponent implements OnInit, OnDestroy {
     { value: 'EDUCATION', label: 'Education' },
     { value: 'SOCIAL_WORKER', label: 'Social worker' }
   ];
+
+  get leaderContentRows(): ManagedContent[] {
+    return this.mergeDefaults('LEADER', COMMUNITY_LEADERS.map((leader) => ({
+      type: 'LEADER' as const, key: leader.id, title: leader.name, byline: leader.role,
+      summary: leader.contribution, category: leader.era, source: leader.department,
+      url: leader.photoSourceUrl, imageUrl: leader.imageUrl, details: leader.overview
+    })));
+  }
+
+  get bookContentRows(): ManagedContent[] {
+    const free = COMMUNITY_BOOKS.map((book) => ({ type: 'BOOK' as const, key: book.id, title: book.title,
+      byline: book.author, summary: book.summary, category: 'FREE', source: book.language,
+      url: book.pdfUrl, imageUrl: '/favicon.svg', details: book.source }));
+    const print = PAID_COMMUNITY_BOOKS.map((book) => ({ type: 'BOOK' as const, key: book.id, title: book.title,
+      byline: book.author, summary: book.summary, category: 'PRINT', source: book.format,
+      url: book.storeUrl, imageUrl: book.coverImageUrl, details: book.price }));
+    return this.mergeDefaults('BOOK', [...free, ...print]);
+  }
   private subscriptions = new Subscription();
 
   constructor(private api: CommunityApiService, private meetingSocket: MeetingSocketService) {}
@@ -86,6 +111,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.subscriptions.add(interval(15000).subscribe(() => {
       this.loadPendingMeetings();
       this.loadInviteRequests();
+      this.loadMemberInviteRequests();
     }));
   }
 
@@ -100,6 +126,58 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.loadContent();
     this.loadPendingMeetings();
     this.loadInviteRequests();
+    this.loadMemberInviteRequests();
+  }
+
+  createLeader(): void {
+    const form = this.leaderForm;
+    if (!form.name.trim() || !form.role.trim() || !form.contribution.trim() || !/^https?:\/\//i.test(form.imageUrl)) {
+      this.error = 'Add the leader name, role, contribution and a valid image URL.'; return;
+    }
+    const input: ManagedContentInput = { type: 'LEADER', key: this.uniqueKey(form.name), title: form.name.trim(),
+      byline: form.role.trim(), summary: form.contribution.trim(), category: form.era,
+      source: form.department.trim() || 'Community leadership', url: form.imageUrl.trim(),
+      imageUrl: form.imageUrl.trim(), details: form.overview.trim() || form.contribution.trim() };
+    this.saveManaged(input, () => this.leaderForm = { name: '', role: '', contribution: '', era: 'CURRENT', department: '', imageUrl: '', overview: '' });
+  }
+
+  createBook(): void {
+    const form = this.bookForm;
+    if (!form.title.trim() || !form.author.trim() || !form.summary.trim() || !/^https?:\/\//i.test(form.url)) {
+      this.error = 'Add the book title, author, summary and a valid reading/store URL.'; return;
+    }
+    const input: ManagedContentInput = { type: 'BOOK', key: this.uniqueKey(form.title), title: form.title.trim(),
+      byline: form.author.trim(), summary: form.summary.trim(), category: form.kind,
+      source: form.languageOrFormat.trim() || (form.kind === 'FREE' ? 'English' : 'Print edition'), url: form.url.trim(),
+      imageUrl: form.imageUrl.trim() || '/favicon.svg', details: form.sourceOrPrice.trim() || 'Community Library' };
+    this.saveManaged(input, () => this.bookForm = { title: '', author: '', summary: '', kind: 'FREE', languageOrFormat: 'English', url: '', imageUrl: '', sourceOrPrice: '' });
+  }
+
+  setManagedStatus(item: ManagedContent, status: ManagedContentStatus): void {
+    this.error = '';
+    this.managingRecordId = item.recordId || -1;
+    const update = (saved: ManagedContent) => this.api.setManagedContentStatus(saved.recordId, status).subscribe({
+      next: () => { this.managingRecordId = undefined; this.loadManagedContent(); },
+      error: (error) => { this.error = error.error?.detail || 'Content status could not be updated'; this.managingRecordId = undefined; }
+    });
+    if (item.recordId) update(item);
+    else this.api.saveManagedContent(this.contentInput(item)).subscribe({ next: update,
+      error: (error) => { this.error = error.error?.detail || 'Content could not be managed'; this.managingRecordId = undefined; } });
+  }
+
+  approveMemberInviteRequest(request: MemberInviteRequest): void {
+    this.approvingInviteRequestId = request.id;
+    this.api.approveMemberInviteRequest(request.id).subscribe({
+      next: () => { this.approvingInviteRequestId = undefined; this.loadMemberInviteRequests(); },
+      error: (error) => { this.error = error.error?.detail || 'Member request could not be approved'; this.approvingInviteRequestId = undefined; }
+    });
+  }
+
+  rejectMemberInviteRequest(request: MemberInviteRequest): void {
+    this.api.rejectMemberInviteRequest(request.id, 'Request reviewed by administrator').subscribe({
+      next: () => this.loadMemberInviteRequests(),
+      error: (error) => this.error = error.error?.detail || 'Member request could not be rejected'
+    });
   }
 
   createEvent(): void {
@@ -394,6 +472,11 @@ export class AdminComponent implements OnInit, OnDestroy {
     });
   }
 
+  private loadMemberInviteRequests(): void {
+    this.api.memberInviteRequests().subscribe({ next: (requests) => this.memberInviteRequests = requests,
+      error: (error) => this.error = error.error?.detail || 'Member invite requests could not be loaded' });
+  }
+
   private registrationUrlFor(code: string): string {
     return `${window.location.origin}/login?mode=register&invite=${encodeURIComponent(code)}`;
   }
@@ -403,6 +486,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   private loadContent(): void {
+    this.loadManagedContent();
     this.api.adminEvents().subscribe({
       next: (events) => this.events = events,
       error: (error) => this.error = error.error?.detail || 'Events could not be loaded'
@@ -415,6 +499,34 @@ export class AdminComponent implements OnInit, OnDestroy {
       next: (images) => this.galleryImages = images,
       error: (error) => this.error = error.error?.detail || 'Gallery could not be loaded'
     });
+  }
+
+  private loadManagedContent(): void {
+    this.api.adminManagedContent().subscribe({ next: (items) => this.managedContent = items,
+      error: (error) => this.error = error.error?.detail || 'Leaders and books could not be loaded' });
+  }
+
+  private saveManaged(input: ManagedContentInput, completed: () => void): void {
+    this.error = ''; this.savingContent = true;
+    this.api.saveManagedContent(input).subscribe({ next: () => { completed(); this.savingContent = false; this.loadManagedContent(); },
+      error: (error) => { this.error = error.error?.detail || 'Content could not be saved'; this.savingContent = false; } });
+  }
+
+  private mergeDefaults(type: 'LEADER' | 'BOOK', defaults: ManagedContentInput[]): ManagedContent[] {
+    const managed = new Map(this.managedContent.filter((item) => item.type === type).map((item) => [item.key, item]));
+    const rows = defaults.map((item) => { const override = managed.get(item.key); managed.delete(item.key);
+      return override || { ...item, recordId: 0, status: 'ACTIVE' as const, updatedAt: '' }; });
+    return [...rows, ...managed.values()];
+  }
+
+  private contentInput(item: ManagedContent): ManagedContentInput {
+    const { type, key, title, byline, summary, category, source, url, imageUrl, details } = item;
+    return { type, key, title, byline, summary, category, source, url, imageUrl, details };
+  }
+
+  private uniqueKey(value: string): string {
+    const base = value.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 65) || 'item';
+    return `${base}-${Date.now().toString(36)}`;
   }
 
   ngOnDestroy(): void {

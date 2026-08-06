@@ -9,7 +9,9 @@ export type OtpPurpose = 'SIGNUP_EMAIL' | 'SIGNUP_MOBILE' | 'PASSWORD_RESET';
 export type EventStatus = 'SCHEDULED' | 'CANCELLED' | 'COMPLETED';
 export type BroadcastMediaType = 'PODCAST' | 'VIDEO' | 'YOUTUBE';
 export type BroadcastStatus = 'DRAFT' | 'LIVE' | 'PAUSED' | 'ENDED';
-export type InviteRequestStatus = 'PENDING' | 'APPROVED';
+export type InviteRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+export type ManagedContentType = 'LEADER' | 'BOOK';
+export type ManagedContentStatus = 'ACTIVE' | 'BLOCKED' | 'REMOVED';
 
 export interface AuthResponse {
   token: string;
@@ -112,6 +114,37 @@ export interface InviteRequest {
   requestedAt: string;
   approvedAt?: string;
 }
+
+export interface MemberInviteRequest {
+  id: number;
+  requesterName: string;
+  requesterEmail: string;
+  recipientEmail: string;
+  recipientMobile: string;
+  status: InviteRequestStatus;
+  inviteCode?: string;
+  rejectionReason?: string;
+  requestedAt: string;
+  decidedAt?: string;
+}
+
+export interface ManagedContent {
+  recordId: number;
+  type: ManagedContentType;
+  key: string;
+  status: ManagedContentStatus;
+  title: string;
+  byline: string;
+  summary: string;
+  category: string;
+  source: string;
+  url: string;
+  imageUrl: string;
+  details: string;
+  updatedAt: string;
+}
+
+export type ManagedContentInput = Omit<ManagedContent, 'recordId' | 'status' | 'updatedAt'>;
 
 export interface Meeting {
   id: number;

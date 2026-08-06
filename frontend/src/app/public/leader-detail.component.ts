@@ -4,6 +4,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideArrowLeft, LucideArrowRight, LucideBookOpen, LucideChevronLeft, LucideChevronRight } from '@lucide/angular';
 import { combineLatest } from 'rxjs';
 import { COMMUNITY_LEADERS, CommunityLeader } from '../core/community-leaders';
+import { CommunityApiService } from '../core/community-api.service';
+import { managedLeaders } from '../core/managed-content';
 
 @Component({
   selector: 'app-leader-detail',
@@ -13,14 +15,15 @@ import { COMMUNITY_LEADERS, CommunityLeader } from '../core/community-leaders';
   styleUrls: ['./public-page.css', './leader-detail.component.css']
 })
 export class LeaderDetailComponent implements OnInit {
-  readonly leaders = COMMUNITY_LEADERS;
+  leaders: readonly CommunityLeader[] = COMMUNITY_LEADERS;
   leader?: CommunityLeader;
   selectedArticle = 0;
 
-  constructor(private route: ActivatedRoute, private router: Router) {}
+  constructor(private route: ActivatedRoute, private router: Router, private api: CommunityApiService) {}
 
   ngOnInit(): void {
-    combineLatest([this.route.paramMap, this.route.queryParamMap]).subscribe(([params, query]) => {
+    combineLatest([this.route.paramMap, this.route.queryParamMap, this.api.publicManagedContent()]).subscribe(([params, query, items]) => {
+      this.leaders = managedLeaders(items);
       this.leader = this.leaders.find((item) => item.id === params.get('leaderId'));
       if (!this.leader) this.router.navigateByUrl('/leaders');
       const requestedArticle = Number(query.get('article') || 0);

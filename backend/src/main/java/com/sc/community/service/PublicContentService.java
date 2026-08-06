@@ -75,12 +75,15 @@ public class PublicContentService {
 
     @Transactional
     public List<BroadcastResponse> broadcasts() {
-        return broadcastRepository.findAllByOrderByCreatedAtDesc().stream().map(BroadcastResponse::from).toList();
+        return broadcastRepository.findAllByOrderByCreatedAtDesc().stream()
+                .filter(broadcast -> !broadcast.getTitle().startsWith(ManagedContentService.PREFIX))
+                .map(BroadcastResponse::from).toList();
     }
 
     @Transactional
     public List<BroadcastResponse> publicBroadcasts() {
         return broadcastRepository.findAllByOrderByCreatedAtDesc().stream()
+                .filter(broadcast -> !broadcast.getTitle().startsWith(ManagedContentService.PREFIX))
                 .filter(broadcast -> broadcast.getStatus() != BroadcastStatus.DRAFT)
                 .map(BroadcastResponse::from)
                 .toList();
@@ -104,6 +107,7 @@ public class PublicContentService {
         if (status == BroadcastStatus.LIVE) {
             broadcastRepository.findByStatus(BroadcastStatus.LIVE).stream()
                     .filter(item -> !item.getId().equals(broadcastId))
+                    .filter(item -> !item.getTitle().startsWith(ManagedContentService.PREFIX))
                     .forEach(item -> item.setStatus(BroadcastStatus.PAUSED));
         }
         broadcast.setStatus(status);

@@ -19,6 +19,7 @@ import { COMMUNITY_LEADERS } from '../core/community-leaders';
 import { CommunityApiService } from '../core/community-api.service';
 import { COMMUNITY_NOTICES } from '../core/community-resources';
 import { Broadcast, CommunityEvent, GalleryImage } from '../core/models';
+import { managedLeaders } from '../core/managed-content';
 
 type CommunitySection = 'leaders' | 'blogs' | 'events' | 'gallery' | 'live';
 
@@ -45,9 +46,9 @@ type CommunitySection = 'leaders' | 'blogs' | 'events' | 'gallery' | 'live';
 export class CommunityHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('leaderRail') leaderRail?: ElementRef<HTMLElement>;
 
-  readonly leaders = COMMUNITY_LEADERS;
+  leaders = [...COMMUNITY_LEADERS];
   readonly notices = COMMUNITY_NOTICES;
-  readonly blogPosts = COMMUNITY_LEADERS.flatMap((leader) =>
+  get blogPosts() { return this.leaders.flatMap((leader) =>
     leader.articles.map((article, articleIndex) => ({
       leaderId: leader.id,
       leaderName: leader.name,
@@ -58,7 +59,7 @@ export class CommunityHomeComponent implements OnInit, AfterViewInit, OnDestroy 
       title: article.title,
       summary: article.summary
     }))
-  );
+  ); }
   events: CommunityEvent[] = [];
   galleryImages: GalleryImage[] = [];
   broadcasts: Broadcast[] = [];
@@ -159,7 +160,7 @@ export class CommunityHomeComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   private loadPublicContent(): void {
-    let requestsPending = 3;
+    let requestsPending = 4;
     const completed = () => {
       requestsPending -= 1;
       if (requestsPending === 0) this.loading = false;
@@ -174,6 +175,10 @@ export class CommunityHomeComponent implements OnInit, AfterViewInit, OnDestroy 
     });
     this.api.publicBroadcasts().subscribe({
       next: (broadcasts) => { this.broadcasts = broadcasts; this.updateEmbedUrl(); completed(); },
+      error: () => { this.contentError = 'Some public updates are temporarily unavailable.'; completed(); }
+    });
+    this.api.publicManagedContent().subscribe({
+      next: (items) => { this.leaders = managedLeaders(items); completed(); },
       error: () => { this.contentError = 'Some public updates are temporarily unavailable.'; completed(); }
     });
   }

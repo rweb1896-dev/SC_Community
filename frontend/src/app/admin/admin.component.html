@@ -4,9 +4,12 @@
       <p class="eyebrow">Moderation console</p>
       <h1>Admin Panel</h1>
     </div>
+    <nav class="admin-quick-nav" aria-label="Admin workspace">
+      <a href="#access">Access</a><a href="#content">Content</a><a href="#members">Members</a><a href="#moderation">Moderation</a>
+    </nav>
   </header>
 
-  <section class="panel invite-console">
+  <section class="panel invite-console" id="access">
     <div class="invite-copy">
       <p class="eyebrow">Member access</p>
       <h2>Invite code</h2>
@@ -53,6 +56,22 @@
         {{ copiedInviteMessage ? 'Copied' : 'Copy message' }}
       </button>
     </div>
+  </section>
+
+  <section class="panel invite-request-console member-request-console">
+    <header class="request-console-heading">
+      <div><p class="eyebrow">Registered members</p><h2>Member invite-code requests</h2><span>Members can request a code for a person they want to invite. Approve or reject each request.</span></div>
+      <span class="request-count">{{ memberInviteRequests.length }} pending</span>
+    </header>
+    <p class="request-empty" *ngIf="memberInviteRequests.length === 0">No registered-member request is pending.</p>
+    <article class="invite-request-row" *ngFor="let request of memberInviteRequests">
+      <span class="request-avatar"><svg lucideUserRound></svg></span>
+      <div><strong>{{ request.requesterName }}</strong><span>For: {{ request.recipientEmail || request.recipientMobile }}</span><small>{{ request.requesterEmail }} · {{ request.requestedAt | date:'medium' }}</small></div>
+      <div class="request-decision-actions">
+        <button class="btn approve-request" type="button" [disabled]="approvingInviteRequestId === request.id" (click)="approveMemberInviteRequest(request)"><svg lucideCheck></svg>Approve &amp; generate</button>
+        <button class="btn reject-request" type="button" (click)="rejectMemberInviteRequest(request)"><svg lucideX></svg>Reject</button>
+      </div>
+    </article>
   </section>
 
   <div class="invite-dialog-backdrop" *ngIf="invitePanelOpen" (click)="closeInvitePanel()">
@@ -122,15 +141,68 @@
     <div class="panel stat"><strong>{{ dashboard.activePosts }}</strong><span>Active Posts</span></div>
   </section>
 
-  <section class="panel content-studio">
+  <section class="panel content-studio" id="content">
     <header class="studio-heading">
-      <div><p class="eyebrow">Public publishing</p><h2>Content Studio</h2><span>Manage events, gallery photos and the live broadcast desk.</span></div>
+      <div><p class="eyebrow">Public publishing</p><h2>Content Studio</h2><span>One workspace for leaders, books, events, gallery and live media.</span></div>
       <div class="studio-tabs" aria-label="Content type">
+        <button type="button" [class.active]="contentTab === 'leaders'" (click)="contentTab = 'leaders'"><svg lucideUserRound></svg>Leaders</button>
+        <button type="button" [class.active]="contentTab === 'books'" (click)="contentTab = 'books'"><svg lucideBookOpen></svg>Library</button>
         <button type="button" [class.active]="contentTab === 'events'" (click)="contentTab = 'events'"><svg lucideCalendarDays></svg>Events</button>
         <button type="button" [class.active]="contentTab === 'broadcasts'" (click)="contentTab = 'broadcasts'"><svg lucideRadio></svg>Live media</button>
         <button type="button" [class.active]="contentTab === 'gallery'" (click)="contentTab = 'gallery'"><svg lucideImages></svg>Gallery</button>
       </div>
     </header>
+
+    <div class="studio-layout" *ngIf="contentTab === 'leaders'">
+      <form class="studio-form" (ngSubmit)="createLeader()">
+        <div class="studio-form-heading"><strong>Add a leader</strong><span>The profile becomes visible immediately and can be blocked or restored later.</span></div>
+        <label>Full name<input name="leaderName" maxlength="120" [(ngModel)]="leaderForm.name" required /></label>
+        <div class="form-row"><label>Role<input name="leaderRole" maxlength="120" [(ngModel)]="leaderForm.role" required /></label><label>Era<select name="leaderEra" [(ngModel)]="leaderForm.era"><option value="CURRENT">Current</option><option value="LEGACY">Legacy</option></select></label></div>
+        <label>Department / area<input name="leaderDepartment" maxlength="160" [(ngModel)]="leaderForm.department" /></label>
+        <label>Contribution<textarea name="leaderContribution" maxlength="360" [(ngModel)]="leaderForm.contribution" required></textarea></label>
+        <label>Profile overview<textarea name="leaderOverview" maxlength="360" [(ngModel)]="leaderForm.overview"></textarea></label>
+        <label>Photo URL<input name="leaderImage" type="url" placeholder="https://" [(ngModel)]="leaderForm.imageUrl" required /></label>
+        <button class="btn" type="submit" [disabled]="savingContent"><svg lucidePlus></svg>{{ savingContent ? 'Saving...' : 'Add leader' }}</button>
+      </form>
+      <div class="studio-list managed-list">
+        <div class="studio-list-heading"><strong>Leadership archive</strong><span>{{ leaderContentRows.length }} profiles</span></div>
+        <article class="content-item managed-item" *ngFor="let item of leaderContentRows" [class.is-muted]="item.status !== 'ACTIVE'">
+          <img [src]="item.imageUrl" [alt]="item.title" />
+          <div><span>{{ item.category }} · {{ item.status }}</span><strong>{{ item.title }}</strong><small>{{ item.byline }}</small></div>
+          <div class="icon-actions managed-actions">
+            <button *ngIf="item.status !== 'ACTIVE'" type="button" title="Restore" (click)="setManagedStatus(item, 'ACTIVE')"><svg lucideRotateCcw></svg></button>
+            <button *ngIf="item.status === 'ACTIVE'" type="button" title="Block from website" (click)="setManagedStatus(item, 'BLOCKED')"><svg lucideBan></svg></button>
+            <button *ngIf="item.status !== 'REMOVED'" class="danger" type="button" title="Remove from website" (click)="setManagedStatus(item, 'REMOVED')"><svg lucideTrash2></svg></button>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <div class="studio-layout" *ngIf="contentTab === 'books'">
+      <form class="studio-form" (ngSubmit)="createBook()">
+        <div class="studio-form-heading"><strong>Add a library book</strong><span>Add a free PDF or a print-store edition.</span></div>
+        <label>Book title<input name="bookTitle" maxlength="120" [(ngModel)]="bookForm.title" required /></label>
+        <div class="form-row"><label>Author<input name="bookAuthor" maxlength="120" [(ngModel)]="bookForm.author" required /></label><label>Collection<select name="bookKind" [(ngModel)]="bookForm.kind"><option value="FREE">Free PDF</option><option value="PRINT">Print edition</option></select></label></div>
+        <label>Summary<textarea name="bookSummary" maxlength="360" [(ngModel)]="bookForm.summary" required></textarea></label>
+        <label>{{ bookForm.kind === 'FREE' ? 'Language' : 'Format' }}<input name="bookFormat" maxlength="160" [(ngModel)]="bookForm.languageOrFormat" /></label>
+        <label>{{ bookForm.kind === 'FREE' ? 'PDF URL' : 'Store URL' }}<input name="bookUrl" type="url" placeholder="https://" [(ngModel)]="bookForm.url" required /></label>
+        <label>Cover image URL <small>{{ bookForm.kind === 'FREE' ? 'Optional' : 'Recommended' }}</small><input name="bookImage" type="url" placeholder="https://" [(ngModel)]="bookForm.imageUrl" /></label>
+        <label>{{ bookForm.kind === 'FREE' ? 'Source' : 'Price' }}<input name="bookSource" maxlength="160" [(ngModel)]="bookForm.sourceOrPrice" /></label>
+        <button class="btn" type="submit" [disabled]="savingContent"><svg lucidePlus></svg>{{ savingContent ? 'Saving...' : 'Add book' }}</button>
+      </form>
+      <div class="studio-list managed-list">
+        <div class="studio-list-heading"><strong>Library catalogue</strong><span>{{ bookContentRows.length }} books</span></div>
+        <article class="content-item managed-item" *ngFor="let item of bookContentRows" [class.is-muted]="item.status !== 'ACTIVE'">
+          <span class="content-icon"><svg lucideBookOpen></svg></span>
+          <div><span>{{ item.category }} · {{ item.status }}</span><strong>{{ item.title }}</strong><small>{{ item.byline }}</small></div>
+          <div class="icon-actions managed-actions">
+            <button *ngIf="item.status !== 'ACTIVE'" type="button" title="Restore" (click)="setManagedStatus(item, 'ACTIVE')"><svg lucideRotateCcw></svg></button>
+            <button *ngIf="item.status === 'ACTIVE'" type="button" title="Block from library" (click)="setManagedStatus(item, 'BLOCKED')"><svg lucideBan></svg></button>
+            <button *ngIf="item.status !== 'REMOVED'" class="danger" type="button" title="Remove from library" (click)="setManagedStatus(item, 'REMOVED')"><svg lucideTrash2></svg></button>
+          </div>
+        </article>
+      </div>
+    </div>
 
     <div class="studio-layout" *ngIf="contentTab === 'events'">
       <form class="studio-form" (ngSubmit)="createEvent()">
@@ -236,7 +308,7 @@
     </article>
   </section>
 
-  <section class="panel block">
+  <section class="panel block" id="members">
     <h2>User Management</h2>
     <div class="table-wrap">
       <table>
@@ -272,7 +344,7 @@
     </div>
   </section>
 
-  <section class="grid-two">
+  <section class="grid-two" id="moderation">
     <div class="panel block">
       <h2>Content Moderation</h2>
       <article class="moderation-post" *ngFor="let post of posts">

@@ -14,6 +14,9 @@
 }
 
 .admin-page h1 { margin-bottom: 4px; color: #17241f; font-size: clamp(30px, 4vw, 44px); }
+.admin-quick-nav { display: flex; gap: 5px; border: 1px solid #dde4e0; border-radius: 10px; background: #f8faf9; padding: 4px; }
+.admin-quick-nav a { border-radius: 7px; color: #5c6a63; padding: 8px 11px; font-size: 10px; font-weight: 850; text-decoration: none; }
+.admin-quick-nav a:hover { background: #eaf0ff; color: #2457bd; }
 
 h1,
 h2,
@@ -306,6 +309,11 @@ p {
 .invite-request-row { display: grid; grid-template-columns: 42px minmax(0,1fr) auto; align-items: center; gap: 12px; border-bottom: 1px solid #e7ebe8; padding: 14px 20px; animation: request-row-in .38s ease-out both; }
 .invite-request-row:last-child { border-bottom: 0; }
 .request-avatar { display: grid; width: 40px; height: 40px; place-items: center; border-radius: 11px; background: linear-gradient(135deg,#315fca,#6547c8); color: #fff; font-weight: 900; box-shadow: 0 7px 16px rgba(49,77,171,.2); }
+.request-avatar svg { width: 18px; }
+.member-request-console { border-top: 3px solid #7c3aed; }
+.request-decision-actions { display: flex !important; grid-auto-flow: column; gap: 7px !important; }
+.reject-request { display: inline-flex; align-items: center; gap: 5px; border-color: #efc5c1 !important; background: #fff7f6 !important; color: #a83229 !important; }
+.reject-request svg { width: 14px; }
 .invite-request-row > div { display: grid; min-width: 0; gap: 2px; }
 .invite-request-row > div strong { color: #29362f; font-size: 12px; }
 .invite-request-row > div span { overflow: hidden; color: #66746c; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
@@ -473,7 +481,7 @@ td {
 .studio-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid #e2e8e4; padding: 20px 22px; }
 .studio-heading h2 { margin: 2px 0 3px; color: #26322c; font-size: 20px; }
 .studio-heading > div:first-child > span { color: #748079; font-size: 10px; }
-.studio-tabs { display: flex; border: 1px solid #dce3df; border-radius: 7px; background: #f7f9f7; padding: 3px; }
+.studio-tabs { display: flex; flex-wrap: wrap; border: 1px solid #dce3df; border-radius: 7px; background: #f7f9f7; padding: 3px; }
 .studio-tabs button { display: inline-flex; min-height: 34px; align-items: center; gap: 6px; border: 0; border-radius: 5px; background: transparent; color: #65716a; padding: 0 12px; font-size: 10px; font-weight: 850; }
 .studio-tabs button.active { background: #e9f0ff; color: #2457bd; }
 .studio-tabs svg { width: 15px; }
@@ -517,15 +525,21 @@ td {
 .file-picker svg { width: 16px; height: 16px; flex: 0 0 auto; }
 .gallery-admin-item { grid-template-columns: 58px minmax(0, 1fr) auto; }
 .gallery-admin-item > img { display: block; width: 56px; height: 46px; border-radius: 5px; object-fit: cover; }
+.managed-list { max-height: 690px; overflow-y: auto; }
+.managed-item > img { width: 38px; height: 38px; border-radius: 8px; object-fit: cover; }
+.managed-item.is-muted { opacity: .58; background: #f8f9f9; }
+.managed-actions button[title="Restore"] { border-color: #a8d5be; background: #effaf4; }
 
 @media (max-width: 680px) {
-  .admin-page > header { align-items: flex-start; }
+  .admin-page > header { align-items: flex-start; flex-direction: column; }
+  .admin-quick-nav { width: 100%; overflow-x: auto; }
   .admin-page > header .btn { white-space: nowrap; }
   .block { padding: 16px; }
   .meeting-request { grid-template-columns: 38px minmax(0, 1fr); }
   .meeting-request .actions { grid-column: 1 / -1; }
   .invite-request-row { grid-template-columns: 40px minmax(0,1fr); padding: 13px 15px; }
   .approve-request { grid-column: 2; justify-self: start; }
+  .request-decision-actions { grid-column: 2; grid-auto-flow: row; }
   .approved-request-result { grid-template-columns: 42px minmax(0,1fr); margin: 13px; }
   .approved-request-result .copy-message { grid-column: 2; justify-self: start; }
 }

@@ -8,6 +8,9 @@ import com.sc.community.dto.InviteRequestDtos.InviteRequestResponse;
 import com.sc.community.entity.UserStatus;
 import com.sc.community.service.AdminService;
 import com.sc.community.service.InviteRequestService;
+import com.sc.community.service.MemberInviteRequestService;
+import com.sc.community.dto.MemberInviteRequestDtos.MemberInviteRequestResponse;
+import com.sc.community.dto.MemberInviteRequestDtos.RejectMemberInviteRequest;
 import java.util.List;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,10 +27,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminController {
     private final AdminService adminService;
     private final InviteRequestService inviteRequestService;
+    private final MemberInviteRequestService memberInviteRequestService;
 
-    public AdminController(AdminService adminService, InviteRequestService inviteRequestService) {
+    public AdminController(AdminService adminService, InviteRequestService inviteRequestService,
+            MemberInviteRequestService memberInviteRequestService) {
         this.adminService = adminService;
         this.inviteRequestService = inviteRequestService;
+        this.memberInviteRequestService = memberInviteRequestService;
     }
 
     @GetMapping("/dashboard")
@@ -85,5 +91,19 @@ public class AdminController {
     @PatchMapping("/invite-requests/{requestId}/approve")
     public InviteRequestResponse approveInviteRequest(@PathVariable Long requestId) {
         return inviteRequestService.approve(requestId);
+    }
+
+    @GetMapping("/member-invite-requests")
+    public List<MemberInviteRequestResponse> memberInviteRequests() { return memberInviteRequestService.pending(); }
+
+    @PatchMapping("/member-invite-requests/{requestId}/approve")
+    public MemberInviteRequestResponse approveMemberInviteRequest(@PathVariable Long requestId) {
+        return memberInviteRequestService.approve(requestId);
+    }
+
+    @PatchMapping("/member-invite-requests/{requestId}/reject")
+    public MemberInviteRequestResponse rejectMemberInviteRequest(@PathVariable Long requestId,
+            @Valid @RequestBody RejectMemberInviteRequest request) {
+        return memberInviteRequestService.reject(requestId, request.reason());
     }
 }

@@ -5,6 +5,8 @@ import com.sc.community.dto.PublicContentDtos.EventResponse;
 import com.sc.community.dto.PublicContentDtos.GalleryImageResponse;
 import com.sc.community.service.PublicBookService;
 import com.sc.community.service.PublicContentService;
+import com.sc.community.service.ManagedContentService;
+import com.sc.community.dto.ManagedContentDtos.ManagedContentResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
@@ -23,10 +25,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class PublicContentController {
     private final PublicBookService bookService;
     private final PublicContentService contentService;
+    private final ManagedContentService managedContentService;
 
-    public PublicContentController(PublicBookService bookService, PublicContentService contentService) {
+    public PublicContentController(PublicBookService bookService, PublicContentService contentService,
+            ManagedContentService managedContentService) {
         this.bookService = bookService;
         this.contentService = contentService;
+        this.managedContentService = managedContentService;
     }
 
     @GetMapping("/events")
@@ -42,6 +47,11 @@ public class PublicContentController {
     @GetMapping("/gallery")
     public List<GalleryImageResponse> gallery() {
         return contentService.gallery();
+    }
+
+    @GetMapping("/managed-content")
+    public List<ManagedContentResponse> managedContent() {
+        return managedContentService.all();
     }
 
     @GetMapping("/books/{bookId}/pdf")

@@ -7,6 +7,10 @@ import com.sc.community.dto.PublicContentDtos.EventResponse;
 import com.sc.community.dto.PublicContentDtos.GalleryImageResponse;
 import com.sc.community.dto.PublicContentDtos.UpdateBroadcastStatusRequest;
 import com.sc.community.dto.PublicContentDtos.UpdateEventStatusRequest;
+import com.sc.community.dto.ManagedContentDtos.ManagedContentResponse;
+import com.sc.community.dto.ManagedContentDtos.ManagedContentStatusRequest;
+import com.sc.community.dto.ManagedContentDtos.SaveManagedContentRequest;
+import com.sc.community.service.ManagedContentService;
 import com.sc.community.service.PublicContentService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -28,9 +32,11 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/admin/content")
 public class AdminPublicContentController {
     private final PublicContentService contentService;
+    private final ManagedContentService managedContentService;
 
-    public AdminPublicContentController(PublicContentService contentService) {
+    public AdminPublicContentController(PublicContentService contentService, ManagedContentService managedContentService) {
         this.contentService = contentService;
+        this.managedContentService = managedContentService;
     }
 
     @GetMapping("/events")
@@ -100,5 +106,21 @@ public class AdminPublicContentController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteGalleryImage(@PathVariable Long imageId) {
         contentService.deleteGalleryImage(imageId);
+    }
+
+    @GetMapping("/managed")
+    public List<ManagedContentResponse> managedContent() {
+        return managedContentService.all();
+    }
+
+    @PostMapping("/managed")
+    public ManagedContentResponse saveManagedContent(@Valid @RequestBody SaveManagedContentRequest request) {
+        return managedContentService.save(request);
+    }
+
+    @PatchMapping("/managed/{recordId}/status")
+    public ManagedContentResponse managedContentStatus(@PathVariable Long recordId,
+            @Valid @RequestBody ManagedContentStatusRequest request) {
+        return managedContentService.status(recordId, request.status());
     }
 }

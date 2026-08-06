@@ -7,6 +7,7 @@ import { Category, Comment, Post, UserResponse } from '../core/models';
 import { CommunityApiService } from '../core/community-api.service';
 import { AuthService } from '../core/auth.service';
 import { COMMUNITY_LEADERS } from '../core/community-leaders';
+import { managedLeaders } from '../core/managed-content';
 
 @Component({
   selector: 'app-feed',
@@ -32,7 +33,7 @@ export class FeedComponent implements OnInit, OnDestroy {
   showScrollTop = false;
   searchTerm = '';
   activeLeaderIndex = 0;
-  readonly leaders = COMMUNITY_LEADERS;
+  leaders = [...COMMUNITY_LEADERS];
   private leaderTimer?: ReturnType<typeof setInterval>;
 
   get activeLeader() {
@@ -70,6 +71,10 @@ export class FeedComponent implements OnInit, OnDestroy {
       next: (members) => this.members = members,
       error: () => this.members = []
     });
+    this.api.publicManagedContent().subscribe({ next: (items) => {
+      this.leaders = managedLeaders(items);
+      this.activeLeaderIndex = 0;
+    }});
     this.loadPosts();
     this.leaderTimer = setInterval(() => this.rotateLeader(1), 6500);
   }

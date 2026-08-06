@@ -1,9 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { LucideArrowRight, LucideChevronLeft, LucideChevronRight, LucideSearch } from '@lucide/angular';
 import { COMMUNITY_LEADERS, CommunityLeader, LeaderEra } from '../core/community-leaders';
+import { CommunityApiService } from '../core/community-api.service';
+import { managedLeaders } from '../core/managed-content';
 
 type LeaderFilter = 'ALL' | LeaderEra;
 
@@ -14,11 +16,17 @@ type LeaderFilter = 'ALL' | LeaderEra;
   templateUrl: './leaders.component.html',
   styleUrls: ['./public-page.css', './leaders.component.css']
 })
-export class LeadersComponent {
+export class LeadersComponent implements OnInit {
   @ViewChild('leaderRail') leaderRail?: ElementRef<HTMLElement>;
-  readonly leaders = COMMUNITY_LEADERS;
+  leaders: readonly CommunityLeader[] = COMMUNITY_LEADERS;
   filter: LeaderFilter = 'ALL';
   query = '';
+
+  constructor(private api: CommunityApiService) {}
+
+  ngOnInit(): void {
+    this.api.publicManagedContent().subscribe({ next: (items) => this.leaders = managedLeaders(items) });
+  }
 
   get visibleLeaders(): readonly CommunityLeader[] {
     const query = this.query.trim().toLowerCase();

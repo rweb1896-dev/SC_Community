@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Broadcast, BroadcastMediaType, BroadcastStatus, Category, Comment, CommunityEvent, Dashboard, EventStatus, GalleryImage, InviteCode, InviteRequest, Meeting, MeetingAudience, Message, Post, ProfessionalGroup, UserResponse, UserStatus } from './models';
+import { Broadcast, BroadcastMediaType, BroadcastStatus, Category, Comment, CommunityEvent, Dashboard, EventStatus, GalleryImage, InviteCode, InviteRequest, ManagedContent, ManagedContentInput, ManagedContentStatus, Meeting, MeetingAudience, MemberInviteRequest, Message, Post, ProfessionalGroup, UserResponse, UserStatus } from './models';
 
 const API = '/api';
 
@@ -80,6 +80,26 @@ export class CommunityApiService {
 
   approveInviteRequest(requestId: number) {
     return this.http.patch<InviteRequest>(`${API}/admin/invite-requests/${requestId}/approve`, {});
+  }
+
+  memberInviteRequests() {
+    return this.http.get<MemberInviteRequest[]>(`${API}/admin/member-invite-requests`);
+  }
+
+  approveMemberInviteRequest(requestId: number) {
+    return this.http.patch<MemberInviteRequest>(`${API}/admin/member-invite-requests/${requestId}/approve`, {});
+  }
+
+  rejectMemberInviteRequest(requestId: number, reason = '') {
+    return this.http.patch<MemberInviteRequest>(`${API}/admin/member-invite-requests/${requestId}/reject`, { reason });
+  }
+
+  myInviteRequests() {
+    return this.http.get<MemberInviteRequest[]>(`${API}/invite-requests/mine`);
+  }
+
+  requestMemberInvite(recipientEmail: string, recipientMobile: string) {
+    return this.http.post<MemberInviteRequest>(`${API}/invite-requests`, { recipientEmail, recipientMobile });
   }
 
   meetings() {
@@ -201,5 +221,21 @@ export class CommunityApiService {
 
   deleteGalleryImage(imageId: number) {
     return this.http.delete<void>(`${API}/admin/content/gallery/${imageId}`);
+  }
+
+  publicManagedContent() {
+    return this.http.get<ManagedContent[]>(`${API}/public/managed-content`);
+  }
+
+  adminManagedContent() {
+    return this.http.get<ManagedContent[]>(`${API}/admin/content/managed`);
+  }
+
+  saveManagedContent(content: ManagedContentInput) {
+    return this.http.post<ManagedContent>(`${API}/admin/content/managed`, content);
+  }
+
+  setManagedContentStatus(recordId: number, status: ManagedContentStatus) {
+    return this.http.patch<ManagedContent>(`${API}/admin/content/managed/${recordId}/status`, { status });
   }
 }

@@ -122,6 +122,49 @@ nav a svg { width: 20px; height: 20px; }
 .nav-logout { display: inline-grid; width: 40px; height: 40px; place-items: center; border: 1px solid #f1c9c5; border-radius: 8px; background: #fff7f6; color: #a73229; padding: 0; }
 .nav-logout:hover { border-color: #e9aaa4; background: #fff0ee; color: #8f2119; }
 .nav-logout svg { width: 16px; height: 16px; }
+.nav-invite { position: relative; display: inline-flex; height: 40px; align-items: center; gap: 7px; border: 1px solid #cdd9fa; border-radius: 10px; background: #f3f6ff; color: #2457bd; padding: 0 11px; font-size: 11px; font-weight: 850; }
+.nav-invite svg { width: 16px; height: 16px; }
+.nav-invite i { position: absolute; top: 5px; right: 5px; width: 7px; height: 7px; border: 2px solid #f3f6ff; border-radius: 50%; background: #f59e0b; }
+
+.member-invite-backdrop { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; overflow-y: auto; background: rgba(13,21,38,.56); padding: 24px; backdrop-filter: blur(8px); animation: invite-backdrop-in .22s ease-out; }
+.member-invite-modal { position: relative; display: grid; width: min(520px,100%); gap: 13px; overflow: hidden; border: 1px solid rgba(255,255,255,.7); border-radius: 24px; background: linear-gradient(155deg,#fff,#f7f9ff); box-shadow: 0 30px 90px rgba(13,31,74,.28); padding: 32px; animation: invite-modal-in .4s cubic-bezier(.2,.8,.2,1); }
+.member-invite-modal::before { position: absolute; inset: 0 0 auto; height: 5px; background: linear-gradient(90deg,#2563eb,#7c3aed,#06b6d4); content: ''; }
+.member-invite-close { position: absolute; top: 17px; right: 17px; display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid #dde3f0; border-radius: 50%; background: #fff; color: #647087; }
+.member-invite-close svg { width: 16px; }
+.invite-modal-icon { position: relative; display: grid; width: 58px; height: 58px; place-items: center; border-radius: 18px; background: linear-gradient(135deg,#e8efff,#dbe6ff); color: #2558c5; box-shadow: 0 12px 28px rgba(37,88,197,.16); }
+.invite-modal-icon svg { width: 27px; height: 27px; }
+.invite-modal-icon.pending i { position: absolute; inset: -5px; border: 2px solid rgba(37,99,235,.22); border-radius: 22px; animation: invite-pulse 1.8s ease-out infinite; }
+.invite-modal-icon.approved { background: linear-gradient(135deg,#dcfce7,#bbf7d0); color: #15803d; animation: invite-approved .55s cubic-bezier(.2,.9,.2,1); }
+.invite-modal-icon.rejected { background: #fff0ee; color: #b3362d; }
+.invite-modal-kicker { margin: 2px 0 -7px !important; color: #315fc6 !important; font-size: 10px !important; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+.member-invite-modal h2 { margin: 0; color: #1d273b; font-size: clamp(24px,5vw,34px); letter-spacing: -.035em; }
+.member-invite-modal > p { margin: 0; color: #667187; font-size: 13px; line-height: 1.65; }
+.member-invite-modal > small { color: #8a94a7; font-size: 10px; }
+.member-invite-modal label { display: grid; gap: 7px; color: #3d475b; font-size: 11px; font-weight: 850; }
+.member-invite-modal input { height: 48px; border: 1px solid #d8dfed; border-radius: 12px; background: #fff; padding: 0 14px; color: #1d273b; outline: none; }
+.member-invite-modal input:focus { border-color: #7da1ef; box-shadow: 0 0 0 4px rgba(37,99,235,.1); }
+.member-channel-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; border-radius: 11px; background: #edf1f8; padding: 4px; }
+.member-channel-tabs button { height: 36px; border: 0; border-radius: 8px; background: transparent; color: #69758a; font-size: 11px; font-weight: 850; }
+.member-channel-tabs button.active { background: #fff; box-shadow: 0 4px 12px rgba(35,49,82,.1); color: #2457bd; }
+.member-primary-action,.member-secondary-action { display: inline-flex; height: 48px; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 12px; background: linear-gradient(135deg,#2b65e5,#234fbb); color: #fff; font-weight: 850; }
+.member-primary-action:disabled { opacity: .55; }
+.member-primary-action svg { width: 17px; }
+.member-secondary-action { background: #273550; }
+.invite-progress { display: flex; gap: 7px; margin-block: 4px; }
+.invite-progress span { width: 9px; height: 9px; border-radius: 50%; background: #4979df; animation: invite-dot 1.3s ease-in-out infinite; }
+.invite-progress span:nth-child(2) { animation-delay: .16s; }.invite-progress span:nth-child(3) { animation-delay: .32s; }
+.member-invite-message { overflow: auto; max-height: 210px; margin: 2px 0; border: 1px solid #dce4f5; border-radius: 13px; background: #f4f7fe; padding: 15px; color: #253758; font: 11px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace; white-space: pre-wrap; }
+.member-result-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.member-result-actions button { display: inline-flex; height: 44px; align-items: center; justify-content: center; gap: 7px; border: 1px solid #b9caf1; border-radius: 11px; background: #fff; color: #2457bd; font-weight: 850; }
+.member-result-actions button:last-child { border-color: #2457bd; background: #2457bd; color: #fff; }
+.member-result-actions svg { width: 16px; }
+.member-new-request { border: 0; background: transparent; color: #66758e; font-size: 10px; font-weight: 800; text-decoration: underline; }
+.member-invite-error { border-radius: 9px; background: #fff0ee; padding: 8px 10px; color: #a43129 !important; font-size: 10px !important; }
+@keyframes invite-backdrop-in { from { opacity: 0; } }
+@keyframes invite-modal-in { from { opacity: 0; transform: translateY(18px) scale(.97); } }
+@keyframes invite-pulse { 0% { opacity: .8; transform: scale(.8); } 100% { opacity: 0; transform: scale(1.35); } }
+@keyframes invite-approved { 0% { opacity: 0; transform: scale(.6) rotate(-10deg); } 70% { transform: scale(1.08) rotate(2deg); } }
+@keyframes invite-dot { 0%,100% { opacity: .35; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-5px); } }
 
 nav a.active {
   background: #eaf0ff;
@@ -226,8 +269,13 @@ main {
   .profile-menu-wrap { margin: 4px 2px 2px; }
   .profile-trigger { width: 100%; justify-content: space-between; border-radius: 8px; }
   .profile-menu { position: static; width: 100%; margin-top: 7px; box-shadow: none; }
+  .nav-invite { width: 100%; justify-content: flex-start; }
+  .member-invite-backdrop { align-items: end; padding: 10px; }
+  .member-invite-modal { border-radius: 22px 22px 14px 14px; padding: 28px 20px 22px; }
 
 }
+
+@media (prefers-reduced-motion: reduce) { .member-invite-backdrop,.member-invite-modal,.invite-modal-icon,.invite-modal-icon.pending i,.invite-progress span { animation: none; } }
 
 @media (max-width: 1080px) and (min-width: 701px) {
   .global-search { max-width: 320px; }

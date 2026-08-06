@@ -10,6 +10,7 @@ export interface CommunityBook {
 }
 
 export interface PaidCommunityBook {
+  id: string;
   title: string;
   author: string;
   summary: string;
@@ -106,6 +107,7 @@ export const COMMUNITY_BOOKS: readonly CommunityBook[] = [
 
 export const PAID_COMMUNITY_BOOKS: readonly PaidCommunityBook[] = [
   {
+    id: 'caste-matters',
     title: 'Caste Matters',
     author: 'Suraj Yengde',
     summary: 'A personal and analytical account of caste, power, resilience and modern Dalit life.',
@@ -116,6 +118,7 @@ export const PAID_COMMUNITY_BOOKS: readonly PaidCommunityBook[] = [
     coverImageUrl: '/assets/books/caste-matters.jpg'
   },
   {
+    id: 'annihilation-critical',
     title: 'Annihilation of Caste: The Annotated Critical Edition',
     author: 'B. R. Ambedkar',
     summary: 'Ambedkar\'s foundational text with annotations and an introduction by Arundhati Roy.',
@@ -126,6 +129,7 @@ export const PAID_COMMUNITY_BOOKS: readonly PaidCommunityBook[] = [
     coverImageUrl: '/assets/books/annihilation-critical.jpg'
   },
   {
+    id: 'riddles-in-hinduism',
     title: 'Riddles in Hinduism',
     author: 'B. R. Ambedkar',
     summary: 'An annotated critical selection introduced by Kancha Ilaiah Shepherd.',
@@ -136,6 +140,7 @@ export const PAID_COMMUNITY_BOOKS: readonly PaidCommunityBook[] = [
     coverImageUrl: '/assets/books/riddles-in-hinduism.jpg'
   },
   {
+    id: 'against-madness-of-manu',
     title: 'Against the Madness of Manu',
     author: 'B. R. Ambedkar · Selected by Sharmila Rege',
     summary: 'Selected writings on Brahmanical patriarchy, gender justice and social equality.',
