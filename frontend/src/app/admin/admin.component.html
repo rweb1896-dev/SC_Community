@@ -1,15 +1,35 @@
 <section class="admin-page">
   <header>
     <div>
-      <p class="eyebrow">Moderation console</p>
-      <h1>Admin Panel</h1>
+      <p class="eyebrow">SC Community Connect</p>
+      <h1>Administration</h1>
+      <span class="admin-subtitle">Manage membership, public content and community safety.</span>
     </div>
-    <nav class="admin-quick-nav" aria-label="Admin workspace">
-      <a href="#access">Access</a><a href="#content">Content</a><a href="#members">Members</a><a href="#moderation">Moderation</a>
-    </nav>
   </header>
 
-  <section class="panel invite-console" id="access">
+  <div class="admin-workspace">
+    <aside class="admin-sidebar" aria-label="Administration sections">
+      <div class="sidebar-label">Workspace</div>
+      <button type="button" [class.active]="workspaceTab === 'overview'" (click)="workspaceTab = 'overview'"><span>01</span><div><strong>Overview</strong><small>Health and priorities</small></div></button>
+      <button type="button" [class.active]="workspaceTab === 'invitations'" (click)="workspaceTab = 'invitations'"><span>02</span><div><strong>Invitations</strong><small>Codes and requests</small></div><i *ngIf="inviteRequests.length + memberInviteRequests.length">{{ inviteRequests.length + memberInviteRequests.length }}</i></button>
+      <button type="button" [class.active]="workspaceTab === 'content'" (click)="workspaceTab = 'content'"><span>03</span><div><strong>Website content</strong><small>Leaders, books and media</small></div></button>
+      <button type="button" [class.active]="workspaceTab === 'members'" (click)="workspaceTab = 'members'"><span>04</span><div><strong>People</strong><small>Members and meetings</small></div><i *ngIf="pendingMeetings.length">{{ pendingMeetings.length }}</i></button>
+      <button type="button" [class.active]="workspaceTab === 'moderation'" (click)="workspaceTab = 'moderation'"><span>05</span><div><strong>Moderation</strong><small>Posts and safety</small></div></button>
+    </aside>
+
+    <div class="admin-content">
+      <section class="overview-welcome" *ngIf="workspaceTab === 'overview'">
+        <div><p class="eyebrow">Control centre</p><h2>Administration overview</h2><span>Outstanding work and website health, without unnecessary clutter.</span></div>
+        <time>{{ dashboard?.totalUsers || 0 }} registered members</time>
+      </section>
+
+      <section class="overview-actions" *ngIf="workspaceTab === 'overview'">
+        <button type="button" (click)="workspaceTab = 'invitations'"><span>{{ inviteRequests.length + memberInviteRequests.length }}</span><div><strong>Invite requests</strong><small>Awaiting a decision</small></div><b>Review →</b></button>
+        <button type="button" (click)="workspaceTab = 'members'"><span>{{ pendingMeetings.length }}</span><div><strong>Meeting requests</strong><small>Awaiting approval</small></div><b>Review →</b></button>
+        <button type="button" (click)="workspaceTab = 'content'"><span>{{ leaderContentRows.length + bookContentRows.length }}</span><div><strong>Managed resources</strong><small>Leaders and books</small></div><b>Manage →</b></button>
+      </section>
+
+  <section class="panel invite-console" *ngIf="workspaceTab === 'invitations'">
     <div class="invite-copy">
       <p class="eyebrow">Member access</p>
       <h2>Invite code</h2>
@@ -48,7 +68,7 @@
     <div class="invite-message-preview" *ngIf="latestCode">
       <div>
         <span>Ready-to-send message</span>
-        <pre>{{ inviteMessage }}</pre>
+        <strong>Registration link, invite code and both verification OTPs are included.</strong>
       </div>
       <button class="copy-message" type="button" (click)="copyInviteMessage()">
         <svg *ngIf="!copiedInviteMessage" lucideCopy aria-hidden="true"></svg>
@@ -58,7 +78,7 @@
     </div>
   </section>
 
-  <section class="panel invite-request-console member-request-console">
+  <section class="panel invite-request-console member-request-console" *ngIf="workspaceTab === 'invitations'">
     <header class="request-console-heading">
       <div><p class="eyebrow">Registered members</p><h2>Member invite-code requests</h2><span>Members can request a code for a person they want to invite. Approve or reject each request.</span></div>
       <span class="request-count">{{ memberInviteRequests.length }} pending</span>
@@ -102,7 +122,7 @@
     </form>
   </div>
 
-  <section class="panel invite-request-console">
+  <section class="panel invite-request-console" *ngIf="workspaceTab === 'invitations'">
     <header class="request-console-heading">
       <div><p class="eyebrow">Applicant access</p><h2>Invite requests</h2><span>Approve verified applicants to issue a secure single-use code.</span></div>
       <span class="request-count">{{ inviteRequests.length }} pending</span>
@@ -133,7 +153,7 @@
 
   <p class="admin-error top-error" *ngIf="error">{{ error }}</p>
 
-  <section class="stats" *ngIf="dashboard">
+  <section class="stats" *ngIf="dashboard && workspaceTab === 'overview'">
     <div class="panel stat"><strong>{{ dashboard.totalUsers }}</strong><span>Total Users</span></div>
     <div class="panel stat"><strong>{{ dashboard.pendingUsers }}</strong><span>Pending</span></div>
     <div class="panel stat"><strong>{{ dashboard.verifiedUsers }}</strong><span>Verified</span></div>
@@ -141,7 +161,7 @@
     <div class="panel stat"><strong>{{ dashboard.activePosts }}</strong><span>Active Posts</span></div>
   </section>
 
-  <section class="panel content-studio" id="content">
+  <section class="panel content-studio" *ngIf="workspaceTab === 'content'">
     <header class="studio-heading">
       <div><p class="eyebrow">Public publishing</p><h2>Content Studio</h2><span>One workspace for leaders, books, events, gallery and live media.</span></div>
       <div class="studio-tabs" aria-label="Content type">
@@ -285,7 +305,7 @@
     </div>
   </section>
 
-  <section class="panel block meeting-approvals">
+  <section class="panel block meeting-approvals" *ngIf="workspaceTab === 'members'">
     <div class="block-heading">
       <div>
         <h2>Meeting Approvals</h2>
@@ -308,7 +328,7 @@
     </article>
   </section>
 
-  <section class="panel block" id="members">
+  <section class="panel block" *ngIf="workspaceTab === 'members'">
     <h2>User Management</h2>
     <div class="table-wrap">
       <table>
@@ -344,9 +364,10 @@
     </div>
   </section>
 
-  <section class="grid-two" id="moderation">
-    <div class="panel block">
+  <section class="panel block" *ngIf="workspaceTab === 'moderation'">
       <h2>Content Moderation</h2>
+      <p class="section-description">Review active community posts and remove content that violates community standards.</p>
+      <p class="studio-empty" *ngIf="posts.length === 0">No active posts require attention.</p>
       <article class="moderation-post" *ngFor="let post of posts">
         <div>
           <strong>{{ post.authorName }}</strong>
@@ -355,10 +376,11 @@
         </div>
         <button class="btn warn" type="button" (click)="hidePost(post)">Delete Post</button>
       </article>
-    </div>
+  </section>
 
-    <div class="panel block">
+  <section class="panel block" *ngIf="workspaceTab === 'invitations'">
       <h2>Invite Codes</h2>
+      <p class="section-description">Audit available and previously used single-use access codes.</p>
       <div class="code" *ngFor="let code of codes">
         <div><strong>{{ code.code }}</strong><small>{{ code.createdAt | date:'medium' }}</small></div>
         <span [class.used]="code.used">{{ code.used ? 'Used' : 'Available' }}</span>
@@ -373,6 +395,7 @@
           <svg *ngIf="copiedCode === code.code" lucideCheck aria-hidden="true"></svg>
         </button>
       </div>
-    </div>
   </section>
+    </div>
+  </div>
 </section>

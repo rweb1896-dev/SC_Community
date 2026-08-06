@@ -41,6 +41,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   inviteRecipient = '';
   inviteFeedback = '';
   contentTab: 'leaders' | 'books' | 'events' | 'broadcasts' | 'gallery' = 'leaders';
+  workspaceTab: 'overview' | 'invitations' | 'content' | 'members' | 'moderation' = 'overview';
   managedContent: ManagedContent[] = [];
   managingRecordId?: number;
   leaderForm = { name: '', role: '', contribution: '', era: 'CURRENT', department: '', imageUrl: '', overview: '' };
