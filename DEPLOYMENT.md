@@ -66,7 +66,8 @@ DB_PASSWORD
 JWT_SECRET
 APP_ADMIN_EMAIL
 APP_ADMIN_PASSWORD
-APP_OTP_CODE=
+APP_OTP_EMAIL_CODE=SC1E
+APP_OTP_MOBILE_CODE=SC2M
 APP_OTP_EXPOSE_CODE=false
 BOOTSTRAP_DEFAULT_INVITE_ENABLED=false
 BOOTSTRAP_SAMPLE_CONTENT_ENABLED=false
@@ -93,7 +94,7 @@ Member post images and ID proof references still use URLs. Store sensitive ID do
 
 - Use a strong `JWT_SECRET`.
 - Change `APP_ADMIN_PASSWORD` before first production startup.
-- Connect a real email/SMS OTP provider before public sign-up; production must keep `APP_OTP_CODE` empty and `APP_OTP_EXPOSE_CODE=false`.
+- Replace the shared `APP_OTP_EMAIL_CODE` and `APP_OTP_MOBILE_CODE` values with real email/SMS delivery before a wider public launch; keep `APP_OTP_EXPOSE_CODE=false`.
 - Keep production on `SPRING_JPA_HIBERNATE_DDL_AUTO=validate` and `SPRING_SQL_INIT_MODE=never`; use versioned migrations before changing the live schema.
 - Add centralized error monitoring and an external rate limit for authentication endpoints.
 - Keep Neon password only in Render environment variables.

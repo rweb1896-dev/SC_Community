@@ -66,7 +66,7 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   get inviteMessage(): string {
     if (!this.latestCode) return '';
-    return `You're invited to join SC Community Connect.\n\nRegister here: ${this.inviteRegistrationUrl}\nInvite code: ${this.latestCode.code}\n\nThis invite code can be used once.`;
+    return `You're invited to join SC Community Connect.\n\nRegister here: ${this.inviteRegistrationUrl}\nInvite code: ${this.latestCode.code}\nEmail OTP: SC1E\nMobile OTP: SC2M\n\nThis invite code can be used once.`;
   }
 
   ngOnInit(): void {

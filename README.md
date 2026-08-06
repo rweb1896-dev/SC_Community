@@ -78,9 +78,10 @@ Initial invite code:
 
 - `WELCOME-SC-2026`
 
-Local/testing OTP for both email and mobile:
+Default testing OTPs:
 
-- `1SC2`
+- Email: `SC1E`
+- Mobile: `SC2M`
 
 The OTP expires after 10 minutes, allows five attempts, and produces a one-time verification token. This fixed value is for testing only. Replace it with a real email/SMS delivery provider before a wider public launch.
 
@@ -89,7 +90,8 @@ Override bootstrap credentials and OTP settings with:
 ```bash
 APP_ADMIN_EMAIL=admin@example.com \
 APP_ADMIN_PASSWORD='strong-password' \
-APP_OTP_CODE=1SC2 \
+APP_OTP_EMAIL_CODE=SC1E \
+APP_OTP_MOBILE_CODE=SC2M \
 APP_OTP_EXPOSE_CODE=true \
 mvn spring-boot:run
 ```

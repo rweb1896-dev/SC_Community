@@ -22,6 +22,10 @@ services:
         sync: false
       - key: APP_OTP_EXPOSE_CODE
         value: false
+      - key: APP_OTP_EMAIL_CODE
+        value: SC1E
+      - key: APP_OTP_MOBILE_CODE
+        value: SC2M
       - key: BOOTSTRAP_DEFAULT_INVITE_ENABLED
         value: false
       - key: BOOTSTRAP_SAMPLE_CONTENT_ENABLED

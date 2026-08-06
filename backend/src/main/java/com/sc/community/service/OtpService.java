@@ -32,7 +32,8 @@ public class OtpService {
     private final OtpChallengeRepository challengeRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final String fixedCode;
+    private final String emailCode;
+    private final String mobileCode;
     private final boolean exposeCode;
     private final Duration expiry;
     private final Duration resendCooldown;
@@ -41,14 +42,16 @@ public class OtpService {
             OtpChallengeRepository challengeRepository,
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            @Value("${app.otp.fixed-code:}") String fixedCode,
+            @Value("${app.otp.email-code:SC1E}") String emailCode,
+            @Value("${app.otp.mobile-code:SC2M}") String mobileCode,
             @Value("${app.otp.expose-code:true}") boolean exposeCode,
             @Value("${app.otp.expiry-minutes:10}") long expiryMinutes,
             @Value("${app.otp.resend-cooldown-seconds:30}") long resendCooldownSeconds) {
         this.challengeRepository = challengeRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.fixedCode = fixedCode == null ? "" : fixedCode.trim().toUpperCase(Locale.ROOT);
+        this.emailCode = normalizeConfiguredCode(emailCode);
+        this.mobileCode = normalizeConfiguredCode(mobileCode);
         this.exposeCode = exposeCode;
         this.expiry = Duration.ofMinutes(expiryMinutes);
         this.resendCooldown = Duration.ofSeconds(resendCooldownSeconds);
@@ -75,7 +78,8 @@ public class OtpService {
                             "Please wait before requesting another OTP");
                 });
 
-        String code = fixedCode.isBlank() ? randomCode() : fixedCode;
+        String configuredCode = request.channel() == OtpChannel.EMAIL ? emailCode : mobileCode;
+        String code = configuredCode.isBlank() ? randomCode() : configuredCode;
         OtpChallenge challenge = new OtpChallenge();
         challenge.setDestination(destination);
         challenge.setChannel(request.channel());
@@ -208,5 +212,9 @@ public class OtpService {
 
     private String randomCode() {
         return String.format("%06d", RANDOM.nextInt(1_000_000));
+    }
+
+    private String normalizeConfiguredCode(String code) {
+        return code == null ? "" : code.trim().toUpperCase(Locale.ROOT);
     }
 }
