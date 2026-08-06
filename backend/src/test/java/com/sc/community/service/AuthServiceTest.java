@@ -10,14 +10,14 @@ import static org.mockito.Mockito.when;
 import com.sc.community.dto.RegisterRequest;
 import com.sc.community.entity.OtpChannel;
 import com.sc.community.entity.OtpPurpose;
-import com.sc.community.entity.InviteRequest;
+import com.sc.community.entity.OtpChallenge;
 import com.sc.community.entity.ProfessionalGroup;
 import com.sc.community.entity.User;
 import com.sc.community.entity.UserStatus;
 import com.sc.community.entity.VerificationCode;
 import com.sc.community.repository.UserRepository;
 import com.sc.community.repository.VerificationCodeRepository;
-import com.sc.community.repository.InviteRequestRepository;
+import com.sc.community.repository.OtpChallengeRepository;
 import com.sc.community.security.JwtService;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +38,7 @@ class AuthServiceTest {
     @Mock private AuthenticationManager authenticationManager;
     @Mock private JwtService jwtService;
     @Mock private OtpService otpService;
-    @Mock private InviteRequestRepository inviteRequestRepository;
+    @Mock private OtpChallengeRepository challengeRepository;
 
     private AuthService service;
 
@@ -51,7 +51,7 @@ class AuthServiceTest {
                 authenticationManager,
                 jwtService,
                 otpService,
-                inviteRequestRepository);
+                challengeRepository);
     }
 
     @Test
@@ -148,16 +148,16 @@ class AuthServiceTest {
         VerificationCode invite = new VerificationCode();
         invite.setId(99L);
         invite.setCode(request.inviteCode());
-        InviteRequest owner = new InviteRequest();
-        owner.setEmail("someone-else@example.com");
-        owner.setPhoneNumber("+919999999999");
+        OtpChallenge owner = new OtpChallenge();
+        owner.setDestination("INVITE\nsomeone-else@example.com\n+919999999999\nSomeone Else");
 
         when(otpService.normalizeDestination(OtpChannel.EMAIL, request.email()))
                 .thenReturn("member@example.com");
         when(otpService.normalizeDestination(OtpChannel.MOBILE, request.phoneNumber()))
                 .thenReturn("+919876543210");
         when(codeRepository.findByCode(request.inviteCode())).thenReturn(Optional.of(invite));
-        when(inviteRequestRepository.findByVerificationCodeId(99L)).thenReturn(Optional.of(owner));
+        when(challengeRepository.findTopByCodeHashAndPurposeAndDestinationStartingWithOrderByCreatedAtDesc(
+                request.inviteCode(), OtpPurpose.PASSWORD_RESET, "INVITE\n")).thenReturn(Optional.of(owner));
 
         assertThatThrownBy(() -> service.register(request))
                 .isInstanceOfSatisfying(ResponseStatusException.class, error -> {

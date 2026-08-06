@@ -11,9 +11,10 @@ import com.sc.community.entity.ProfessionalGroup;
 import com.sc.community.entity.UserRole;
 import com.sc.community.entity.UserStatus;
 import com.sc.community.entity.VerificationCode;
+import com.sc.community.entity.OtpChallenge;
 import com.sc.community.repository.UserRepository;
 import com.sc.community.repository.VerificationCodeRepository;
-import com.sc.community.repository.InviteRequestRepository;
+import com.sc.community.repository.OtpChallengeRepository;
 import com.sc.community.security.JwtService;
 import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
@@ -32,7 +33,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final OtpService otpService;
-    private final InviteRequestRepository inviteRequestRepository;
+    private final OtpChallengeRepository challengeRepository;
 
     public AuthService(
             UserRepository userRepository,
@@ -41,14 +42,14 @@ public class AuthService {
             AuthenticationManager authenticationManager,
             JwtService jwtService,
             OtpService otpService,
-            InviteRequestRepository inviteRequestRepository) {
+            OtpChallengeRepository challengeRepository) {
         this.userRepository = userRepository;
         this.codeRepository = codeRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.otpService = otpService;
-        this.inviteRequestRepository = inviteRequestRepository;
+        this.challengeRepository = challengeRepository;
     }
 
     @Transactional
@@ -67,13 +68,17 @@ public class AuthService {
         if (code.isUsed()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Verification code has already been used");
         }
-        inviteRequestRepository.findByVerificationCodeId(code.getId()).ifPresent(inviteRequest -> {
-            if (!inviteRequest.getEmail().equals(email) || !inviteRequest.getPhoneNumber().equals(phoneNumber)) {
+        OtpChallenge inviteRequest = challengeRepository
+                .findTopByCodeHashAndPurposeAndDestinationStartingWithOrderByCreatedAtDesc(
+                        code.getCode(), OtpPurpose.PASSWORD_RESET, "INVITE\n")
+                .orElse(null);
+        if (inviteRequest != null) {
+            if (!InviteRequestService.matchesIdentity(inviteRequest, email, phoneNumber)) {
                 throw new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
                         "This invite code belongs to a different verified applicant");
             }
-        });
+        }
 
         otpService.consumeVerification(
                 request.emailVerificationToken(), OtpChannel.EMAIL, OtpPurpose.SIGNUP_EMAIL, email);
@@ -96,6 +101,10 @@ public class AuthService {
         code.setUsed(true);
         code.setUsedByUser(saved);
         codeRepository.save(code);
+        if (inviteRequest != null) {
+            inviteRequest.setUsedAt(java.time.Instant.now());
+            challengeRepository.save(inviteRequest);
+        }
         return UserResponse.from(saved);
     }
 
