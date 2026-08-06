@@ -20,8 +20,7 @@ public record RegisterRequest(
                 message = "Password must include uppercase, lowercase, number, and special character")
         String password,
         @NotBlank @Size(max = 64) String inviteCode,
-        @NotBlank
-        @Pattern(regexp = "^https?://.+$", message = "ID proof must be a valid http(s) URL")
+        @Pattern(regexp = "^$|^https?://.+$", message = "ID proof must be a valid http(s) URL")
         @Size(max = 1000)
         String idProofUrl,
         @NotNull ProfessionalGroup professionalGroup,

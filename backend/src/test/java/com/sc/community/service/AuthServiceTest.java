@@ -105,6 +105,39 @@ class AuthServiceTest {
         verify(userRepository, never()).save(any(User.class));
     }
 
+    @Test
+    void acceptsRegistrationWithoutIdProofUrl() {
+        RegisterRequest request = new RegisterRequest(
+                "Test Member",
+                "Member@Example.com",
+                "+91 98765 43210",
+                "Strong@123",
+                "SC-ABC123",
+                "",
+                ProfessionalGroup.COMMUNITY,
+                "email-token",
+                "mobile-token");
+        VerificationCode invite = new VerificationCode();
+        invite.setCode(request.inviteCode());
+
+        when(otpService.normalizeDestination(OtpChannel.EMAIL, request.email()))
+                .thenReturn("member@example.com");
+        when(otpService.normalizeDestination(OtpChannel.MOBILE, request.phoneNumber()))
+                .thenReturn("+919876543210");
+        when(codeRepository.findByCode(request.inviteCode())).thenReturn(Optional.of(invite));
+        when(passwordEncoder.encode(request.password())).thenReturn("encoded-password");
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+            User user = invocation.getArgument(0);
+            user.setId(43L);
+            return user;
+        });
+
+        var response = service.register(request);
+
+        assertThat(response.idProofUrl()).isNull();
+        assertThat(response.status()).isEqualTo(UserStatus.PENDING);
+    }
+
     private RegisterRequest validRequest() {
         return new RegisterRequest(
                 "Test Member",

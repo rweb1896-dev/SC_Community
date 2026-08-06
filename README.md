@@ -4,7 +4,7 @@ Production-oriented full-stack community platform built with Angular, Spring Boo
 
 ## What Is Included
 
-- Invite-code gated registration with mandatory email OTP, mobile OTP, and ID proof URL.
+- Invite-code gated registration with mandatory email and mobile OTP; the ID proof URL is optional.
 - New registrations remain pending until an admin reviews the ID proof and approves the account.
 - Password recovery works with either the registered email or mobile number.
 - JWT login for verified users only.
@@ -118,7 +118,7 @@ The signup form requires:
 - Verified mobile OTP
 - Strong password and confirmation
 - Unused admin invite code
-- Publicly viewable ID proof URL
+- Optional publicly viewable ID proof URL
 - Professional group
 
 The included Angular dev proxy points `/api`, `/ws-native`, and `/ws` to `http://localhost:8081` because port `8080` was already occupied on this machine during setup. The frontend also uses `4201` because `4200` was occupied. Change `frontend/proxy.conf.json` back to `8080` if you run the backend on the default port.

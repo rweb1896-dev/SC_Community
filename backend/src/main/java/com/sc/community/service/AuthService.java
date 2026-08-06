@@ -76,7 +76,8 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(request.password()));
         user.setRole(UserRole.ROLE_USER);
         user.setStatus(UserStatus.PENDING);
-        user.setIdProofUrl(request.idProofUrl().trim());
+        String idProofUrl = request.idProofUrl() == null ? "" : request.idProofUrl().trim();
+        user.setIdProofUrl(idProofUrl.isBlank() ? null : idProofUrl);
         user.setInviteCodeUsed(code.getCode());
         user.setProfessionalGroup(request.professionalGroup());
         User saved = userRepository.save(user);

@@ -344,10 +344,9 @@
       </div>
 
       <div class="field">
-        <label for="id-proof">Government ID proof URL</label>
+        <label for="id-proof">Government ID proof URL <small>Optional</small></label>
         <input
           id="id-proof"
-          required
           type="url"
           maxlength="1000"
           pattern="https?://.+"
@@ -357,14 +356,14 @@
           [(ngModel)]="registerForm.idProofUrl"
           #idProofUrl="ngModel"
         />
-        <small class="field-help">Upload the image/PDF to Google Drive, enable “Anyone with the link”, then paste its URL.</small>
-        <small class="field-error" *ngIf="idProofUrl.invalid && idProofUrl.touched">A valid http(s) ID-proof URL is required.</small>
+        <small class="field-help">Optional: upload the image/PDF to Google Drive, enable “Anyone with the link”, then paste its URL.</small>
+        <small class="field-error" *ngIf="idProofUrl.invalid && idProofUrl.touched">Enter a valid http(s) URL or leave this field empty.</small>
       </div>
 
       <div class="verification-summary">
         <span [class.done]="emailVerification.verified"><svg lucideShieldCheck aria-hidden="true"></svg>Email</span>
         <span [class.done]="phoneVerification.verified"><svg lucideShieldCheck aria-hidden="true"></svg>Mobile</span>
-        <span [class.done]="registerForm.idProofUrl"><svg lucideShieldCheck aria-hidden="true"></svg>ID proof</span>
+        <span [class.done]="registerForm.idProofUrl"><svg lucideShieldCheck aria-hidden="true"></svg>ID proof (optional)</span>
       </div>
 
       <div class="step-actions">

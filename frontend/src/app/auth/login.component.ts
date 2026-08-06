@@ -295,7 +295,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     return (
       this.canContinueProfile() &&
       this.registerForm.inviteCode.trim().length > 0 &&
-      /^https?:\/\/\S+$/i.test(this.registerForm.idProofUrl.trim()) &&
       this.emailVerification.verified &&
       this.phoneVerification.verified &&
       strongPassword &&
