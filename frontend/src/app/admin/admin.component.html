@@ -31,11 +31,57 @@
       <div class="latest-code empty"><span>No unused invite code yet</span></div>
     </ng-template>
 
-    <button class="btn generate-code" type="button" [disabled]="generatingCode" (click)="generateCode()">
-      <svg lucidePlus aria-hidden="true"></svg>
-      {{ generatingCode ? 'Generating...' : 'Generate new code' }}
-    </button>
+    <div class="invite-actions">
+      <button class="btn generate-code" type="button" [disabled]="generatingCode" (click)="generateCode()">
+        <svg lucidePlus aria-hidden="true"></svg>
+        {{ generatingCode ? 'Generating...' : 'Generate new code' }}
+      </button>
+      <button class="btn secondary send-invite" type="button" [disabled]="!latestCode" (click)="openInvitePanel()">
+        <svg lucideSend aria-hidden="true"></svg>
+        Send invite
+      </button>
+    </div>
+
+    <div class="invite-message-preview" *ngIf="latestCode">
+      <div>
+        <span>Ready-to-send message</span>
+        <pre>{{ inviteMessage }}</pre>
+      </div>
+      <button class="copy-message" type="button" (click)="copyInviteMessage()">
+        <svg *ngIf="!copiedInviteMessage" lucideCopy aria-hidden="true"></svg>
+        <svg *ngIf="copiedInviteMessage" lucideCheck aria-hidden="true"></svg>
+        {{ copiedInviteMessage ? 'Copied' : 'Copy message' }}
+      </button>
+    </div>
   </section>
+
+  <div class="invite-dialog-backdrop" *ngIf="invitePanelOpen" (click)="closeInvitePanel()">
+    <form class="panel invite-dialog" (ngSubmit)="sendInvite()" (click)="$event.stopPropagation()">
+      <header>
+        <div><p class="eyebrow">Single-use member access</p><h2>Send invite</h2></div>
+        <button class="dialog-close" type="button" aria-label="Close send invite" (click)="closeInvitePanel()"><svg lucideX></svg></button>
+      </header>
+      <div class="invite-channel-tabs" aria-label="Send invite by">
+        <button type="button" [class.active]="inviteChannel === 'EMAIL'" (click)="inviteChannel = 'EMAIL'; inviteRecipient = ''; inviteFeedback = ''"><svg lucideMail></svg>Email</button>
+        <button type="button" [class.active]="inviteChannel === 'MOBILE'" (click)="inviteChannel = 'MOBILE'; inviteRecipient = ''; inviteFeedback = ''"><svg lucideSmartphone></svg>Mobile</button>
+      </div>
+      <label class="invite-recipient">
+        {{ inviteChannel === 'EMAIL' ? 'Email address' : 'Mobile number' }}
+        <input
+          required
+          [type]="inviteChannel === 'EMAIL' ? 'email' : 'tel'"
+          [inputMode]="inviteChannel === 'EMAIL' ? 'email' : 'tel'"
+          [placeholder]="inviteChannel === 'EMAIL' ? 'member@example.com' : '+91 9876543210'"
+          name="inviteRecipient"
+          [(ngModel)]="inviteRecipient"
+        />
+      </label>
+      <div class="dialog-message"><span>Message preview</span><pre>{{ inviteMessage }}</pre></div>
+      <p class="admin-error" *ngIf="inviteFeedback">{{ inviteFeedback }}</p>
+      <button class="btn dialog-send" type="submit"><svg lucideSend></svg>Continue to {{ inviteChannel === 'EMAIL' ? 'email' : 'SMS' }}</button>
+      <small class="send-note">Your device's {{ inviteChannel === 'EMAIL' ? 'email' : 'messaging' }} app will open with the recipient and message filled in.</small>
+    </form>
+  </div>
 
   <p class="admin-error top-error" *ngIf="error">{{ error }}</p>
 

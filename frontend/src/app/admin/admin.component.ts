@@ -5,12 +5,12 @@ import { CommunityApiService } from '../core/community-api.service';
 import { Broadcast, BroadcastMediaType, BroadcastStatus, CommunityEvent, Dashboard, EventStatus, GalleryImage, InviteCode, Meeting, Post, ProfessionalGroup, UserResponse } from '../core/models';
 import { MeetingSocketService } from '../core/meeting-socket.service';
 import { auditTime, interval, Subscription } from 'rxjs';
-import { LucideCalendarDays, LucideCheck, LucideCopy, LucideImages, LucidePause, LucidePlay, LucidePlus, LucideRadio, LucideSquare, LucideTrash2, LucideUpload } from '@lucide/angular';
+import { LucideCalendarDays, LucideCheck, LucideCopy, LucideImages, LucideMail, LucidePause, LucidePlay, LucidePlus, LucideRadio, LucideSend, LucideSmartphone, LucideSquare, LucideTrash2, LucideUpload, LucideX } from '@lucide/angular';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideCalendarDays, LucideCheck, LucideCopy, LucideImages, LucidePause, LucidePlay, LucidePlus, LucideRadio, LucideSquare, LucideTrash2, LucideUpload],
+  imports: [CommonModule, FormsModule, LucideCalendarDays, LucideCheck, LucideCopy, LucideImages, LucideMail, LucidePause, LucidePlay, LucidePlus, LucideRadio, LucideSend, LucideSmartphone, LucideSquare, LucideTrash2, LucideUpload, LucideX],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.css'
 })
@@ -28,6 +28,11 @@ export class AdminComponent implements OnInit, OnDestroy {
   latestCode?: InviteCode;
   generatingCode = false;
   copiedCode = '';
+  copiedInviteMessage = false;
+  invitePanelOpen = false;
+  inviteChannel: 'EMAIL' | 'MOBILE' = 'EMAIL';
+  inviteRecipient = '';
+  inviteFeedback = '';
   contentTab: 'events' | 'broadcasts' | 'gallery' = 'events';
   savingContent = false;
   eventForm = { title: '', summary: '', venue: '', eventAt: '', registrationUrl: '' };
@@ -53,6 +58,16 @@ export class AdminComponent implements OnInit, OnDestroy {
   private subscriptions = new Subscription();
 
   constructor(private api: CommunityApiService, private meetingSocket: MeetingSocketService) {}
+
+  get inviteRegistrationUrl(): string {
+    if (!this.latestCode) return '';
+    return `${window.location.origin}/login?mode=register&invite=${encodeURIComponent(this.latestCode.code)}`;
+  }
+
+  get inviteMessage(): string {
+    if (!this.latestCode) return '';
+    return `You're invited to join SC Community Connect.\n\nRegister here: ${this.inviteRegistrationUrl}\nInvite code: ${this.latestCode.code}\n\nThis invite code can be used once.`;
+  }
 
   ngOnInit(): void {
     this.refresh();
@@ -249,6 +264,52 @@ export class AdminComponent implements OnInit, OnDestroy {
         this.copiedCode = '';
         this.error = 'Copy failed. Select the code and copy it manually.';
       });
+  }
+
+  copyInviteMessage(): void {
+    if (!this.inviteMessage) return;
+    this.error = '';
+    navigator.clipboard.writeText(this.inviteMessage).then(() => {
+      this.copiedInviteMessage = true;
+      setTimeout(() => this.copiedInviteMessage = false, 1800);
+    }).catch(() => {
+      this.error = 'Copy failed. Select the invite message and copy it manually.';
+    });
+  }
+
+  openInvitePanel(): void {
+    if (!this.latestCode) return;
+    this.inviteRecipient = '';
+    this.inviteFeedback = '';
+    this.inviteChannel = 'EMAIL';
+    this.invitePanelOpen = true;
+  }
+
+  closeInvitePanel(): void {
+    this.invitePanelOpen = false;
+    this.inviteFeedback = '';
+  }
+
+  sendInvite(): void {
+    const recipient = this.inviteRecipient.trim();
+    const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient);
+    const normalizedMobile = recipient.replace(/[\s()-]/g, '');
+    const validMobile = /^\+?[1-9]\d{9,14}$/.test(normalizedMobile);
+
+    if ((this.inviteChannel === 'EMAIL' && !validEmail) || (this.inviteChannel === 'MOBILE' && !validMobile)) {
+      this.inviteFeedback = this.inviteChannel === 'EMAIL'
+        ? 'Enter a valid email address.'
+        : 'Enter a valid mobile number with country code.';
+      return;
+    }
+
+    this.inviteFeedback = '';
+    if (this.inviteChannel === 'EMAIL') {
+      const subject = encodeURIComponent('Your SC Community Connect invite');
+      window.location.href = `mailto:${recipient}?subject=${subject}&body=${encodeURIComponent(this.inviteMessage)}`;
+    } else {
+      window.location.href = `sms:${normalizedMobile}?body=${encodeURIComponent(this.inviteMessage)}`;
+    }
   }
 
   approveMeeting(meeting: Meeting): void {

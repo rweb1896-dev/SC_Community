@@ -1,7 +1,7 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   LucideArrowLeft,
   LucideBookOpen,
@@ -125,7 +125,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   private leaderTimer?: ReturnType<typeof setInterval>;
   private galleryTimer?: ReturnType<typeof setInterval>;
 
-  constructor(private auth: AuthService, private router: Router, private api: CommunityApiService) {}
+  constructor(private auth: AuthService, private router: Router, private api: CommunityApiService, private route: ActivatedRoute) {}
 
   get activeLeader() {
     return this.leaders[this.activeLeaderIndex];
@@ -141,6 +141,12 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     document.body.classList.add('auth-lock');
+    const invitedCode = this.route.snapshot.queryParamMap.get('invite')?.trim();
+    if (this.route.snapshot.queryParamMap.get('mode') === 'register' || invitedCode) {
+      this.mode = 'register';
+      this.registerStep = 1;
+      this.registerForm.inviteCode = invitedCode || '';
+    }
     this.resumeLeaderRotation();
     this.api.publicGallery().subscribe({
       next: (images) => {
