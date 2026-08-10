@@ -102,6 +102,14 @@
 .blog-list h3 { display: -webkit-box; overflow: hidden; margin: 5px 0; font-size: 15px; line-height: 1.25; letter-spacing: 0; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .blog-list p { display: -webkit-box; overflow: hidden; margin: 0 0 11px; color: #6b7770; font-size: 9px; line-height: 1.5; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .blog-list small { display: flex; align-items: center; gap: 5px; margin-top: auto; color: #3159b0; font-size: 8px; font-weight: 850; }
+.community-section.blogs-band.is-visible .section-heading { animation-duration: .8s; }
+.community-section.blogs-band.is-visible .blog-layout > .featured-blog { animation-duration: 1.05s; animation-delay: .2s; }
+.community-section.is-visible .blog-layout > .blog-list { opacity: 1; transform: none; animation: none; }
+.community-section.is-visible .blog-list > a { animation-duration: .9s; animation-timing-function: cubic-bezier(.16,.72,.25,1); }
+.community-section.is-visible .blog-list > a:nth-child(1) { animation-delay: .38s; }
+.community-section.is-visible .blog-list > a:nth-child(2) { animation-delay: .54s; }
+.community-section.is-visible .blog-list > a:nth-child(3) { animation-delay: .7s; }
+.community-section.is-visible .blog-list > a:nth-child(n+4) { animation-delay: .86s; }
 .events-band { background: #17362e; color: #fff; }
 .light-heading > div > span { color: #f3ba55; }
 .light-heading p { color: rgba(255,255,255,.67); }
