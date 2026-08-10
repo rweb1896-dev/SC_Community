@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Broadcast, BroadcastMediaType, BroadcastStatus, Category, Comment, CommunityEvent, Dashboard, EventStatus, GalleryImage, InviteCode, InviteRequest, ManagedContent, ManagedContentInput, ManagedContentStatus, Meeting, MeetingAudience, MemberInviteRequest, Message, Post, ProfessionalGroup, UserResponse, UserStatus } from './models';
+import { Broadcast, BroadcastMediaType, BroadcastStatus, Category, Comment, CommunityEvent, Dashboard, EventStatus, GalleryImage, ImageUploadResponse, InviteCode, InviteRequest, ManagedContent, ManagedContentInput, ManagedContentStatus, Meeting, MeetingAudience, MemberInviteRequest, Message, Post, ProfessionalGroup, SupportResponse, UserResponse, UserStatus } from './models';
 
 const API = '/api';
 
@@ -27,6 +27,18 @@ export class CommunityApiService {
 
   addComment(postId: number, commentText: string) {
     return this.http.post<Comment>(`${API}/posts/${postId}/comments`, { commentText });
+  }
+
+  toggleSupport(postId: number) {
+    return this.http.post<SupportResponse>(`${API}/posts/${postId}/support`, {});
+  }
+
+  uploadPostImage(file: File) {
+    const body = new FormData();
+    body.append('file', file);
+    return this.http.post<ImageUploadResponse>(`${API}/uploads/image`, body, {
+      observe: 'events', reportProgress: true
+    });
   }
 
   conversation(userId: number) {

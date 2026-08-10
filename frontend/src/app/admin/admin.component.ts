@@ -8,11 +8,12 @@ import { auditTime, interval, Subscription } from 'rxjs';
 import { LucideBan, LucideBookOpen, LucideCalendarDays, LucideCheck, LucideCopy, LucideImages, LucideMail, LucidePause, LucidePlay, LucidePlus, LucideRadio, LucideRotateCcw, LucideSend, LucideSmartphone, LucideSquare, LucideTrash2, LucideUpload, LucideUserRound, LucideX } from '@lucide/angular';
 import { COMMUNITY_LEADERS } from '../core/community-leaders';
 import { COMMUNITY_BOOKS, PAID_COMMUNITY_BOOKS } from '../core/community-resources';
+import { TranslatePipe } from '../core/translate.pipe';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideBan, LucideBookOpen, LucideCalendarDays, LucideCheck, LucideCopy, LucideImages, LucideMail, LucidePause, LucidePlay, LucidePlus, LucideRadio, LucideRotateCcw, LucideSend, LucideSmartphone, LucideSquare, LucideTrash2, LucideUpload, LucideUserRound, LucideX],
+  imports: [CommonModule, FormsModule, TranslatePipe, LucideBan, LucideBookOpen, LucideCalendarDays, LucideCheck, LucideCopy, LucideImages, LucideMail, LucidePause, LucidePlay, LucidePlus, LucideRadio, LucideRotateCcw, LucideSend, LucideSmartphone, LucideSquare, LucideTrash2, LucideUpload, LucideUserRound, LucideX],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.css'
 })
@@ -117,13 +118,15 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   refresh(): void {
-    this.api.dashboard().subscribe((dashboard) => this.dashboard = dashboard);
-    this.api.users().subscribe((users) => this.users = users);
-    this.api.inviteCodes().subscribe((codes) => {
+    this.error = '';
+    const failed = (error: any) => this.error = this.apiError(error, 'Administration data could not be loaded.');
+    this.api.dashboard().subscribe({ next: (dashboard) => this.dashboard = dashboard, error: failed });
+    this.api.users().subscribe({ next: (users) => this.users = users, error: failed });
+    this.api.inviteCodes().subscribe({ next: (codes) => {
       this.codes = [...codes].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
       this.latestCode = this.codes.find((code) => !code.used);
-    });
-    this.api.posts().subscribe((posts) => this.posts = posts);
+    }, error: failed });
+    this.api.posts().subscribe({ next: (posts) => this.posts = posts, error: failed });
     this.loadContent();
     this.loadPendingMeetings();
     this.loadInviteRequests();
@@ -528,6 +531,11 @@ export class AdminComponent implements OnInit, OnDestroy {
   private uniqueKey(value: string): string {
     const base = value.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 65) || 'item';
     return `${base}-${Date.now().toString(36)}`;
+  }
+
+  private apiError(error: any, fallback: string): string {
+    if (error?.status === 0) return 'Network connection unavailable. Check your internet and try again.';
+    return error?.error?.detail || error?.error?.message || fallback;
   }
 
   ngOnDestroy(): void {

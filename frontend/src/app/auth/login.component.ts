@@ -26,6 +26,8 @@ import {
 import { AuthService } from '../core/auth.service';
 import { GalleryImage, InviteRequest, OtpChannel, OtpPurpose } from '../core/models';
 import { CommunityApiService } from '../core/community-api.service';
+import { I18nService } from '../core/i18n.service';
+import { TranslatePipe } from '../core/translate.pipe';
 import { COMMUNITY_LEADERS } from '../core/community-leaders';
 import {
   COMMUNITY_BOOKS,
@@ -57,6 +59,7 @@ const INVITE_REQUEST_KEY = 'sc-connect-invite-request';
   imports: [
     CommonModule,
     FormsModule,
+    TranslatePipe,
     LucideArrowLeft,
     LucideBookOpen,
     LucideBuilding2,
@@ -134,7 +137,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   private galleryTimer?: ReturnType<typeof setInterval>;
   private inviteRequestTimer?: ReturnType<typeof setInterval>;
 
-  constructor(private auth: AuthService, private router: Router, private api: CommunityApiService, private route: ActivatedRoute) {}
+  constructor(private auth: AuthService, private router: Router, private api: CommunityApiService, private route: ActivatedRoute, public i18n: I18nService) {}
 
   get activeLeader() {
     return this.leaders[this.activeLeaderIndex];
@@ -232,12 +235,24 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   login(): void {
+    const email = this.loginForm.email.trim().toLowerCase();
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      this.setMessage(this.i18n.t('auth.invalidEmail'), 'error');
+      return;
+    }
+    if (!this.loginForm.password) {
+      this.setMessage(this.i18n.t('auth.passwordRequired'), 'error');
+      return;
+    }
     this.loading = true;
     this.clearMessage();
-    this.auth.login(this.loginForm.email, this.loginForm.password).subscribe({
-      next: () => this.router.navigateByUrl('/feed'),
+    this.auth.login(email, this.loginForm.password).subscribe({
+      next: (session) => {
+        this.loading = false;
+        this.router.navigateByUrl(session.role === 'ROLE_ADMIN' ? '/admin' : '/feed');
+      },
       error: (error) => {
-        this.showError(error, 'Login failed');
+        this.showError(error, this.i18n.t('auth.loginFailed'));
         this.loading = false;
       }
     });
@@ -280,12 +295,14 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   continueRegistration(): void {
     this.clearMessage();
-    if (this.registerStep === 1 && this.canContinueProfile()) {
-      this.registerStep = 2;
+    if (this.registerStep === 1) {
+      if (this.canContinueProfile()) this.registerStep = 2;
+      else this.setMessage('Enter your full name before continuing.', 'error');
       return;
     }
-    if (this.registerStep === 2 && this.emailVerification.verified && this.phoneVerification.verified) {
-      this.registerStep = 3;
+    if (this.registerStep === 2) {
+      if (this.emailVerification.verified && this.phoneVerification.verified) this.registerStep = 3;
+      else this.setMessage('Verify both email and mobile number before continuing.', 'error');
     }
   }
 

@@ -2,218 +2,102 @@
   <div class="feed-progress" aria-label="Feed reading progress"><span [style.width.%]="scrollProgress"></span></div>
   <aside class="left-rail">
     <section class="panel category-panel">
-      <div class="rail-title">
-        <strong>Topics</strong>
-        <span>Choose your feed</span>
-      </div>
+      <div class="rail-title"><strong>{{ 'feed.topics' | translate }}</strong><span>{{ 'feed.choose' | translate }}</span></div>
       <button class="category" [class.active]="!selectedCategory" (click)="loadPosts()">
         <span class="category-icon"><svg lucideHouse aria-hidden="true"></svg></span>
-        <span>All Updates</span>
-        <small>{{ posts.length }} posts</small>
+        <span>{{ 'feed.all' | translate }}</span><small>{{ posts.length }} {{ 'feed.posts' | translate | lowercase }}</small>
       </button>
-      <p class="hint" *ngIf="loadingCategories">Loading categories...</p>
+      <p class="hint" *ngIf="loadingCategories">{{ 'feed.loadingCategories' | translate }}</p>
       <button class="category" *ngFor="let category of categories" [class.active]="selectedCategory === category.id" (click)="loadPosts(category.id)">
         <span class="category-icon" [ngSwitch]="categoryIcon(category.name)">
-          <svg *ngSwitchCase="'H'" lucideHeartPulse aria-hidden="true"></svg>
-          <svg *ngSwitchCase="'J'" lucideBriefcaseBusiness aria-hidden="true"></svg>
-          <svg *ngSwitchCase="'B'" lucideStore aria-hidden="true"></svg>
-          <svg *ngSwitchDefault lucideSiren aria-hidden="true"></svg>
+          <svg *ngSwitchCase="'H'" lucideHeartPulse aria-hidden="true"></svg><svg *ngSwitchCase="'J'" lucideBriefcaseBusiness aria-hidden="true"></svg>
+          <svg *ngSwitchCase="'B'" lucideStore aria-hidden="true"></svg><svg *ngSwitchDefault lucideSiren aria-hidden="true"></svg>
         </span>
-        <span>{{ category.name }}</span>
+        <span>{{ categoryLabel(category.name) }}</span>
       </button>
     </section>
   </aside>
 
   <main class="timeline" #feedScroller (scroll)="onFeedScroll()">
+    <div class="publish-toast" *ngIf="composerSuccess" role="status">{{ composerSuccess }}<button type="button" (click)="composerSuccess = ''">×</button></div>
     <section class="panel start-post">
       <button class="single-composer" type="button" (click)="openComposer()">
         <div class="avatar">{{ currentInitials() }}</div>
-        <span>
-          <strong>Start a post</strong>
-          <small>What's on your mind, {{ auth.session?.fullName?.split(' ')?.[0] || 'there' }}?</small>
-        </span>
+        <span><strong>{{ 'feed.startPost' | translate }}</strong><small>{{ 'feed.prompt' | translate }}</small></span>
         <svg lucideSquarePen aria-hidden="true"></svg>
       </button>
     </section>
 
     <section class="feed-hero panel inspiration-card" aria-label="Community leader spotlight" aria-live="polite">
       <div class="feed-leader-copy">
-        <div class="feed-leader-label">
-          <p class="eyebrow">Community leader</p>
-          <span [class.current]="activeLeader.era === 'CURRENT'">
-            {{ activeLeader.era === 'CURRENT' ? 'Current' : 'Legacy' }}
-          </span>
-        </div>
-        <h1>{{ activeLeader.name }}</h1>
-        <strong>{{ activeLeader.role }}</strong>
-        <small>{{ activeLeader.department }}</small>
+        <div class="feed-leader-label"><p class="eyebrow">{{ 'feed.leader' | translate }}</p><span [class.current]="activeLeader.era === 'CURRENT'">{{ (activeLeader.era === 'CURRENT' ? 'feed.current' : 'feed.legacy') | translate }}</span></div>
+        <h1>{{ activeLeader.name }}</h1><strong>{{ activeLeader.role }}</strong><small>{{ activeLeader.department }}</small>
         <blockquote>{{ activeLeader.message }}</blockquote>
         <div class="feed-leader-controls">
-          <button type="button" title="Previous leader" aria-label="Previous leader" (click)="rotateLeader(-1)">
-            <svg lucideChevronLeft aria-hidden="true"></svg>
-          </button>
+          <button type="button" title="Previous leader" aria-label="Previous leader" (click)="rotateLeader(-1)"><svg lucideChevronLeft aria-hidden="true"></svg></button>
           <span>{{ activeLeaderIndex + 1 }} / {{ leaders.length }}</span>
-          <button type="button" title="Next leader" aria-label="Next leader" (click)="rotateLeader(1)">
-            <svg lucideChevronRight aria-hidden="true"></svg>
-          </button>
+          <button type="button" title="Next leader" aria-label="Next leader" (click)="rotateLeader(1)"><svg lucideChevronRight aria-hidden="true"></svg></button>
         </div>
       </div>
       <figure class="hero-portrait">
-        <img
-          [src]="activeLeader.imageUrl"
-          [alt]="activeLeader.name"
-          [style.object-position]="activeLeader.imagePosition"
-          width="434"
-          height="520"
-          loading="eager"
-        />
-        <figcaption>
-          <a [href]="activeLeader.photoSourceUrl" target="_blank" rel="noopener noreferrer">Photo source</a>
-        </figcaption>
+        <img [src]="activeLeader.imageUrl" [alt]="activeLeader.name" [style.object-position]="activeLeader.imagePosition" width="434" height="520" loading="eager" />
+        <figcaption><a [href]="activeLeader.photoSourceUrl" target="_blank" rel="noopener noreferrer">Photo source</a></figcaption>
       </figure>
-      <div class="hero-stats">
-        <div><strong>{{ posts.length }}</strong><span>Active posts</span></div>
-        <div><strong>{{ categories.length }}</strong><span>Categories</span></div>
-      </div>
+      <div class="hero-stats"><div><strong>{{ posts.length }}</strong><span>{{ 'feed.activePosts' | translate }}</span></div><div><strong>{{ categories.length }}</strong><span>{{ 'feed.categories' | translate }}</span></div></div>
     </section>
 
-    <div class="feed-heading">
-      <div><strong>{{ searchTerm ? 'Search results' : selectedCategoryName() }}</strong><span>{{ visiblePosts.length }} updates</span></div>
-      <span class="search-chip" *ngIf="searchTerm">“{{ searchTerm }}”</span>
-    </div>
+    <div class="feed-heading"><div><strong>{{ searchTerm ? ('feed.searchResults' | translate) : selectedCategoryName() }}</strong><span>{{ visiblePosts.length }} {{ 'feed.updates' | translate }}</span></div><span class="search-chip" *ngIf="searchTerm">“{{ searchTerm }}”</span></div>
+    <p class="feed-error" *ngIf="error" role="alert">{{ error }} <button type="button" (click)="loadPosts(selectedCategory)">{{ 'feed.retry' | translate }}</button></p>
+    <div class="timeline-loading panel" *ngIf="loadingPosts"><span class="sr-only">{{ 'feed.loading' | translate }}</span><div class="skeleton-card"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div>
+    <div class="panel empty-feed" *ngIf="!loadingPosts && visiblePosts.length === 0"><strong>{{ (posts.length ? 'feed.noMatch' : 'feed.empty') | translate }}</strong><span>{{ 'feed.emptyHelp' | translate }}</span></div>
 
-    <div class="timeline-loading panel" *ngIf="loadingPosts">
-      <div class="skeleton-card"></div>
-      <div class="skeleton-line"></div>
-      <div class="skeleton-line short"></div>
-    </div>
-
-    <div class="panel empty-feed" *ngIf="!loadingPosts && visiblePosts.length === 0">
-      <strong>{{ posts.length ? 'No posts match this filter' : 'No posts yet' }}</strong>
-      <span>{{ posts.length ? 'Try another search or choose All Updates from Topics.' : 'Start the conversation using the post composer above.' }}</span>
-    </div>
-
-    <article class="panel post" *ngFor="let post of visiblePosts; let index = index">
+    <article class="panel post" *ngFor="let post of visiblePosts">
       <header>
-        <div class="author">
-          <div class="avatar">{{ initials(post.authorName) }}</div>
-          <div>
-            <strong>{{ post.authorName }}</strong>
-            <span class="verified-dot" *ngIf="post.verifiedAuthor" title="Verified member" aria-label="Verified member">✓</span>
-            <small>{{ post.categoryName }} · {{ post.createdAt | date:'medium' }}</small>
-          </div>
-        </div>
+        <div class="author"><div class="avatar">{{ initials(post.authorName) }}</div><div><strong>{{ post.authorName }}</strong><span class="verified-dot" *ngIf="post.verifiedAuthor" title="Verified member" aria-label="Verified member">✓</span><small>{{ categoryLabel(post.categoryName) }} · {{ post.createdAt | date:'medium' }}</small></div></div>
         <button class="more" type="button" title="More actions" aria-label="More actions"><svg lucideEllipsis aria-hidden="true"></svg></button>
       </header>
-
       <p class="post-copy">{{ post.content }}</p>
       <img *ngIf="post.imageUrl" [src]="post.imageUrl" [alt]="post.categoryName + ' community update'" loading="lazy" />
-
-      <div class="engagement">
-        <span>{{ 18 + index * 7 }} supports</span>
-        <span>{{ comments[post.id]?.length || 1 }} comments</span>
-      </div>
-
+      <div class="engagement"><span>{{ post.supportCount }} {{ 'feed.supports' | translate }}</span><span>{{ post.commentCount }} {{ 'feed.comments' | translate }}</span></div>
       <footer class="post-actions">
-        <button type="button"><svg lucideThumbsUp aria-hidden="true"></svg>Support</button>
-        <button type="button" (click)="toggleComments(post.id)"><svg lucideMessageCircle aria-hidden="true"></svg>Comment</button>
-        <button type="button"><svg lucideShare2 aria-hidden="true"></svg>Share</button>
+        <button type="button" (click)="toggleSupport(post)" [class.active]="post.supportedByCurrentUser" [disabled]="supporting.has(post.id)"><svg lucideThumbsUp aria-hidden="true"></svg>{{ 'feed.support' | translate }}</button>
+        <button type="button" (click)="toggleComments(post.id)"><svg lucideMessageCircle aria-hidden="true"></svg>{{ 'feed.comment' | translate }}</button>
+        <button type="button" (click)="sharePost(post)"><svg lucideShare2 aria-hidden="true"></svg>{{ 'feed.share' | translate }}</button>
       </footer>
-
       <section class="comments" *ngIf="comments[post.id]">
-        <p class="hint" *ngIf="comments[post.id].length === 0">No comments yet.</p>
-        <div class="comment" *ngFor="let comment of comments[post.id]">
-          <div class="avatar small">{{ initials(comment.authorName) }}</div>
-          <div>
-            <strong>{{ comment.authorName }}</strong>
-            <span>{{ comment.commentText }}</span>
-          </div>
-        </div>
-        <div class="comment-form">
-          <div class="avatar small">{{ currentInitials() }}</div>
-          <input [(ngModel)]="commentDrafts[post.id]" [ngModelOptions]="{standalone: true}" placeholder="Write a thoughtful comment" />
-          <button class="btn secondary" type="button" (click)="addComment(post.id)">Send</button>
-        </div>
+        <p class="hint" *ngIf="comments[post.id].length === 0">{{ 'feed.noComments' | translate }}</p>
+        <div class="comment" *ngFor="let comment of comments[post.id]"><div class="avatar small">{{ initials(comment.authorName) }}</div><div><strong>{{ comment.authorName }}</strong><span>{{ comment.commentText }}</span></div></div>
+        <p class="error" *ngIf="commentErrors[post.id]">{{ commentErrors[post.id] }}</p>
+        <div class="comment-form"><div class="avatar small">{{ currentInitials() }}</div><input [(ngModel)]="commentDrafts[post.id]" [ngModelOptions]="{standalone: true}" maxlength="1000" [placeholder]="'feed.commentPlaceholder' | translate" (keyup.enter)="addComment(post)" /><button class="btn secondary" type="button" [disabled]="commentSubmitting.has(post.id)" (click)="addComment(post)">{{ 'feed.send' | translate }}</button></div>
       </section>
     </article>
 
-    <div class="feed-end" *ngIf="!loadingPosts && visiblePosts.length > 0">
-      <span class="feed-end-line"></span>
-      <strong>You are up to date</strong>
-      <span>All {{ visiblePosts.length }} visible updates are shown.</span>
-      <button type="button" (click)="scrollToTop()">Back to top</button>
-    </div>
+    <div class="feed-end" *ngIf="!loadingPosts && visiblePosts.length > 0"><span class="feed-end-line"></span><strong>{{ 'feed.upToDate' | translate }}</strong><span>{{ visiblePosts.length }} {{ 'feed.updates' | translate }}</span><button type="button" (click)="scrollToTop()">{{ 'feed.backTop' | translate }}</button></div>
   </main>
 
   <aside class="right-rail">
-    <section class="panel insight-card">
-      <div class="card-heading"><div class="heading-icon"><svg lucideUsersRound aria-hidden="true"></svg></div><div><h2>Network overview</h2><span>Live activity</span></div></div>
-      <div class="overview-grid">
-        <div><strong>{{ members.length }}</strong><span>People</span></div>
-        <div><strong>{{ posts.length }}</strong><span>Posts</span></div>
-        <div><strong>{{ categories.length }}</strong><span>Topics</span></div>
-      </div>
-    </section>
-
-    <section class="panel insight-card community-card">
-      <div class="card-heading"><div class="heading-icon"><svg lucideUsersRound aria-hidden="true"></svg></div><div><h2>People in your network</h2><span>Verified members</span></div></div>
-      <div class="member" *ngFor="let member of visibleMembers">
-        <div class="avatar small">{{ initials(member.fullName) }}</div>
-        <div>
-          <strong>{{ member.fullName }}</strong>
-          <span>{{ member.role === 'ROLE_ADMIN' ? 'Admin' : 'Member' }}</span>
-        </div>
-        <a routerLink="/chat" class="message-person" title="Message {{ member.fullName }}" aria-label="Message {{ member.fullName }}"><svg lucideMessageCircle aria-hidden="true"></svg></a>
-      </div>
-      <div class="community-rules">
-        <strong><svg lucideShieldCheck aria-hidden="true"></svg> Network standards</strong>
-        <span>Verified information · Respectful conversations · Clear SOS updates</span>
-      </div>
-    </section>
-
-    <section class="panel feature-card">
-      <div class="feature-icon"><svg lucideBookOpen aria-hidden="true"></svg></div>
-      <div><span>Featured reading</span><strong>Ideas for an equal society</strong><small>Inspired by Dr. B. R. Ambedkar</small></div>
-    </section>
+    <section class="panel insight-card"><div class="card-heading"><div class="heading-icon"><svg lucideUsersRound aria-hidden="true"></svg></div><div><h2>{{ 'feed.network' | translate }}</h2><span>{{ 'feed.liveActivity' | translate }}</span></div></div><div class="overview-grid"><div><strong>{{ members.length }}</strong><span>{{ 'feed.people' | translate }}</span></div><div><strong>{{ posts.length }}</strong><span>{{ 'feed.posts' | translate }}</span></div><div><strong>{{ categories.length }}</strong><span>{{ 'feed.topics' | translate }}</span></div></div></section>
+    <section class="panel insight-card community-card"><div class="card-heading"><div class="heading-icon"><svg lucideUsersRound aria-hidden="true"></svg></div><div><h2>People in your network</h2><span>Verified members</span></div></div><div class="member" *ngFor="let member of visibleMembers"><div class="avatar small">{{ initials(member.fullName) }}</div><div><strong>{{ member.fullName }}</strong><span>{{ member.role === 'ROLE_ADMIN' ? 'Admin' : 'Member' }}</span></div><a routerLink="/chat" class="message-person" [title]="'Message ' + member.fullName"><svg lucideMessageCircle aria-hidden="true"></svg></a></div><div class="community-rules"><strong><svg lucideShieldCheck aria-hidden="true"></svg> Network standards</strong><span>Verified information · Respectful conversations · Clear SOS updates</span></div></section>
+    <section class="panel feature-card"><div class="feature-icon"><svg lucideBookOpen aria-hidden="true"></svg></div><div><span>Featured reading</span><strong>Ideas for an equal society</strong><small>Inspired by Dr. B. R. Ambedkar</small></div></section>
   </aside>
-
-  <button class="scroll-top" *ngIf="showScrollTop" type="button" aria-label="Scroll to top" (click)="scrollToTop()">
-    <span aria-hidden="true">↑</span><small>Top</small>
-  </button>
+  <button class="scroll-top" *ngIf="showScrollTop" type="button" aria-label="Scroll to top" (click)="scrollToTop()"><span aria-hidden="true">↑</span><small>Top</small></button>
 </section>
 
 <section class="modal-backdrop" *ngIf="composerOpen" (click)="closeComposer()">
   <form class="modal-card" (ngSubmit)="createPost()" #postRef="ngForm" (click)="$event.stopPropagation()">
-    <header class="modal-head">
-      <div>
-        <div class="avatar">{{ currentInitials() }}</div>
-        <div>
-          <strong>Create post</strong>
-          <span>Posting as {{ auth.session?.fullName }}</span>
-        </div>
-      </div>
-      <button class="close" type="button" (click)="closeComposer()">×</button>
-    </header>
-
-    <textarea class="modal-textarea" required name="content" [(ngModel)]="postForm.content" placeholder="What should the community know today?"></textarea>
-
-    <div class="composer-grid">
-      <div class="field">
-        <label>Category</label>
-        <select required name="category" [(ngModel)]="postForm.categoryId">
-          <option [ngValue]="0" disabled>Select category</option>
-          <option *ngFor="let category of categories" [ngValue]="category.id">{{ category.name }}</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Image URL</label>
-        <input name="imageUrl" [(ngModel)]="postForm.imageUrl" placeholder="Optional" />
-      </div>
-    </div>
-
-    <small class="character-count">{{ postForm.content.length || 0 }} characters</small>
-
-    <button class="btn modal-submit" [disabled]="postRef.invalid || !postForm.categoryId">Post</button>
-    <p class="error" *ngIf="error">{{ error }}</p>
+    <header class="modal-head"><div><div class="avatar">{{ currentInitials() }}</div><div><strong>{{ 'feed.createPost' | translate }}</strong><span>{{ 'feed.postingAs' | translate }} {{ auth.session?.fullName }}</span></div></div><button class="close" type="button" aria-label="Close" (click)="closeComposer()">×</button></header>
+    <textarea class="modal-textarea" required maxlength="3000" name="content" [(ngModel)]="postForm.content" [placeholder]="'feed.postPlaceholder' | translate"></textarea>
+    <div class="field"><label>{{ 'feed.category' | translate }}</label><select required name="category" [(ngModel)]="postForm.categoryId"><option [ngValue]="0" disabled>{{ 'feed.selectCategory' | translate }}</option><option *ngFor="let category of categories" [ngValue]="category.id">{{ categoryLabel(category.name) }}</option></select></div>
+    <section class="image-composer">
+      <div class="image-tabs"><button type="button" [class.active]="imageMode === 'UPLOAD'" (click)="setImageMode('UPLOAD')">{{ 'feed.uploadImage' | translate }}</button><button type="button" [class.active]="imageMode === 'URL'" (click)="setImageMode('URL')">{{ 'feed.imageUrl' | translate }}</button></div>
+      <label class="upload-picker" *ngIf="imageMode === 'UPLOAD'"><input type="file" accept="image/jpeg,image/png" (change)="onImageSelected($event)" /><strong>{{ imageFile ? ('feed.changeImage' | translate) : ('feed.chooseImage' | translate) }}</strong><span>JPG / PNG · max 5 MB</span></label>
+      <div class="field" *ngIf="imageMode === 'URL'"><input name="imageUrl" type="url" pattern="https://.*" [(ngModel)]="postForm.imageUrl" (ngModelChange)="updateUrlPreview()" [placeholder]="'feed.urlPlaceholder' | translate" /></div>
+      <figure class="image-preview" *ngIf="imagePreview"><img [src]="imagePreview" alt="Selected image preview" /><figcaption><span>{{ imageFile?.name || postForm.imageUrl }}</span><button type="button" (click)="removeImage()">{{ 'feed.removeImage' | translate }}</button></figcaption></figure>
+      <div class="upload-progress" *ngIf="posting && imageFile"><span [style.width.%]="uploadProgress"></span><small>{{ 'feed.uploading' | translate }} {{ uploadProgress }}%</small></div>
+    </section>
+    <small class="character-count">{{ postForm.content.length || 0 }} / 3000 {{ 'feed.characters' | translate }}</small>
+    <p class="error" *ngIf="composerError" role="alert">{{ composerError }}</p>
+    <button class="btn modal-submit" [disabled]="posting || postRef.invalid || !postForm.categoryId">{{ (posting ? 'feed.posting' : 'feed.post') | translate }}</button>
+    <section class="discard-confirm" *ngIf="discardConfirm" role="alertdialog" aria-modal="true"><div><strong>{{ 'feed.discardTitle' | translate }}</strong><span>{{ 'feed.discardHelp' | translate }}</span><footer><button type="button" class="btn secondary" (click)="keepEditing()">{{ 'feed.keepEditing' | translate }}</button><button type="button" class="btn danger" (click)="discardDraft()">{{ 'feed.discard' | translate }}</button></footer></div></section>
   </form>
 </section>

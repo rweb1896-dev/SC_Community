@@ -1,17 +1,19 @@
 <section class="public-page library-page">
   <header class="page-heading">
     <div>
-      <p class="eyebrow">Community reading room</p>
-      <h1>Books for thought and action</h1>
-      <p>Read open public documents online or discover carefully selected print editions from their publishers.</p>
+      <p class="eyebrow">{{ 'library.kicker' | translate }}</p>
+      <h1>{{ 'library.title' | translate }}</h1>
+      <p>{{ 'library.intro' | translate }}</p>
     </div>
-    <div class="library-totals"><span><strong>{{ books.length }}</strong> free PDFs</span><span><strong>{{ paidBooks.length }}</strong> print books</span></div>
+    <div class="library-totals"><span><strong>{{ visibleBooks.length }}</strong> {{ 'library.freePdfs' | translate }}</span><span><strong>{{ paidBooks.length }}</strong> {{ 'library.printBooks' | translate }}</span></div>
   </header>
 
+  <p class="language-fallback" *ngIf="usingLanguageFallback">{{ 'library.fallback' | translate }}</p>
+
   <section class="shelf">
-    <div class="section-heading"><div><h2>Open digital collection</h2><p>Official and institutional PDFs available without payment.</p></div><span>Opens in a new tab</span></div>
+    <div class="section-heading"><div><h2>{{ 'library.digital' | translate }}</h2><p>{{ 'library.digitalHelp' | translate }}</p></div><span>{{ 'library.newTab' | translate }}</span></div>
     <div class="book-grid">
-      <article class="book-card" *ngFor="let book of books">
+      <article class="book-card" *ngFor="let book of visibleBooks">
         <a class="cover-link" [href]="pdfHref(book)" target="_blank" rel="noopener">
           <span class="digital-cover" [attr.data-tone]="book.coverTone">
             <small>{{ book.source }}</small><b>{{ book.title }}</b><em>{{ book.author }}</em><i>PDF</i>
@@ -22,25 +24,25 @@
           <h2>{{ book.title }}</h2>
           <strong>{{ book.author }}</strong>
           <p>{{ book.summary }}</p>
-          <a [href]="pdfHref(book)" target="_blank" rel="noopener">Read PDF <svg lucideExternalLink></svg></a>
-          <small class="pdf-fallback">Reader issue? <a [href]="book.pdfUrl" target="_blank" rel="noopener">Open official source</a>.</small>
+          <a [href]="pdfHref(book)" target="_blank" rel="noopener">{{ 'library.readPdf' | translate }} <svg lucideExternalLink></svg></a>
+          <small class="pdf-fallback">{{ 'library.readerIssue' | translate }} <a [href]="book.pdfUrl" target="_blank" rel="noopener">{{ 'library.source' | translate }}</a>.</small>
         </div>
       </article>
     </div>
   </section>
 
   <section class="shelf print-shelf">
-    <div class="section-heading"><div><h2>Publisher editions</h2><p>Paid books sold by the linked publisher or bookseller.</p></div><span>Prices may change</span></div>
+    <div class="section-heading"><div><h2>{{ 'library.publisher' | translate }}</h2><p>{{ 'library.publisherHelp' | translate }}</p></div><span>{{ 'library.prices' | translate }}</span></div>
     <div class="paid-grid">
       <article class="paid-card" *ngFor="let book of paidBooks">
         <a [href]="book.storeUrl" target="_blank" rel="noopener"><img [src]="book.coverImageUrl" [alt]="book.title + ' cover'" /></a>
         <div>
-          <span class="paid-label"><svg lucideShoppingBag></svg>Print edition</span>
+          <span class="paid-label"><svg lucideShoppingBag></svg>{{ 'library.printEdition' | translate }}</span>
           <h2>{{ book.title }}</h2>
           <strong>{{ book.author }}</strong>
           <p>{{ book.summary }}</p>
           <small>{{ book.format }} · {{ book.source }}</small>
-          <footer><b>{{ book.price }}</b><a [href]="book.storeUrl" target="_blank" rel="noopener">View book <svg lucideExternalLink></svg></a></footer>
+          <footer><b>{{ book.price }}</b><a [href]="book.storeUrl" target="_blank" rel="noopener">{{ 'library.viewBook' | translate }} <svg lucideExternalLink></svg></a></footer>
         </div>
       </article>
     </div>

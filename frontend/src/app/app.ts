@@ -9,10 +9,12 @@ import { AuthService } from './core/auth.service';
 import { CommunityApiService } from './core/community-api.service';
 import { MemberInviteRequest } from './core/models';
 import { interval, Subscription } from 'rxjs';
+import { AppLanguage, I18nService } from './core/i18n.service';
+import { TranslatePipe } from './core/translate.pipe';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, AsyncPipe, DatePipe, NgIf, FormsModule, LucideBookOpen, LucideCalendarDays, LucideCheck, LucideChevronDown, LucideClock3, LucideCopy, LucideHouse, LucideImages, LucideKeyRound, LucideLogOut, LucideMessageCircle, LucideNewspaper, LucideRadio, LucideSearch, LucideSend, LucideShare2, LucideShieldCheck, LucideUsersRound, LucideVideo, LucideX],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, AsyncPipe, DatePipe, NgIf, FormsModule, TranslatePipe, LucideBookOpen, LucideCalendarDays, LucideCheck, LucideChevronDown, LucideClock3, LucideCopy, LucideHouse, LucideImages, LucideKeyRound, LucideLogOut, LucideMessageCircle, LucideNewspaper, LucideRadio, LucideSearch, LucideSend, LucideShare2, LucideShieldCheck, LucideUsersRound, LucideVideo, LucideX],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
@@ -31,7 +33,9 @@ export class App implements OnInit, OnDestroy {
   private inviteCreatingNew = false;
   private subscriptions = new Subscription();
 
-  constructor(public auth: AuthService, public router: Router, private api: CommunityApiService) {}
+  constructor(public auth: AuthService, public router: Router, private api: CommunityApiService, public i18n: I18nService) {}
+
+  changeLanguage(value: string): void { this.i18n.setLanguage(value as AppLanguage); }
 
   ngOnInit(): void {
     this.subscriptions.add(this.auth.session$.subscribe((session) => {

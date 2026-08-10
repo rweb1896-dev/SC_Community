@@ -25,20 +25,20 @@
       <h2>
         {{
           mode === 'login'
-            ? 'Welcome Back'
+            ? ('auth.welcomeBack' | translate)
             : mode === 'register'
               ? registerStep === 1
-                ? 'Create your profile'
+                ? ('auth.createProfile' | translate)
                 : registerStep === 2
-                  ? 'Verify your details'
-                  : 'Secure your account'
+                  ? ('auth.verifyDetails' | translate)
+                  : ('auth.secureAccount' | translate)
               : 'Reset your password'
         }}
       </h2>
       <p>
         {{
           mode === 'login'
-            ? 'Sign in to your account'
+            ? ('auth.signInSubtitle' | translate)
             : mode === 'register'
               ? registerStep === 1
                 ? 'Start with the basic details your community will see.'
@@ -52,7 +52,7 @@
 
     <form *ngIf="mode === 'login'" (ngSubmit)="login()" #loginRef="ngForm" novalidate>
       <div class="field">
-        <label for="login-email">Email</label>
+        <label for="login-email">{{ 'auth.email' | translate }}</label>
         <input
           id="login-email"
           required
@@ -62,11 +62,11 @@
           [(ngModel)]="loginForm.email"
           #loginEmail="ngModel"
         />
-        <small class="field-error" *ngIf="loginEmail.invalid && loginEmail.touched">Enter a valid email address.</small>
+        <small class="field-error" *ngIf="loginEmail.invalid && loginEmail.touched">{{ 'auth.invalidEmail' | translate }}</small>
       </div>
 
       <div class="field">
-        <label for="login-password">Password</label>
+        <label for="login-password">{{ 'auth.password' | translate }}</label>
         <div class="password-control">
           <input
             id="login-password"
@@ -76,6 +76,7 @@
             name="password"
             autocomplete="current-password"
             [(ngModel)]="loginForm.password"
+            #loginPassword="ngModel"
           />
           <button
             class="visibility-button"
@@ -88,32 +89,33 @@
             <svg *ngIf="showLoginPassword" lucideEyeOff aria-hidden="true"></svg>
           </button>
         </div>
+        <small class="field-error" *ngIf="loginPassword.invalid && loginPassword.touched">{{ 'auth.passwordRequired' | translate }}</small>
       </div>
 
-      <button class="forgot-link" type="button" (click)="setMode('forgot')">Forgot password?</button>
-      <button class="btn" type="submit" [disabled]="loading || loginRef.invalid">
-        {{ loading ? 'Signing in...' : 'Sign in' }}
+      <button class="forgot-link" type="button" (click)="setMode('forgot')">{{ 'auth.forgot' | translate }}</button>
+      <button class="btn" type="submit" [disabled]="loading">
+        {{ (loading ? 'auth.signingIn' : 'auth.signIn') | translate }}
       </button>
     </form>
 
     <p *ngIf="mode === 'login'" class="auth-switch">
-      Don't have an account?
-      <button type="button" (click)="setMode('register')">Sign Up</button>
+      {{ 'auth.noAccount' | translate }}
+      <button type="button" (click)="setMode('register')">{{ 'auth.signUp' | translate }}</button>
     </p>
 
     <form *ngIf="mode === 'register'" (ngSubmit)="register()" #registerRef="ngForm" novalidate>
       <div class="registration-progress" aria-label="Sign-up progress">
-        <span [class.active]="registerStep >= 1"><b>1</b><small>Profile</small></span>
+        <span [class.active]="registerStep >= 1"><b>1</b><small>{{ 'auth.profile' | translate }}</small></span>
         <i [class.active]="registerStep >= 2"></i>
-        <span [class.active]="registerStep >= 2"><b>2</b><small>Verify</small></span>
+        <span [class.active]="registerStep >= 2"><b>2</b><small>{{ 'auth.verify' | translate }}</small></span>
         <i [class.active]="registerStep >= 3"></i>
-        <span [class.active]="registerStep >= 3"><b>3</b><small>Security</small></span>
+        <span [class.active]="registerStep >= 3"><b>3</b><small>{{ 'auth.security' | translate }}</small></span>
       </div>
 
       <ng-container *ngIf="registerStep === 1">
       <div class="grid">
         <div class="field">
-          <label for="full-name">Full name</label>
+          <label for="full-name">{{ 'auth.fullName' | translate }}</label>
           <input
             id="full-name"
             required
@@ -128,7 +130,7 @@
         </div>
 
         <div class="field">
-          <label for="professional-group">Professional group</label>
+          <label for="professional-group">{{ 'auth.professionalGroup' | translate }}</label>
           <select
             id="professional-group"
             required
@@ -145,8 +147,8 @@
       </div>
 
       <div class="step-actions end">
-        <button class="btn" type="button" [disabled]="!canContinueProfile()" (click)="continueRegistration()">
-          Continue to verification
+        <button class="btn" type="button" (click)="continueRegistration()">
+          {{ 'auth.continueVerification' | translate }}
         </button>
       </div>
       </ng-container>
@@ -155,12 +157,12 @@
       <div class="verification-card" [class.verified]="emailVerification.verified">
         <div class="verification-heading">
           <span class="verification-icon"><svg lucideMail aria-hidden="true"></svg></span>
-          <span><strong>Email verification</strong><small>Required for login and recovery</small></span>
+          <span><strong>{{ 'auth.emailVerification' | translate }}</strong><small>Required for login and recovery</small></span>
           <svg *ngIf="emailVerification.verified" class="verified-check" lucideCheckCircle2 aria-label="Verified"></svg>
         </div>
         <div class="verification-row">
           <div class="field">
-            <label for="register-email">Email</label>
+            <label for="register-email">{{ 'auth.email' | translate }}</label>
             <input
               id="register-email"
               required
@@ -178,13 +180,13 @@
             [disabled]="registerEmail.invalid || emailVerification.verified || otpLoading !== ''"
             (click)="requestSignupOtp('EMAIL')"
           >
-            {{ emailVerification.requested ? 'Resend' : 'Send code' }}
+            {{ (emailVerification.requested ? 'auth.resend' : 'auth.sendCode') | translate }}
           </button>
         </div>
         <small class="field-error" *ngIf="registerEmail.invalid && registerEmail.touched">Enter a valid email address.</small>
         <div class="verification-row otp-row" *ngIf="emailVerification.requested && !emailVerification.verified">
           <div class="field">
-            <label for="email-otp">Email OTP</label>
+            <label for="email-otp">{{ 'auth.emailOtp' | translate }}</label>
             <input
               id="email-otp"
               required
@@ -193,7 +195,7 @@
               pattern="[A-Za-z0-9]{4,8}"
               name="emailOtp"
               autocomplete="one-time-code"
-              placeholder="Enter code"
+              [placeholder]="'auth.enterCode' | translate"
               [(ngModel)]="emailVerification.code"
             />
           </div>
@@ -203,7 +205,7 @@
             [disabled]="emailVerification.code.length < 4 || otpLoading !== ''"
             (click)="verifySignupOtp('EMAIL')"
           >
-            {{ otpLoading === 'email-verify' ? 'Checking...' : 'Verify' }}
+            {{ (otpLoading === 'email-verify' ? 'auth.checking' : 'auth.verify') | translate }}
           </button>
         </div>
       </div>
@@ -211,12 +213,12 @@
       <div class="verification-card" [class.verified]="phoneVerification.verified">
         <div class="verification-heading">
           <span class="verification-icon"><svg lucideSmartphone aria-hidden="true"></svg></span>
-          <span><strong>Mobile verification</strong><small>Required for secure recovery</small></span>
+          <span><strong>{{ 'auth.mobileVerification' | translate }}</strong><small>Required for secure recovery</small></span>
           <svg *ngIf="phoneVerification.verified" class="verified-check" lucideCheckCircle2 aria-label="Verified"></svg>
         </div>
         <div class="verification-row">
           <div class="field">
-            <label for="phone-number">Mobile number</label>
+            <label for="phone-number">{{ 'auth.mobileNumber' | translate }}</label>
             <input
               id="phone-number"
               required
@@ -237,13 +239,13 @@
             [disabled]="phoneNumber.invalid || phoneVerification.verified || otpLoading !== ''"
             (click)="requestSignupOtp('MOBILE')"
           >
-            {{ phoneVerification.requested ? 'Resend' : 'Send code' }}
+            {{ (phoneVerification.requested ? 'auth.resend' : 'auth.sendCode') | translate }}
           </button>
         </div>
         <small class="field-error" *ngIf="phoneNumber.invalid && phoneNumber.touched">Use 10-15 digits, optionally with country code.</small>
         <div class="verification-row otp-row" *ngIf="phoneVerification.requested && !phoneVerification.verified">
           <div class="field">
-            <label for="phone-otp">Mobile OTP</label>
+            <label for="phone-otp">{{ 'auth.mobileOtp' | translate }}</label>
             <input
               id="phone-otp"
               required
@@ -252,7 +254,7 @@
               pattern="[A-Za-z0-9]{4,8}"
               name="phoneOtp"
               autocomplete="one-time-code"
-              placeholder="Enter code"
+              [placeholder]="'auth.enterCode' | translate"
               [(ngModel)]="phoneVerification.code"
             />
           </div>
@@ -262,20 +264,19 @@
             [disabled]="phoneVerification.code.length < 4 || otpLoading !== ''"
             (click)="verifySignupOtp('MOBILE')"
           >
-            {{ otpLoading === 'phone-verify' ? 'Checking...' : 'Verify' }}
+            {{ (otpLoading === 'phone-verify' ? 'auth.checking' : 'auth.verify') | translate }}
           </button>
         </div>
       </div>
 
       <div class="step-actions">
-        <button class="btn secondary" type="button" (click)="backRegistration()">Back</button>
+        <button class="btn secondary" type="button" (click)="backRegistration()">{{ 'auth.back' | translate }}</button>
         <button
           class="btn"
           type="button"
-          [disabled]="!emailVerification.verified || !phoneVerification.verified"
           (click)="continueRegistration()"
         >
-          Continue to security
+          {{ 'auth.continueSecurity' | translate }}
         </button>
       </div>
       </ng-container>
@@ -283,7 +284,7 @@
       <ng-container *ngIf="registerStep === 3">
       <div class="grid">
         <div class="field">
-          <label for="register-password">Password</label>
+          <label for="register-password">{{ 'auth.password' | translate }}</label>
           <div class="password-control">
             <input
               id="register-password"
@@ -308,7 +309,7 @@
         </div>
 
         <div class="field">
-          <label for="confirm-password">Confirm password</label>
+          <label for="confirm-password">{{ 'auth.confirmPassword' | translate }}</label>
           <div class="password-control">
             <input
               id="confirm-password"
@@ -331,7 +332,7 @@
       </div>
 
       <div class="field">
-        <label for="invite-code">Verification / invite code</label>
+        <label for="invite-code">{{ 'auth.inviteCode' | translate }}</label>
         <input
           id="invite-code"
           required
@@ -364,7 +365,7 @@
       </div>
 
       <div class="field">
-        <label for="id-proof">Government ID proof URL <small>Optional</small></label>
+        <label for="id-proof">{{ 'auth.idProof' | translate }} <small>{{ 'auth.optional' | translate }}</small></label>
         <input
           id="id-proof"
           type="url"
@@ -387,17 +388,17 @@
       </div>
 
       <div class="step-actions">
-        <button class="btn secondary" type="button" (click)="backRegistration()">Back</button>
-        <button class="btn" type="submit" [disabled]="loading || !canSubmitRegistration()">
-          {{ loading ? 'Submitting...' : 'Submit for admin approval' }}
+        <button class="btn secondary" type="button" (click)="backRegistration()">{{ 'auth.back' | translate }}</button>
+        <button class="btn" type="submit" [disabled]="loading">
+          {{ (loading ? 'auth.submitting' : 'auth.submit') | translate }}
         </button>
       </div>
       </ng-container>
     </form>
 
     <p *ngIf="mode === 'register'" class="auth-switch">
-      Already have an account?
-      <button type="button" (click)="setMode('login')">Login</button>
+      {{ 'auth.haveAccount' | translate }}
+      <button type="button" (click)="setMode('login')">{{ 'auth.login' | translate }}</button>
     </p>
 
     <form *ngIf="mode === 'forgot'" class="forgot-form" #forgotRef="ngForm" novalidate>

@@ -19,6 +19,10 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import com.sc.community.dto.PostDtos.FeedEvent;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Service
 public class AdminService {
@@ -26,13 +30,17 @@ public class AdminService {
     private final PostRepository postRepository;
     private final VerificationCodeRepository codeRepository;
     private final CurrentUserService currentUserService;
+    private final SimpMessagingTemplate messagingTemplate;
     private final SecureRandom random = new SecureRandom();
 
-    public AdminService(UserRepository userRepository, PostRepository postRepository, VerificationCodeRepository codeRepository, CurrentUserService currentUserService) {
+    public AdminService(UserRepository userRepository, PostRepository postRepository,
+            VerificationCodeRepository codeRepository, CurrentUserService currentUserService,
+            SimpMessagingTemplate messagingTemplate) {
         this.userRepository = userRepository;
         this.postRepository = postRepository;
         this.codeRepository = codeRepository;
         this.currentUserService = currentUserService;
+        this.messagingTemplate = messagingTemplate;
     }
 
     public DashboardResponse dashboard() {
@@ -76,6 +84,14 @@ public class AdminService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
         post.setStatus(PostStatus.BLOCKED);
         postRepository.save(post);
+        Runnable send = () -> messagingTemplate.convertAndSend("/topic/feed", new FeedEvent("POST_REMOVED", postId));
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override public void afterCommit() { send.run(); }
+            });
+        } else {
+            send.run();
+        }
     }
 
     @Transactional

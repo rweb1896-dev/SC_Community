@@ -53,6 +53,7 @@ export interface UserResponse {
 
 export interface Category {
   id: number;
+  key: string;
   name: string;
   description: string;
 }
@@ -68,7 +69,15 @@ export interface Post {
   imageUrl?: string;
   status: PostStatus;
   createdAt: string;
+  updatedAt: string;
+  supportCount: number;
+  commentCount: number;
+  supportedByCurrentUser: boolean;
 }
+
+export interface SupportResponse { postId: number; supportCount: number; supported: boolean; }
+export interface ImageUploadResponse { imageUrl: string; contentType: string; sizeBytes: number; }
+export interface FeedEvent { type: 'POST_CREATED' | 'POST_REMOVED' | 'COMMENT_CREATED' | 'SUPPORT_UPDATED'; postId: number; }
 
 export interface Comment {
   id: number;

@@ -101,7 +101,7 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${API}/auth/login`, { email, password }).pipe(
+    return this.http.post<AuthResponse>(`${API}/auth/login`, { email: email.trim().toLowerCase(), password }).pipe(
       tap((session) => {
         this.storage()?.setItem(SESSION_KEY, JSON.stringify(session));
         this.sessionSubject.next(session);

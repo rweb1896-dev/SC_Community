@@ -125,6 +125,9 @@ nav a svg { width: 20px; height: 20px; }
 .nav-invite { position: relative; display: inline-flex; height: 40px; align-items: center; gap: 7px; border: 1px solid #cdd9fa; border-radius: 10px; background: #f3f6ff; color: #2457bd; padding: 0 11px; font-size: 11px; font-weight: 850; }
 .nav-invite svg { width: 16px; height: 16px; }
 .nav-invite i { position: absolute; top: 5px; right: 5px; width: 7px; height: 7px; border: 2px solid #f3f6ff; border-radius: 50%; background: #f59e0b; }
+.language-select { display: grid; gap: 1px; margin-inline: 3px; color: #758078; font-size: 7px; font-weight: 850; text-transform: uppercase; }
+.language-select select { height: 32px; border: 1px solid #dce3df; border-radius: 8px; background: #fff; padding: 0 24px 0 8px; color: #35423c; font-size: 10px; font-weight: 800; outline: none; }
+.language-select select:focus { border-color: #7f9fe5; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
 
 .member-invite-backdrop { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; overflow-y: auto; background: rgba(13,21,38,.56); padding: 24px; backdrop-filter: blur(8px); animation: invite-backdrop-in .22s ease-out; }
 .member-invite-modal { position: relative; display: grid; width: min(520px,100%); gap: 13px; overflow: hidden; border: 1px solid rgba(255,255,255,.7); border-radius: 24px; background: linear-gradient(155deg,#fff,#f7f9ff); box-shadow: 0 30px 90px rgba(13,31,74,.28); padding: 32px; animation: invite-modal-in .4s cubic-bezier(.2,.8,.2,1); }
@@ -270,6 +273,8 @@ main {
   .profile-trigger { width: 100%; justify-content: space-between; border-radius: 8px; }
   .profile-menu { position: static; width: 100%; margin-top: 7px; box-shadow: none; }
   .nav-invite { width: 100%; justify-content: flex-start; }
+  .language-select { width: 100%; margin: 4px 2px; }
+  .language-select select { width: 100%; height: 40px; }
   .member-invite-backdrop { align-items: end; padding: 10px; }
   .member-invite-modal { border-radius: 22px 22px 14px 14px; padding: 28px 20px 22px; }
 

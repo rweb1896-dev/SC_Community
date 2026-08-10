@@ -43,3 +43,12 @@
   .book-copy h2, .paid-card h2 { font-size: 14px; }
   .book-copy p, .paid-card p { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
 }
+.language-fallback {
+  margin: 0 0 22px;
+  border: 1px solid #f1d79c;
+  border-radius: 10px;
+  background: #fff9e8;
+  padding: 12px 14px;
+  color: #755614;
+  font-size: 13px;
+}

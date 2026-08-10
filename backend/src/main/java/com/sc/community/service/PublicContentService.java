@@ -122,6 +122,7 @@ public class PublicContentService {
     @Transactional
     public List<GalleryImageResponse> gallery() {
         return galleryRepository.findAllByOrderByCreatedAtDesc().stream()
+                .filter(image -> !image.getTitle().startsWith(ImageUploadService.POST_IMAGE_PREFIX))
                 .map(GalleryImageResponse::from)
                 .toList();
     }

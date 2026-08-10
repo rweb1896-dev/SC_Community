@@ -2,19 +2,19 @@
   <header>
     <div>
       <p class="eyebrow">SC Community Connect</p>
-      <h1>Administration</h1>
-      <span class="admin-subtitle">Manage membership, public content and community safety.</span>
+      <h1>{{ 'admin.title' | translate }}</h1>
+      <span class="admin-subtitle">{{ 'admin.subtitle' | translate }}</span>
     </div>
   </header>
 
   <div class="admin-workspace">
     <aside class="admin-sidebar" aria-label="Administration sections">
       <div class="sidebar-label">Workspace</div>
-      <button type="button" [class.active]="workspaceTab === 'overview'" (click)="workspaceTab = 'overview'"><span>01</span><div><strong>Overview</strong><small>Health and priorities</small></div></button>
-      <button type="button" [class.active]="workspaceTab === 'invitations'" (click)="workspaceTab = 'invitations'"><span>02</span><div><strong>Invitations</strong><small>Codes and requests</small></div><i *ngIf="inviteRequests.length + memberInviteRequests.length">{{ inviteRequests.length + memberInviteRequests.length }}</i></button>
-      <button type="button" [class.active]="workspaceTab === 'content'" (click)="workspaceTab = 'content'"><span>03</span><div><strong>Website content</strong><small>Leaders, books and media</small></div></button>
-      <button type="button" [class.active]="workspaceTab === 'members'" (click)="workspaceTab = 'members'"><span>04</span><div><strong>People</strong><small>Members and meetings</small></div><i *ngIf="pendingMeetings.length">{{ pendingMeetings.length }}</i></button>
-      <button type="button" [class.active]="workspaceTab === 'moderation'" (click)="workspaceTab = 'moderation'"><span>05</span><div><strong>Moderation</strong><small>Posts and safety</small></div></button>
+      <button type="button" [class.active]="workspaceTab === 'overview'" (click)="workspaceTab = 'overview'"><span>01</span><div><strong>{{ 'admin.overview' | translate }}</strong><small>Health and priorities</small></div></button>
+      <button type="button" [class.active]="workspaceTab === 'invitations'" (click)="workspaceTab = 'invitations'"><span>02</span><div><strong>{{ 'admin.invitations' | translate }}</strong><small>Codes and requests</small></div><i *ngIf="inviteRequests.length + memberInviteRequests.length">{{ inviteRequests.length + memberInviteRequests.length }}</i></button>
+      <button type="button" [class.active]="workspaceTab === 'content'" (click)="workspaceTab = 'content'"><span>03</span><div><strong>{{ 'admin.content' | translate }}</strong><small>Leaders, books and media</small></div></button>
+      <button type="button" [class.active]="workspaceTab === 'members'" (click)="workspaceTab = 'members'"><span>04</span><div><strong>{{ 'admin.people' | translate }}</strong><small>Members and meetings</small></div><i *ngIf="pendingMeetings.length">{{ pendingMeetings.length }}</i></button>
+      <button type="button" [class.active]="workspaceTab === 'moderation'" (click)="workspaceTab = 'moderation'"><span>05</span><div><strong>{{ 'admin.moderation' | translate }}</strong><small>Posts and safety</small></div></button>
     </aside>
 
     <div class="admin-content">

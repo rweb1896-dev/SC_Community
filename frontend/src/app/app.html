@@ -5,18 +5,19 @@
   </a>
   <form class="global-search" *ngIf="auth.session && auth.session.role !== 'ROLE_ADMIN'" (ngSubmit)="search()">
     <svg lucideSearch aria-hidden="true"></svg>
-    <input name="globalSearch" [(ngModel)]="searchTerm" placeholder="Search people, posts and topics" aria-label="Search people, posts and topics" />
-    <button type="submit">Search</button>
+    <input name="globalSearch" [(ngModel)]="searchTerm" [placeholder]="'nav.searchPlaceholder' | translate" [attr.aria-label]="'nav.searchPlaceholder' | translate" />
+    <button type="submit">{{ 'nav.search' | translate }}</button>
   </form>
   <button class="menu-toggle" type="button" aria-label="Toggle navigation" (click)="menuOpen = !menuOpen">
     <span></span><span></span><span></span>
   </button>
   <nav class="member-nav" *ngIf="auth.session$ | async as session" [class.open]="menuOpen">
-    <a *ngIf="session.role !== 'ROLE_ADMIN'" routerLink="/feed" routerLinkActive="active" (click)="closeMenu()"><svg lucideHouse aria-hidden="true"></svg><span>Home</span></a>
-    <a *ngIf="session.role !== 'ROLE_ADMIN'" routerLink="/chat" routerLinkActive="active" (click)="closeMenu()"><svg lucideMessageCircle aria-hidden="true"></svg><span>Messages</span></a>
-    <a *ngIf="session.role !== 'ROLE_ADMIN'" routerLink="/meetings" routerLinkActive="active" (click)="closeMenu()"><svg lucideVideo aria-hidden="true"></svg><span>Meetings</span></a>
-    <button *ngIf="session.role !== 'ROLE_ADMIN'" class="nav-invite" type="button" (click)="openInviteWorkspace()"><svg lucideKeyRound aria-hidden="true"></svg><span>Invite</span><i *ngIf="inviteRequest?.status === 'PENDING'"></i></button>
-    <a *ngIf="session.role === 'ROLE_ADMIN'" routerLink="/admin" routerLinkActive="active" (click)="closeMenu()"><svg lucideShieldCheck aria-hidden="true"></svg><span>Admin</span></a>
+    <a *ngIf="session.role !== 'ROLE_ADMIN'" routerLink="/feed" routerLinkActive="active" (click)="closeMenu()"><svg lucideHouse aria-hidden="true"></svg><span>{{ 'nav.home' | translate }}</span></a>
+    <a *ngIf="session.role !== 'ROLE_ADMIN'" routerLink="/chat" routerLinkActive="active" (click)="closeMenu()"><svg lucideMessageCircle aria-hidden="true"></svg><span>{{ 'nav.messages' | translate }}</span></a>
+    <a *ngIf="session.role !== 'ROLE_ADMIN'" routerLink="/meetings" routerLinkActive="active" (click)="closeMenu()"><svg lucideVideo aria-hidden="true"></svg><span>{{ 'nav.meetings' | translate }}</span></a>
+    <button *ngIf="session.role !== 'ROLE_ADMIN'" class="nav-invite" type="button" (click)="openInviteWorkspace()"><svg lucideKeyRound aria-hidden="true"></svg><span>{{ 'nav.invite' | translate }}</span><i *ngIf="inviteRequest?.status === 'PENDING'"></i></button>
+    <a *ngIf="session.role === 'ROLE_ADMIN'" routerLink="/admin" routerLinkActive="active" (click)="closeMenu()"><svg lucideShieldCheck aria-hidden="true"></svg><span>{{ 'nav.admin' | translate }}</span></a>
+    <label class="language-select"><span>{{ 'language.label' | translate }}</span><select [ngModel]="i18n.language()" (ngModelChange)="changeLanguage($event)"><option value="en">English</option><option value="hi">हिन्दी</option></select></label>
     <div class="profile-menu-wrap" (click)="$event.stopPropagation()">
       <button class="profile-trigger" type="button" aria-label="Open profile menu" [attr.aria-expanded]="profileOpen" (click)="toggleProfile($event)">
         <img class="profile-photo" src="/assets/default-profile.svg" [alt]="session.fullName + ' profile picture'" />
@@ -36,13 +37,14 @@
     <button class="nav-logout" type="button" aria-label="Log out" title="Log out" (click)="logout()"><svg lucideLogOut aria-hidden="true"></svg></button>
   </nav>
   <nav class="public-nav" *ngIf="!(auth.session$ | async)" [class.open]="menuOpen">
-    <a [routerLink]="['/community']" fragment="leaders" [class.active]="isPublicSection('leaders')" (click)="selectPublicSection('leaders')"><svg lucideUsersRound aria-hidden="true"></svg><span>Leaders</span></a>
-    <a [routerLink]="['/community']" fragment="blogs" [class.active]="isPublicSection('blogs')" (click)="selectPublicSection('blogs')"><svg lucideNewspaper aria-hidden="true"></svg><span>Blogs</span></a>
-    <a [routerLink]="['/community']" fragment="events" [class.active]="isPublicSection('events')" (click)="selectPublicSection('events')"><svg lucideCalendarDays aria-hidden="true"></svg><span>Events</span></a>
-    <a [routerLink]="['/community']" fragment="gallery" [class.active]="isPublicSection('gallery')" (click)="selectPublicSection('gallery')"><svg lucideImages aria-hidden="true"></svg><span>Gallery</span></a>
-    <a routerLink="/library" routerLinkActive="active" (click)="closeMenu()"><svg lucideBookOpen aria-hidden="true"></svg><span>Library</span></a>
-    <a [routerLink]="['/community']" fragment="live" [class.active]="isPublicSection('live')" (click)="selectPublicSection('live')"><svg lucideRadio aria-hidden="true"></svg><span>Live</span></a>
-    <a class="sign-in-link" routerLink="/login" routerLinkActive="active" (click)="closeMenu()">Sign in</a>
+    <a [routerLink]="['/community']" fragment="leaders" [class.active]="isPublicSection('leaders')" (click)="selectPublicSection('leaders')"><svg lucideUsersRound aria-hidden="true"></svg><span>{{ 'nav.leaders' | translate }}</span></a>
+    <a [routerLink]="['/community']" fragment="blogs" [class.active]="isPublicSection('blogs')" (click)="selectPublicSection('blogs')"><svg lucideNewspaper aria-hidden="true"></svg><span>{{ 'nav.blogs' | translate }}</span></a>
+    <a [routerLink]="['/community']" fragment="events" [class.active]="isPublicSection('events')" (click)="selectPublicSection('events')"><svg lucideCalendarDays aria-hidden="true"></svg><span>{{ 'nav.events' | translate }}</span></a>
+    <a [routerLink]="['/community']" fragment="gallery" [class.active]="isPublicSection('gallery')" (click)="selectPublicSection('gallery')"><svg lucideImages aria-hidden="true"></svg><span>{{ 'nav.gallery' | translate }}</span></a>
+    <a routerLink="/library" routerLinkActive="active" (click)="closeMenu()"><svg lucideBookOpen aria-hidden="true"></svg><span>{{ 'nav.library' | translate }}</span></a>
+    <a [routerLink]="['/community']" fragment="live" [class.active]="isPublicSection('live')" (click)="selectPublicSection('live')"><svg lucideRadio aria-hidden="true"></svg><span>{{ 'nav.live' | translate }}</span></a>
+    <label class="language-select"><span>{{ 'language.label' | translate }}</span><select [ngModel]="i18n.language()" (ngModelChange)="changeLanguage($event)"><option value="en">English</option><option value="hi">हिन्दी</option></select></label>
+    <a class="sign-in-link" routerLink="/login" routerLinkActive="active" (click)="closeMenu()">{{ 'nav.signIn' | translate }}</a>
   </nav>
 </header>
 
