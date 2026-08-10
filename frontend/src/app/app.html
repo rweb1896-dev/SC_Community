@@ -96,6 +96,8 @@
   <router-outlet />
 </main>
 
-@defer (when auth.session?.role === 'ROLE_USER') {
-  <app-message-dock [openRequest]="messageOpenRequest" />
+@if (auth.session?.role === 'ROLE_USER') {
+  @defer (when auth.session?.role === 'ROLE_USER') {
+    <app-message-dock [openRequest]="messageOpenRequest" />
+  }
 }
