@@ -219,10 +219,10 @@
           <div class="studio-form-heading"><strong>Add a top achiever</strong><span>Publish verified accomplishments under a clear professional category.</span></div>
           <label>Category<select name="achieverField" [(ngModel)]="achieverForm.expertiseFieldId" required><option [ngValue]="0" disabled>Select category</option><option *ngFor="let field of expertiseFields" [ngValue]="field.id" [disabled]="!field.active">{{ field.name }}</option></select></label>
           <label>Full name<input name="achieverName" maxlength="120" [(ngModel)]="achieverForm.fullName" required /></label>
-          <label>Professional title<input name="achieverTitle" maxlength="160" placeholder="UPSC ranker, senior advocate, doctor..." [(ngModel)]="achieverForm.title" required /></label>
-          <label>Key achievement<textarea name="achieverAchievement" maxlength="500" [(ngModel)]="achieverForm.achievement" required></textarea></label>
-          <label>Profile summary<textarea name="achieverBiography" maxlength="1500" [(ngModel)]="achieverForm.biography" required></textarea></label>
-          <div class="form-row"><label>Photo URL <small>Optional</small><input name="achieverImage" type="url" placeholder="https://" [(ngModel)]="achieverForm.imageUrl" /></label><label>Reference URL <small>Optional</small><input name="achieverProfile" type="url" placeholder="https://" [(ngModel)]="achieverForm.profileUrl" /></label></div>
+          <label>Professional title<input name="achieverTitle" maxlength="120" placeholder="UPSC ranker, senior advocate, doctor..." [(ngModel)]="achieverForm.title" required /></label>
+          <label>Key achievement<textarea name="achieverAchievement" maxlength="280" [(ngModel)]="achieverForm.achievement" required></textarea></label>
+          <label>Profile summary<textarea name="achieverBiography" maxlength="320" [(ngModel)]="achieverForm.biography" required></textarea></label>
+          <div class="form-row"><label>Photo URL <small>Optional</small><input name="achieverImage" type="url" maxlength="1000" placeholder="https://" [(ngModel)]="achieverForm.imageUrl" /></label><label>Reference URL <small>Optional</small><input name="achieverProfile" type="url" maxlength="300" placeholder="https://" [(ngModel)]="achieverForm.profileUrl" /></label></div>
           <label>Display order<input name="achieverOrder" type="number" min="0" max="999" [(ngModel)]="achieverForm.displayOrder" /></label>
           <button class="btn" type="submit" [disabled]="savingContent"><svg lucideAward></svg>{{ savingContent ? 'Publishing...' : 'Publish achiever' }}</button>
         </form>

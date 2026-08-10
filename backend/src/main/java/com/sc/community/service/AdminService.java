@@ -31,16 +31,18 @@ public class AdminService {
     private final VerificationCodeRepository codeRepository;
     private final CurrentUserService currentUserService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final DirectoryService directoryService;
     private final SecureRandom random = new SecureRandom();
 
     public AdminService(UserRepository userRepository, PostRepository postRepository,
             VerificationCodeRepository codeRepository, CurrentUserService currentUserService,
-            SimpMessagingTemplate messagingTemplate) {
+            SimpMessagingTemplate messagingTemplate, DirectoryService directoryService) {
         this.userRepository = userRepository;
         this.postRepository = postRepository;
         this.codeRepository = codeRepository;
         this.currentUserService = currentUserService;
         this.messagingTemplate = messagingTemplate;
+        this.directoryService = directoryService;
     }
 
     public DashboardResponse dashboard() {
@@ -55,7 +57,7 @@ public class AdminService {
     }
 
     public List<UserResponse> users() {
-        return userRepository.findAll().stream().map(UserResponse::from).toList();
+        return userRepository.findAll().stream().map(directoryService::responseForUser).toList();
     }
 
     @Transactional
@@ -67,7 +69,7 @@ public class AdminService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         user.setStatus(status);
-        return UserResponse.from(userRepository.save(user));
+        return directoryService.responseForUser(userRepository.save(user));
     }
 
     @Transactional
@@ -75,7 +77,7 @@ public class AdminService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         user.setProfessionalGroup(professionalGroup);
-        return UserResponse.from(userRepository.save(user));
+        return directoryService.responseForUser(userRepository.save(user));
     }
 
     @Transactional

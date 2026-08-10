@@ -16,13 +16,11 @@ import com.sc.community.entity.ProfessionalGroup;
 import com.sc.community.entity.User;
 import com.sc.community.entity.UserStatus;
 import com.sc.community.entity.VerificationCode;
-import com.sc.community.entity.ExpertiseField;
 import com.sc.community.repository.UserRepository;
 import com.sc.community.repository.VerificationCodeRepository;
 import com.sc.community.repository.OtpChallengeRepository;
 import com.sc.community.security.JwtService;
 import java.util.Optional;
-import java.util.LinkedHashSet;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,11 +56,6 @@ class AuthServiceTest {
                 otpService,
                 challengeRepository,
                 directoryService);
-        ExpertiseField field = new ExpertiseField();
-        field.setId(1L);
-        field.setName("Education & Mentoring");
-        field.setDescription("Guidance");
-        lenient().when(directoryService.resolveActiveFields(any())).thenReturn(new LinkedHashSet<>(Set.of(field)));
     }
 
     @Test

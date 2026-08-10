@@ -11,8 +11,7 @@ import com.sc.community.repository.CommunityEventRepository;
 import com.sc.community.repository.CategoryRepository;
 import com.sc.community.repository.UserRepository;
 import com.sc.community.repository.VerificationCodeRepository;
-import com.sc.community.entity.ExpertiseField;
-import com.sc.community.repository.ExpertiseFieldRepository;
+import com.sc.community.service.DirectoryService;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -28,7 +27,7 @@ public class DataInitializer implements CommandLineRunner {
     private final VerificationCodeRepository codeRepository;
     private final CommunityEventRepository eventRepository;
     private final CategoryRepository categoryRepository;
-    private final ExpertiseFieldRepository expertiseFieldRepository;
+    private final DirectoryService directoryService;
     private final PasswordEncoder passwordEncoder;
     private final String adminEmail;
     private final String adminPassword;
@@ -40,7 +39,7 @@ public class DataInitializer implements CommandLineRunner {
             VerificationCodeRepository codeRepository,
             CommunityEventRepository eventRepository,
             CategoryRepository categoryRepository,
-            ExpertiseFieldRepository expertiseFieldRepository,
+            DirectoryService directoryService,
             PasswordEncoder passwordEncoder,
             @Value("${APP_ADMIN_EMAIL:admin@scconnect.local}") String adminEmail,
             @Value("${APP_ADMIN_PASSWORD:Admin@12345}") String adminPassword,
@@ -50,7 +49,7 @@ public class DataInitializer implements CommandLineRunner {
         this.codeRepository = codeRepository;
         this.eventRepository = eventRepository;
         this.categoryRepository = categoryRepository;
-        this.expertiseFieldRepository = expertiseFieldRepository;
+        this.directoryService = directoryService;
         this.passwordEncoder = passwordEncoder;
         this.adminEmail = adminEmail;
         this.adminPassword = adminPassword;
@@ -129,14 +128,7 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void seedExpertiseField(String name, String description, String iconKey, int displayOrder) {
-        if (expertiseFieldRepository.findByNameIgnoreCase(name).isPresent()) return;
-        ExpertiseField field = new ExpertiseField();
-        field.setName(name);
-        field.setDescription(description);
-        field.setIconKey(iconKey);
-        field.setDisplayOrder(displayOrder);
-        field.setActive(true);
-        expertiseFieldRepository.save(field);
+        directoryService.seedField(name, description, iconKey, displayOrder);
     }
 
     private Instant scheduledAt(int daysFromNow, int hour, int minute) {

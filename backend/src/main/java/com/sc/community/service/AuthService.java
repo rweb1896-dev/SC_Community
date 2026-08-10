@@ -15,7 +15,6 @@ import com.sc.community.entity.OtpChallenge;
 import com.sc.community.repository.UserRepository;
 import com.sc.community.repository.VerificationCodeRepository;
 import com.sc.community.repository.OtpChallengeRepository;
-import java.util.Comparator;
 import com.sc.community.security.JwtService;
 import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
@@ -100,8 +99,8 @@ public class AuthService {
         user.setIdProofUrl(idProofUrl.isBlank() ? null : idProofUrl);
         user.setInviteCodeUsed(code.getCode());
         user.setProfessionalGroup(request.professionalGroup());
-        user.setHelpFields(directoryService.resolveActiveFields(request.helpFieldIds()));
         User saved = userRepository.save(user);
+        directoryService.saveHelpFields(saved, request.helpFieldIds());
 
         code.setUsed(true);
         code.setUsedByUser(saved);
@@ -130,6 +129,8 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
         }
 
+        directoryService.populateHelpFields(user);
+
         return new AuthResponse(
                 jwtService.generateToken(user),
                 user.getId(),
@@ -138,9 +139,9 @@ public class AuthService {
                 user.getRole(),
                 user.getStatus(),
                 user.getProfessionalGroup() == null ? ProfessionalGroup.COMMUNITY : user.getProfessionalGroup(),
-                user.getHelpFields().stream().sorted(Comparator.comparingInt(field -> field.getDisplayOrder()))
+                user.getHelpFields().stream().sorted(java.util.Comparator.comparingInt(field -> field.getDisplayOrder()))
                         .map(field -> field.getId()).toList(),
-                user.getHelpFields().stream().sorted(Comparator.comparingInt(field -> field.getDisplayOrder()))
+                user.getHelpFields().stream().sorted(java.util.Comparator.comparingInt(field -> field.getDisplayOrder()))
                         .map(field -> field.getName()).toList(),
                 user.isProfileComplete()
         );

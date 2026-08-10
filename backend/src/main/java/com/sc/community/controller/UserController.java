@@ -30,7 +30,7 @@ public class UserController {
 
     @GetMapping("/verified")
     public List<UserResponse> verifiedUsers() {
-        return userRepository.findByStatus(UserStatus.VERIFIED).stream().map(UserResponse::from).toList();
+        return userRepository.findByStatus(UserStatus.VERIFIED).stream().map(directoryService::responseForUser).toList();
     }
 
     @GetMapping("/online")

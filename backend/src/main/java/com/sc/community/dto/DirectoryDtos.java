@@ -34,11 +34,11 @@ public final class DirectoryDtos {
     public record CreateAchieverRequest(
             @NotNull Long expertiseFieldId,
             @NotBlank @Size(max = 120) String fullName,
-            @NotBlank @Size(max = 160) String title,
-            @NotBlank @Size(max = 500) String achievement,
-            @NotBlank @Size(max = 1500) String biography,
+            @NotBlank @Size(max = 120) String title,
+            @NotBlank @Size(max = 280) String achievement,
+            @NotBlank @Size(max = 320) String biography,
             @Pattern(regexp = "^$|^https?://.+$", message = "Image must be a valid http(s) URL") @Size(max = 1000) String imageUrl,
-            @Pattern(regexp = "^$|^https?://.+$", message = "Profile must be a valid http(s) URL") @Size(max = 1000) String profileUrl,
+            @Pattern(regexp = "^$|^https?://.+$", message = "Profile must be a valid http(s) URL") @Size(max = 300) String profileUrl,
             @Min(0) @Max(999) int displayOrder) {}
 
     public record AchieverResponse(Long id, Long expertiseFieldId, String expertiseFieldName,

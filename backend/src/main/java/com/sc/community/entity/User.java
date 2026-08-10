@@ -7,9 +7,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Transient;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.time.Instant;
@@ -53,10 +51,7 @@ public class User {
     @Column(name = "professional_group", nullable = false, length = 40)
     private ProfessionalGroup professionalGroup = ProfessionalGroup.COMMUNITY;
 
-    @ManyToMany(fetch = jakarta.persistence.FetchType.EAGER)
-    @JoinTable(name = "user_expertise_fields",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "expertise_field_id"))
+    @Transient
     private Set<ExpertiseField> helpFields = new LinkedHashSet<>();
 
     @Column(name = "created_at", nullable = false, updatable = false)
