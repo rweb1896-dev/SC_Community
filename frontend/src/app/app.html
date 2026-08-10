@@ -44,7 +44,7 @@
     <a routerLink="/library" routerLinkActive="active" (click)="closeMenu()"><svg lucideBookOpen aria-hidden="true"></svg><span>{{ 'nav.library' | translate }}</span></a>
     <a [routerLink]="['/community']" fragment="live" [class.active]="isPublicSection('live')" (click)="selectPublicSection('live')"><svg lucideRadio aria-hidden="true"></svg><span>{{ 'nav.live' | translate }}</span></a>
     <label class="language-select"><span>{{ 'language.label' | translate }}</span><select [ngModel]="i18n.language()" (ngModelChange)="changeLanguage($event)"><option value="en">English</option><option value="hi">हिन्दी</option></select></label>
-    <a class="sign-in-link" routerLink="/login" routerLinkActive="active" (click)="closeMenu()">{{ 'nav.signIn' | translate }}</a>
+    <a *ngIf="!router.url.startsWith('/login')" class="sign-in-link" routerLink="/login" routerLinkActive="active" (click)="closeMenu()">{{ 'nav.signIn' | translate }}</a>
   </nav>
 </header>
 
