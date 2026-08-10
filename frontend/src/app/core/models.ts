@@ -1,6 +1,6 @@
 export type UserRole = 'ROLE_USER' | 'ROLE_ADMIN';
 export type UserStatus = 'PENDING' | 'VERIFIED' | 'BLOCKED';
-export type PostStatus = 'ACTIVE' | 'FLAGGED' | 'BLOCKED';
+export type PostStatus = 'ACTIVE' | 'CLOSED' | 'FLAGGED' | 'BLOCKED';
 export type ProfessionalGroup = 'COMMUNITY' | 'DOCTOR' | 'ENGINEER' | 'EDUCATION' | 'SOCIAL_WORKER';
 export type MeetingAudience = 'ALL' | 'DOCTORS' | 'ENGINEERS' | 'EDUCATION' | 'SOCIAL_WORKERS';
 export type MeetingStatus = 'PENDING_APPROVAL' | 'LIVE' | 'REJECTED' | 'ENDED';
@@ -126,6 +126,14 @@ export interface Message {
   read: boolean;
   timestamp: string;
 }
+
+export type HelpConversationStatus = 'ACTIVE' | 'ENDED_BY_USER' | 'ENDED_POST_CLOSED' | 'BLOCKED';
+export type ReconnectRequestStatus = 'PENDING' | 'ACCEPTED' | 'DECLINED' | 'CANCELLED' | 'EXPIRED';
+export interface HelpConversation { id:number; postId:number; postTitle:string; postContent:string; categoryName:string; postStatus:PostStatus; otherUserId:number; otherUserName:string; status:HelpConversationStatus; sessionNumber:number; activatedAt:string; endedAt?:string; endedByUserId?:number; endedByName?:string; endReason?:string; lastMessageAt?:string; reconnectAllowed:boolean; pendingReconnectRequestId?:number; reconnectRequestedByMe:boolean; }
+export interface HelpMessage { id:number; conversationId:number; senderId:number; senderName:string; messageBody:string; read:boolean; timestamp:string; }
+export interface ReconnectRequest { id:number; conversationId:number; requestedByUserId:number; requestedByName:string; requestedToUserId:number; postTitle:string; status:ReconnectRequestStatus; createdAt:string; respondedAt?:string; }
+export interface MyHelpPost { id:number; title:string; content:string; categoryId:number; categoryName:string; status:PostStatus; createdAt:string; closedAt?:string; helperCount:number; activeConversationCount:number; }
+export interface HelpNotification { id:number; type:string; title:string; body:string; postId?:number; conversationId?:number; read:boolean; createdAt:string; }
 
 export interface Dashboard {
   totalUsers: number;

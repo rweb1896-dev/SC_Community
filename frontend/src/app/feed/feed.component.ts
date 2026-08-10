@@ -2,10 +2,10 @@ import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } fro
 import { CommonModule } from '@angular/common';
 import { HttpEventType, HttpResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { LucideBookOpen, LucideBriefcaseBusiness, LucideChevronLeft, LucideChevronRight, LucideEllipsis, LucideHeartPulse, LucideHouse, LucideMessageCircle, LucideMic, LucideMicOff, LucideShare2, LucideShieldCheck, LucideSiren, LucideSquarePen, LucideStore, LucideThumbsUp, LucideUsersRound } from '@lucide/angular';
+import { ActivatedRoute } from '@angular/router';
+import { LucideBookOpen, LucideBriefcaseBusiness, LucideChevronLeft, LucideChevronRight, LucideCircleX, LucideEllipsis, LucideHandHeart, LucideHeartPulse, LucideHouse, LucideListChecks, LucideMessageCircle, LucideMic, LucideMicOff, LucideShare2, LucideShieldCheck, LucideSiren, LucideSquarePen, LucideStore, LucideThumbsUp, LucideUsersRound } from '@lucide/angular';
 import { auditTime, interval, Subscription } from 'rxjs';
-import { Category, Comment, ImageUploadResponse, Post, UserResponse } from '../core/models';
+import { Category, Comment, ImageUploadResponse, MyHelpPost, Post, UserResponse } from '../core/models';
 import { CommunityApiService } from '../core/community-api.service';
 import { AuthService } from '../core/auth.service';
 import { COMMUNITY_LEADERS } from '../core/community-leaders';
@@ -17,7 +17,7 @@ import { TranslatePipe } from '../core/translate.pipe';
 @Component({
   selector: 'app-feed',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, LucideBookOpen, LucideBriefcaseBusiness, LucideChevronLeft, LucideChevronRight, LucideEllipsis, LucideHeartPulse, LucideHouse, LucideMessageCircle, LucideMic, LucideMicOff, LucideShare2, LucideShieldCheck, LucideSiren, LucideSquarePen, LucideStore, LucideThumbsUp, LucideUsersRound],
+  imports: [CommonModule, FormsModule, TranslatePipe, LucideBookOpen, LucideBriefcaseBusiness, LucideChevronLeft, LucideChevronRight, LucideCircleX, LucideEllipsis, LucideHandHeart, LucideHeartPulse, LucideHouse, LucideListChecks, LucideMessageCircle, LucideMic, LucideMicOff, LucideShare2, LucideShieldCheck, LucideSiren, LucideSquarePen, LucideStore, LucideThumbsUp, LucideUsersRound],
   templateUrl: './feed.component.html',
   styleUrl: './feed.component.css'
 })
@@ -34,6 +34,9 @@ export class FeedComponent implements OnInit, OnDestroy {
   commentErrors: Record<number, string> = {};
   commentSubmitting = new Set<number>();
   supporting = new Set<number>();
+  offering = new Set<number>();
+  offerFeedback:Record<number,string>={};
+  myPostsOpen=false;myPostsTab:'ACTIVE'|'CLOSED'='ACTIVE';myHelpPosts:MyHelpPost[]=[];myPostsLoading=false;closeTarget?:{id:number;title:string};
   error = '';
   loadingCategories = true;
   loadingPosts = true;
@@ -331,6 +334,12 @@ export class FeedComponent implements OnInit, OnDestroy {
       error: (error) => { this.error = this.apiError(error, 'Support could not be updated.'); this.supporting.delete(post.id); }
     });
   }
+
+  offerHelp(post:Post):void{if(this.offering.has(post.id))return;this.offering.add(post.id);this.offerFeedback[post.id]='';this.api.offerHelp(post.id).subscribe({next:()=>{this.offering.delete(post.id);this.offerFeedback[post.id]='Help conversation started. Open Help Messages to continue.';},error:e=>{this.offering.delete(post.id);this.offerFeedback[post.id]=this.apiError(e,'Help offer could not be started.');}});}
+  openMyPosts():void{this.myPostsOpen=true;this.loadMyPosts('ACTIVE');}
+  loadMyPosts(status:'ACTIVE'|'CLOSED'):void{this.myPostsTab=status;this.myPostsLoading=true;this.api.myHelpPosts(status).subscribe({next:r=>{this.myHelpPosts=r;this.myPostsLoading=false;},error:e=>{this.error=this.apiError(e,'Your help posts could not be loaded.');this.myPostsLoading=false;}});}
+  askClose(id:number,title:string):void{this.closeTarget={id,title};}
+  closeHelpRequest():void{if(!this.closeTarget)return;this.api.closeHelpPost(this.closeTarget.id).subscribe({next:()=>{this.closeTarget=undefined;this.loadPosts(this.selectedCategory,true);this.loadMyPosts(this.myPostsTab);},error:e=>{this.error=this.apiError(e,'Help request could not be closed.');this.closeTarget=undefined;}});}
 
   async sharePost(post: Post): Promise<void> {
     const url = `${location.origin}/feed?post=${post.id}`;

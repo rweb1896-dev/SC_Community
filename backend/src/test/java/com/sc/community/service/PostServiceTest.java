@@ -31,13 +31,14 @@ class PostServiceTest {
     @Mock private CurrentUserService currentUserService;
     @Mock private ReportRepository reportRepository;
     @Mock private SimpMessagingTemplate messagingTemplate;
+    @Mock private HelpChatService helpChatService;
     private PostService service;
     private User user;
     private Post post;
 
     @BeforeEach
     void setUp() {
-        service = new PostService(postRepository, categoryRepository, commentRepository, currentUserService, reportRepository, messagingTemplate);
+        service = new PostService(postRepository, categoryRepository, commentRepository, currentUserService, reportRepository, messagingTemplate, helpChatService);
         user = new User(); user.setId(7L); user.setFullName("Verified Member"); user.setStatus(UserStatus.VERIFIED);
         Category category = new Category(); category.setId(3L); category.setName("Health Help");
         post = new Post(); post.setId(11L); post.setUser(user); post.setCategory(category); post.setContent("Useful update"); post.setCreatedAt(Instant.now());

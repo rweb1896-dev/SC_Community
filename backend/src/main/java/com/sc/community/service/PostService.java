@@ -36,17 +36,19 @@ public class PostService {
     private final CurrentUserService currentUserService;
     private final ReportRepository reportRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final HelpChatService helpChatService;
     private static final String SUPPORT_REASON = "__SUPPORT__";
 
     public PostService(PostRepository postRepository, CategoryRepository categoryRepository,
             CommentRepository commentRepository, CurrentUserService currentUserService,
-            ReportRepository reportRepository, SimpMessagingTemplate messagingTemplate) {
+            ReportRepository reportRepository, SimpMessagingTemplate messagingTemplate, HelpChatService helpChatService) {
         this.postRepository = postRepository;
         this.categoryRepository = categoryRepository;
         this.commentRepository = commentRepository;
         this.currentUserService = currentUserService;
         this.reportRepository = reportRepository;
         this.messagingTemplate = messagingTemplate;
+        this.helpChatService = helpChatService;
     }
 
     @Transactional
@@ -77,6 +79,7 @@ public class PostService {
         post.setContent(request.content().trim());
         post.setImageUrl(cleanOptional(request.imageUrl()));
         Post saved = postRepository.save(post);
+        helpChatService.notifyNewPost(saved);
         publish("POST_CREATED", saved.getId());
         return response(saved, user.getId());
     }

@@ -42,6 +42,13 @@ public class Post {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
+    @Column(name = "closed_at")
+    private Instant closedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "closed_by_user_id")
+    private User closedBy;
+
     @PrePersist
     void prePersist() {
         createdAt = Instant.now();
@@ -61,4 +68,8 @@ public class Post {
     public void setStatus(PostStatus status) { this.status = status; }
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
+    public Instant getClosedAt() { return closedAt; }
+    public void setClosedAt(Instant closedAt) { this.closedAt = closedAt; }
+    public User getClosedBy() { return closedBy; }
+    public void setClosedBy(User closedBy) { this.closedBy = closedBy; }
 }

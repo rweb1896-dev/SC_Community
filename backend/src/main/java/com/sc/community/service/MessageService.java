@@ -26,14 +26,9 @@ public class MessageService {
 
     @Transactional
     public MessageResponse send(SendMessageRequest request) {
-        User sender = currentUserService.verifiedUser();
-        User receiver = userRepository.findById(request.receiverId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Receiver not found"));
-        Message message = new Message();
-        message.setSender(sender);
-        message.setReceiver(receiver);
-        message.setMessageBody(request.messageBody());
-        return MessageResponse.from(messageRepository.save(message));
+        currentUserService.verifiedUser();
+        throw new ResponseStatusException(HttpStatus.GONE,
+                "Direct messaging has moved to post-linked Help Conversations. Select I Can Help on an active post.");
     }
 
     public List<MessageResponse> conversation(Long userId) {

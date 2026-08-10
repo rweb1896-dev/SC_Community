@@ -26,6 +26,7 @@
         <span><strong>{{ 'feed.startPost' | translate }}</strong><small>{{ 'feed.prompt' | translate }}</small></span>
         <svg lucideSquarePen aria-hidden="true"></svg>
       </button>
+      <button class="my-help-posts-button" type="button" (click)="openMyPosts()"><svg lucideListChecks></svg><span>My Help Posts</span></button>
     </section>
 
     <section class="feed-hero panel inspiration-card" aria-label="Community leader spotlight" aria-live="polite">
@@ -60,10 +61,13 @@
       <img *ngIf="post.imageUrl" [src]="post.imageUrl" [alt]="post.categoryName + ' community update'" loading="lazy" />
       <div class="engagement"><span>{{ post.supportCount }} {{ 'feed.supports' | translate }}</span><span>{{ post.commentCount }} {{ 'feed.comments' | translate }}</span></div>
       <footer class="post-actions">
+        <button *ngIf="post.userId !== auth.session?.userId" class="help-offer" type="button" (click)="offerHelp(post)" [disabled]="offering.has(post.id)"><svg lucideHandHeart></svg>{{ offering.has(post.id) ? 'Starting…' : 'I Can Help' }}</button>
+        <button *ngIf="post.userId === auth.session?.userId" class="close-help" type="button" (click)="askClose(post.id, post.content)"><svg lucideCircleX></svg>Close Help Request</button>
         <button type="button" (click)="toggleSupport(post)" [class.active]="post.supportedByCurrentUser" [disabled]="supporting.has(post.id)"><svg lucideThumbsUp aria-hidden="true"></svg>{{ 'feed.support' | translate }}</button>
         <button type="button" (click)="toggleComments(post.id)"><svg lucideMessageCircle aria-hidden="true"></svg>{{ 'feed.comment' | translate }}</button>
         <button type="button" (click)="sharePost(post)"><svg lucideShare2 aria-hidden="true"></svg>{{ 'feed.share' | translate }}</button>
       </footer>
+      <p class="offer-feedback" *ngIf="offerFeedback[post.id]">{{ offerFeedback[post.id] }}</p>
       <section class="comments" *ngIf="comments[post.id]">
         <p class="hint" *ngIf="comments[post.id].length === 0">{{ 'feed.noComments' | translate }}</p>
         <div class="comment" *ngFor="let comment of comments[post.id]"><div class="avatar small">{{ initials(comment.authorName) }}</div><div><strong>{{ comment.authorName }}</strong><span>{{ comment.commentText }}</span></div></div>
@@ -77,11 +81,15 @@
 
   <aside class="right-rail">
     <section class="panel insight-card"><div class="card-heading"><div class="heading-icon"><svg lucideUsersRound aria-hidden="true"></svg></div><div><h2>{{ 'feed.network' | translate }}</h2><span>{{ 'feed.liveActivity' | translate }}</span></div></div><div class="overview-grid"><div><strong>{{ members.length }}</strong><span>{{ 'feed.people' | translate }}</span></div><div><strong>{{ posts.length }}</strong><span>{{ 'feed.posts' | translate }}</span></div><div><strong>{{ categories.length }}</strong><span>{{ 'feed.topics' | translate }}</span></div></div></section>
-    <section class="panel insight-card community-card"><div class="card-heading"><div class="heading-icon"><svg lucideUsersRound aria-hidden="true"></svg></div><div><h2>People in your network</h2><span>Verified members</span></div></div><div class="member" *ngFor="let member of visibleMembers"><div class="avatar small">{{ initials(member.fullName) }}</div><div><strong>{{ member.fullName }}</strong><span>{{ member.role === 'ROLE_ADMIN' ? 'Admin' : 'Member' }}</span></div><a routerLink="/chat" class="message-person" [title]="'Message ' + member.fullName"><svg lucideMessageCircle aria-hidden="true"></svg></a></div><div class="community-rules"><strong><svg lucideShieldCheck aria-hidden="true"></svg> Network standards</strong><span>Verified information · Respectful conversations · Clear SOS updates</span></div></section>
+    <section class="panel insight-card community-card"><div class="card-heading"><div class="heading-icon"><svg lucideUsersRound aria-hidden="true"></svg></div><div><h2>People in your network</h2><span>Verified members</span></div></div><div class="member" *ngFor="let member of visibleMembers"><div class="avatar small">{{ initials(member.fullName) }}</div><div><strong>{{ member.fullName }}</strong><span>{{ member.role === 'ROLE_ADMIN' ? 'Admin' : 'Member' }}</span></div></div><div class="community-rules"><strong><svg lucideShieldCheck aria-hidden="true"></svg> Privacy-first help</strong><span>Private conversations start only when a member selects “I Can Help” on an active post.</span></div></section>
     <section class="panel feature-card"><div class="feature-icon"><svg lucideBookOpen aria-hidden="true"></svg></div><div><span>Featured reading</span><strong>Ideas for an equal society</strong><small>Inspired by Dr. B. R. Ambedkar</small></div></section>
   </aside>
   <button class="scroll-top" *ngIf="showScrollTop" type="button" aria-label="Scroll to top" (click)="scrollToTop()"><span aria-hidden="true">↑</span><small>Top</small></button>
 </section>
+
+<div class="my-posts-backdrop" *ngIf="myPostsOpen" (click)="myPostsOpen=false"><section class="my-posts-modal" (click)="$event.stopPropagation()"><header><div><span>Member workspace</span><h2>My Help Posts</h2></div><button (click)="myPostsOpen=false">×</button></header><nav><button [class.active]="myPostsTab==='ACTIVE'" (click)="loadMyPosts('ACTIVE')">Open</button><button [class.active]="myPostsTab==='CLOSED'" (click)="loadMyPosts('CLOSED')">Closed</button></nav><p class="hint" *ngIf="myPostsLoading">Loading your help requests…</p><p class="hint" *ngIf="!myPostsLoading&&!myHelpPosts.length">No {{ myPostsTab==='ACTIVE'?'open':'closed' }} help posts.</p><div class="my-post-list"><article *ngFor="let item of myHelpPosts"><span class="post-state" [class.closed]="item.status==='CLOSED'">{{ item.status==='ACTIVE'?'OPEN':'CLOSED' }}</span><h3>{{ item.title }}</h3><small>{{ item.categoryName }} · {{ item.createdAt | date:'mediumDate' }}</small><div><span><b>{{ item.helperCount }}</b> helpers</span><span><b>{{ item.activeConversationCount }}</b> active chats</span></div><button *ngIf="item.status==='ACTIVE'" (click)="askClose(item.id,item.title)">Close Help Request</button><p *ngIf="item.status==='CLOSED'">Closed {{ item.closedAt | date:'medium' }} · History remains in Help Messenger.</p></article></div></section></div>
+
+<div class="close-help-backdrop" *ngIf="closeTarget"><section><h2>Close this help request?</h2><p>Closing this post will remove it from the active feed, stop new help offers, close all related active conversations and disable reconnect requests.</p><p>The post and chat history will remain available for reference.</p><footer><button (click)="closeTarget=undefined">Cancel</button><button class="danger" (click)="closeHelpRequest()">Close Help Request</button></footer></section></div>
 
 <section class="modal-backdrop" *ngIf="composerOpen" (click)="closeComposer()">
   <form class="modal-card" (ngSubmit)="createPost()" #postRef="ngForm" (click)="$event.stopPropagation()">

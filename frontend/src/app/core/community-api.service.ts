@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Achiever, Broadcast, BroadcastMediaType, BroadcastStatus, Category, Comment, CommunityEvent, Dashboard, EventStatus, ExpertiseField, GalleryImage, ImageUploadResponse, InviteCode, InviteRequest, ManagedContent, ManagedContentInput, ManagedContentStatus, Meeting, MeetingAudience, MemberInviteRequest, Message, Post, ProfessionalGroup, SupportResponse, UserResponse, UserStatus } from './models';
+import { Achiever, Broadcast, BroadcastMediaType, BroadcastStatus, Category, Comment, CommunityEvent, Dashboard, EventStatus, ExpertiseField, GalleryImage, HelpConversation, HelpMessage, HelpNotification, ImageUploadResponse, InviteCode, InviteRequest, ManagedContent, ManagedContentInput, ManagedContentStatus, Meeting, MeetingAudience, MemberInviteRequest, Message, MyHelpPost, Post, ProfessionalGroup, ReconnectRequest, SupportResponse, UserResponse, UserStatus } from './models';
 
 const API = '/api';
 
@@ -48,6 +48,21 @@ export class CommunityApiService {
   sendMessage(receiverId: number, messageBody: string) {
     return this.http.post<Message>(`${API}/messages`, { receiverId, messageBody });
   }
+
+  helpConversations(view: 'ACTIVE' | 'HISTORY') { return this.http.get<HelpConversation[]>(`${API}/help/conversations?view=${view}`); }
+  helpMessages(conversationId: number) { return this.http.get<HelpMessage[]>(`${API}/help/conversations/${conversationId}/messages`); }
+  sendHelpMessage(conversationId: number, messageBody: string) { return this.http.post<HelpMessage>(`${API}/help/conversations/${conversationId}/messages`, { messageBody }); }
+  offerHelp(postId: number) { return this.http.post<HelpConversation>(`${API}/help/posts/${postId}/offer`, {}); }
+  endHelpConversation(id: number, reason = '') { return this.http.post<HelpConversation>(`${API}/help/conversations/${id}/end`, { reason }); }
+  requestReconnect(id: number) { return this.http.post<ReconnectRequest>(`${API}/help/conversations/${id}/reconnect`, {}); }
+  incomingReconnects() { return this.http.get<ReconnectRequest[]>(`${API}/help/reconnect-requests/incoming`); }
+  decideReconnect(id: number, accept: boolean) { return this.http.post<ReconnectRequest>(`${API}/help/reconnect-requests/${id}/${accept ? 'accept' : 'decline'}`, {}); }
+  blockHelpUser(id: number) { return this.http.post<void>(`${API}/help/conversations/${id}/block`, {}); }
+  reportHelpConversation(id: number, reason: string) { return this.http.post<void>(`${API}/help/conversations/${id}/report`, { reason }); }
+  myHelpPosts(status: 'ACTIVE' | 'CLOSED') { return this.http.get<MyHelpPost[]>(`${API}/help/posts/mine?status=${status}`); }
+  closeHelpPost(id: number) { return this.http.post<MyHelpPost>(`${API}/help/posts/${id}/close`, {}); }
+  helpNotifications() { return this.http.get<HelpNotification[]>(`${API}/help/notifications`); }
+  readHelpNotification(id: number) { return this.http.patch<HelpNotification>(`${API}/help/notifications/${id}/read`, {}); }
 
   dashboard() {
     return this.http.get<Dashboard>(`${API}/admin/dashboard`);

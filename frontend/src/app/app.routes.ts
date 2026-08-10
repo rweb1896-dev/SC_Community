@@ -41,8 +41,8 @@ export const routes: Routes = [
   },
   {
     path: 'chat',
-    loadComponent: () => import('./chat/chat.component').then((module) => module.ChatComponent),
-    canActivate: [memberGuard]
+    redirectTo: 'feed',
+    pathMatch: 'full'
   },
   {
     path: 'meetings',

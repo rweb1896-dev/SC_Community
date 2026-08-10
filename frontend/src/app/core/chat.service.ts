@@ -9,6 +9,8 @@ export class ChatService {
   private client?: Client;
   private incomingSubject = new Subject<Message>();
   incoming$ = this.incomingSubject.asObservable();
+  private helpUpdateSubject = new Subject<{ type:string; conversationId?:number; postId?:number }>();
+  helpUpdates$ = this.helpUpdateSubject.asObservable();
   private onlineUserIdsSubject = new BehaviorSubject<number[]>([]);
   onlineUserIds$ = this.onlineUserIdsSubject.asObservable();
 
@@ -28,6 +30,7 @@ export class ChatService {
         this.client?.subscribe(`/topic/messages/${session.userId}`, (frame) => {
           this.incomingSubject.next(JSON.parse(frame.body) as Message);
         });
+        this.client?.subscribe(`/topic/help/${session.userId}`, (frame) => this.helpUpdateSubject.next(JSON.parse(frame.body)));
         this.client?.subscribe('/topic/presence', (frame) => {
           const presence = JSON.parse(frame.body) as { onlineUserIds: number[] };
           this.onlineUserIdsSubject.next(presence.onlineUserIds || []);

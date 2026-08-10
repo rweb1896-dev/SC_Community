@@ -1,32 +1,22 @@
 <div class="messenger-shell">
-  <section class="conversation-window" *ngIf="selectedUser" [class.minimized]="conversationMinimized">
-    <header (click)="conversationMinimized && restoreConversation()">
-      <div class="conversation-person"><span class="dock-avatar">{{ initials(selectedUser.fullName) }}<i [class.online]="isOnline(selectedUser.id)"></i></span><div><strong>{{ selectedUser.fullName }}</strong><small>{{ isOnline(selectedUser.id) ? 'Active now' : 'Offline' }}</small></div></div>
-      <div class="window-actions">
-        <button type="button" [attr.aria-label]="conversationMinimized ? 'Restore conversation' : 'Minimize conversation'" (click)="$event.stopPropagation(); conversationMinimized ? restoreConversation() : minimizeConversation()"><svg *ngIf="!conversationMinimized" lucideMinus></svg><svg *ngIf="conversationMinimized" lucideChevronDown></svg></button>
-        <button type="button" aria-label="Close conversation" (click)="$event.stopPropagation(); closeConversation()"><svg lucideX></svg></button>
-      </div>
-    </header>
-    <ng-container *ngIf="!conversationMinimized">
-      <div class="dock-messages" #messageList>
-        <div class="conversation-intro"><span class="dock-avatar large">{{ initials(selectedUser.fullName) }}</span><strong>{{ selectedUser.fullName }}</strong><small>Private community conversation</small></div>
-        <div class="dock-bubble" *ngFor="let message of messages" [class.mine]="message.senderId === auth.session?.userId"><span>{{ message.messageBody }}</span><small>{{ message.timestamp | date:'shortTime' }}</small></div>
-      </div>
-      <form class="dock-send" (ngSubmit)="send()"><textarea #dockComposer name="dockDraft" [(ngModel)]="draft" rows="1" maxlength="2000" autocomplete="off" placeholder="Write a message…" aria-label="Write a message" (input)="resizeComposer($event)" (keydown)="handleComposerKeydown($event)"></textarea><button type="submit" [disabled]="!draft.trim()" aria-label="Send message"><svg lucideSend></svg></button></form>
-    </ng-container>
-  </section>
-
-  <aside class="contact-panel" *ngIf="panelOpen">
-    <header><div><strong>Messages</strong><small>{{ users.length }} community members</small></div><button type="button" aria-label="Hide messages" (click)="togglePanel()"><svg lucideX></svg></button></header>
-    <label class="contact-search"><svg lucideSearch></svg><input [(ngModel)]="searchTerm" placeholder="Search people" aria-label="Search people" /></label>
-    <div class="contact-list">
-      <div class="dock-loading" *ngIf="loadingUsers"><i></i><span></span></div>
-      <div class="dock-loading" *ngIf="loadingUsers"><i></i><span></span></div>
-      <p class="dock-empty" *ngIf="!loadingUsers && filteredUsers.length === 0">No matching member found.</p>
-      <div class="dock-error" *ngIf="error"><span>{{ error }}</span><button type="button" (click)="loadUsers()"><svg lucideRefreshCw></svg>Retry</button></div>
-      <button class="contact-row" type="button" *ngFor="let user of filteredUsers" [class.active]="selectedUser?.id === user.id" (click)="selectUser(user)"><span class="dock-avatar">{{ initials(user.fullName) }}<i [class.online]="isOnline(user.id)"></i></span><span><strong>{{ user.fullName }}</strong><small>{{ isOnline(user.id) ? 'Active now' : user.professionalGroup.replace('_', ' ') }}</small></span><b *ngIf="unreadFor(user.id)">{{ unreadFor(user.id) > 9 ? '9+' : unreadFor(user.id) }}</b></button>
-    </div>
-  </aside>
+ <section class="conversation-window" *ngIf="selected" [class.minimized]="conversationMinimized">
+  <header (click)="conversationMinimized && restoreConversation()"><div class="conversation-person"><span class="dock-avatar">{{ initials(selected.otherUserName) }}</span><div><strong>{{ selected.otherUserName }}</strong><small>Regarding: {{ selected.postTitle }}</small></div></div><div class="window-actions"><button type="button" (click)="$event.stopPropagation(); conversationMinimized ? restoreConversation() : minimizeConversation()"><svg *ngIf="!conversationMinimized" lucideMinus></svg><svg *ngIf="conversationMinimized" lucideChevronDown></svg></button><button type="button" (click)="$event.stopPropagation(); closeConversation()"><svg lucideX></svg></button></div></header>
+  <ng-container *ngIf="!conversationMinimized">
+   <div class="conversation-context"><span>{{ selected.categoryName }}</span><strong>{{ selected.postTitle }}</strong><small>Session {{ selected.sessionNumber }} · Private help conversation</small></div>
+   <div class="dock-messages" #messageList><div class="dock-bubble" *ngFor="let message of messages" [class.mine]="message.senderId===auth.session?.userId"><span>{{ message.messageBody }}</span><small>{{ message.timestamp | date:'shortTime' }}</small></div><div class="history-banner" *ngIf="selected.status!=='ACTIVE'"><svg lucideHistory></svg><strong>{{ endLabel(selected) }}</strong><span>{{ selected.endedAt | date:'medium' }}</span></div></div>
+   <form class="dock-send" *ngIf="selected.status==='ACTIVE' && selected.postStatus==='ACTIVE'" (ngSubmit)="send()"><textarea #dockComposer name="draft" [(ngModel)]="draft" rows="1" maxlength="2000" placeholder="Write a help message…" (input)="resizeComposer($event)" (keydown)="handleKeydown($event)"></textarea><button type="submit" [disabled]="!draft.trim()"><svg lucideSend></svg></button></form>
+   <div class="ended-actions" *ngIf="selected.status!=='ACTIVE'"><p *ngIf="selected.postStatus==='CLOSED'">This help request has been closed. Reconnection is unavailable.</p><button *ngIf="selected.reconnectAllowed" type="button" (click)="reconnect()"><svg lucideRotateCcw></svg>Request to Connect Again</button><span *ngIf="selected.pendingReconnectRequestId">{{ selected.reconnectRequestedByMe ? 'Reconnect request pending' : 'Reconnect request received' }}</span></div>
+   <footer class="conversation-tools"><button type="button" (click)="relatedPostOpen=true"><svg lucideHistory></svg>View Related Post</button><button *ngIf="selected.status==='ACTIVE'" type="button" class="end-chat" (click)="confirmEnd()"><svg lucideClock3></svg>End Conversation</button><button type="button" (click)="report()"><svg lucideShieldAlert></svg>Report</button><button type="button" (click)="block()"><svg lucideBan></svg>Block</button></footer>
+  </ng-container>
+ </section>
+ <aside class="contact-panel" *ngIf="panelOpen"><header><div><strong>Help Messenger</strong><small>Post-linked private conversations</small></div><button type="button" (click)="togglePanel()"><svg lucideX></svg></button></header>
+  <div class="messenger-tabs"><button [class.active]="tab==='ACTIVE'" (click)="setTab('ACTIVE')">Active <b>{{ active.length }}</b></button><button [class.active]="tab==='HISTORY'" (click)="setTab('HISTORY')">History <b>{{ history.length }}</b></button></div>
+  <section class="reconnect-inbox" *ngIf="incoming.length"><strong>Reconnect requests</strong><article *ngFor="let request of incoming"><span><b>{{ request.requestedByName }}</b><small>{{ request.postTitle }}</small></span><div><button (click)="decide(request,true)">Accept</button><button (click)="decide(request,false)">Decline</button></div></article></section>
+  <section class="notification-preview" *ngIf="notifications.length"><strong>Recent notifications</strong><button *ngFor="let notification of notifications.slice(0,3)" [class.unread]="!notification.read" (click)="openNotification(notification)"><span>{{ notification.title }}</span><small>{{ notification.body }}</small></button></section>
+  <label class="contact-search"><svg lucideMessageCircle></svg><input [(ngModel)]="searchTerm" [placeholder]="tab==='ACTIVE' ? 'Search active chats' : 'Search chat history'" /></label>
+  <div class="contact-list"><div class="dock-loading" *ngIf="loading"><i></i><span></span></div><p class="dock-empty" *ngIf="!loading&&!rows.length">{{ tab==='ACTIVE' ? 'No active help conversations.' : 'No ended conversations in history.' }}</p><div class="dock-error" *ngIf="error"><span>{{ error }}</span><button (click)="reload()"><svg lucideRefreshCw></svg>Retry</button></div><button class="contact-row" *ngFor="let c of rows" [class.active]="selected?.id===c.id" (click)="select(c)"><span class="dock-avatar">{{ initials(c.otherUserName) }}</span><span><strong>{{ c.otherUserName }}</strong><small>{{ c.categoryName }} · {{ c.postTitle }}</small><em *ngIf="tab==='HISTORY'">{{ endLabel(c) }}</em></span></button></div>
+ </aside>
 </div>
-
-<button class="messenger-launcher" type="button" *ngIf="!panelOpen && !selectedUser" (click)="togglePanel()" aria-label="Show messages"><svg lucideMessageCircle></svg><span>Messages</span><b *ngIf="unreadTotal">{{ unreadTotal > 9 ? '9+' : unreadTotal }}</b></button>
+<div class="confirm-backdrop" *ngIf="endConfirm"><section><h2>End this conversation?</h2><p>This help conversation will be closed for both users and removed from Active chats. Previous messages will remain available in Chat History.</p><p>To talk again, a new contact request must be accepted.</p><footer><button (click)="cancelEnd()">Cancel</button><button class="danger" (click)="end()">End Conversation</button></footer></section></div>
+<div class="confirm-backdrop" *ngIf="relatedPostOpen && selected" (click)="relatedPostOpen=false"><section (click)="$event.stopPropagation()"><span class="post-state" [class.closed]="selected.postStatus==='CLOSED'">{{ selected.postStatus==='ACTIVE'?'OPEN':'CLOSED' }}</span><h2>{{ selected.postTitle }}</h2><p>{{ selected.postContent }}</p><p><strong>Category:</strong> {{ selected.categoryName }}</p><p *ngIf="selected.postStatus==='CLOSED'">This help request is no longer active.</p><footer><button (click)="relatedPostOpen=false">Close</button></footer></section></div>
+<button class="messenger-launcher" *ngIf="!panelOpen&&!selected" (click)="togglePanel()"><svg lucideMessageCircle></svg><span>Help Messages</span><b *ngIf="unreadTotal">{{ unreadTotal>9?'9+':unreadTotal }}</b></button>
