@@ -81,7 +81,8 @@
 .community-section.is-visible .blog-list > a:nth-child(n+4),
 .community-section.is-visible .event-list > article:nth-child(n+4),
 .community-section.is-visible .gallery-grid > figure:nth-child(n+4) { animation-delay: .43s; }
-.blogs-band { background: #fff; }
+.blogs-band { opacity: 1; background: #fff; transform: none; transition: none; }
+.blogs-band .section-heading, .blogs-band .blog-layout > *, .blogs-band .blog-list > a { opacity: 1; transform: none; animation: none !important; }
 .blog-layout { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 16px; }
 .featured-blog, .blog-list > a { overflow: hidden; border: 1px solid #dbe3de; border-radius: 8px; background: #f9fbfa; color: inherit; text-decoration: none; transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease; }
 .featured-blog:hover, .blog-list > a:hover { border-color: #94aa9f; box-shadow: 0 14px 30px rgba(30,51,41,.1); transform: translateY(-3px); }
@@ -96,20 +97,18 @@
 .featured-blog small { color: #3159b0; font-size: 9px; font-weight: 750; }
 .featured-blog strong { display: flex; align-items: center; gap: 6px; margin-top: auto; padding-top: 20px; color: #285d4e; font-size: 10px; }
 .featured-blog strong svg, .blog-list small svg { width: 14px; }
-.blog-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.blog-side { display: grid; min-width: 0; grid-template-rows: auto minmax(0, 1fr); gap: 9px; }
+.blog-scroll-head { display: flex; min-height: 40px; align-items: center; justify-content: space-between; gap: 12px; }
+.blog-scroll-head > span { color: #66746d; font-size: 9px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.blog-scroll-head .rail-controls button { width: 34px; height: 34px; }
+.blog-scroll-head .rail-controls svg { width: 15px; }
+.blog-list { display: grid; grid-auto-columns: calc((100% - 10px) / 2); grid-auto-flow: column; grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 10px; min-width: 0; overflow-x: auto; padding: 1px 1px 8px; scroll-behavior: smooth; scroll-snap-type: x mandatory; scrollbar-color: #96aaa0 transparent; scrollbar-width: thin; }
 .blog-list > a { display: grid; grid-template-rows: 116px minmax(0, 1fr); min-width: 0; }
+.blog-list > a { scroll-snap-align: start; }
 .blog-list > a > div { display: flex; min-width: 0; flex-direction: column; padding: 15px; }
 .blog-list h3 { display: -webkit-box; overflow: hidden; margin: 5px 0; font-size: 15px; line-height: 1.25; letter-spacing: 0; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .blog-list p { display: -webkit-box; overflow: hidden; margin: 0 0 11px; color: #6b7770; font-size: 9px; line-height: 1.5; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .blog-list small { display: flex; align-items: center; gap: 5px; margin-top: auto; color: #3159b0; font-size: 8px; font-weight: 850; }
-.community-section.blogs-band.is-visible .section-heading { animation-duration: .8s; }
-.community-section.blogs-band.is-visible .blog-layout > .featured-blog { animation-duration: 1.05s; animation-delay: .2s; }
-.community-section.is-visible .blog-layout > .blog-list { opacity: 1; transform: none; animation: none; }
-.community-section.is-visible .blog-list > a { animation-duration: .9s; animation-timing-function: cubic-bezier(.16,.72,.25,1); }
-.community-section.is-visible .blog-list > a:nth-child(1) { animation-delay: .38s; }
-.community-section.is-visible .blog-list > a:nth-child(2) { animation-delay: .54s; }
-.community-section.is-visible .blog-list > a:nth-child(3) { animation-delay: .7s; }
-.community-section.is-visible .blog-list > a:nth-child(n+4) { animation-delay: .86s; }
 .events-band { background: #17362e; color: #fff; }
 .light-heading > div > span { color: #f3ba55; }
 .light-heading p { color: rgba(255,255,255,.67); }
@@ -194,7 +193,7 @@
   .leader-rail { grid-auto-columns: min(88vw, 370px); }
   .leader-card { grid-template-columns: 122px minmax(0, 1fr); }
   .featured-blog { grid-template-columns: 1fr; grid-template-rows: 230px auto; }
-  .blog-list { grid-template-columns: 1fr; }
+  .blog-list { grid-auto-columns: min(86vw, 340px); grid-template-columns: none; grid-template-rows: 1fr; }
   .blog-list > a { grid-template-columns: 104px minmax(0, 1fr); grid-template-rows: 150px; }
   .event-layout { gap: 22px; }
   .gallery-grid { grid-template-columns: 1fr 1fr; grid-auto-rows: 170px; }

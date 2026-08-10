@@ -45,6 +45,7 @@ type CommunitySection = 'leaders' | 'blogs' | 'events' | 'gallery' | 'live';
 })
 export class CommunityHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('leaderRail') leaderRail?: ElementRef<HTMLElement>;
+  @ViewChild('blogRail') blogRail?: ElementRef<HTMLElement>;
 
   leaders = [...COMMUNITY_LEADERS];
   readonly notices = COMMUNITY_NOTICES;
@@ -71,6 +72,7 @@ export class CommunityHomeComponent implements OnInit, AfterViewInit, OnDestroy 
   private subscriptions = new Subscription();
   private revealObserver?: IntersectionObserver;
   private leaderTimer?: ReturnType<typeof setInterval>;
+  private blogTimer?: ReturnType<typeof setInterval>;
   private sectionElements: HTMLElement[] = [];
   private scrollFrame?: number;
 
@@ -91,6 +93,7 @@ export class CommunityHomeComponent implements OnInit, AfterViewInit, OnDestroy 
   ngOnInit(): void {
     this.loadPublicContent();
     this.startLeaderRotation();
+    this.startBlogRotation();
     this.subscriptions.add(interval(10000).subscribe(() => this.loadBroadcasts()));
     this.subscriptions.add(this.route.fragment.subscribe((fragment) => {
       if (fragment) setTimeout(() => document.getElementById(fragment)?.scrollIntoView({ behavior: 'smooth' }), 60);
@@ -127,8 +130,30 @@ export class CommunityHomeComponent implements OnInit, AfterViewInit, OnDestroy 
     this.leaderTimer = setInterval(() => this.scrollLeaders(1), 6000);
   }
 
+  scrollBlogs(direction: -1 | 1): void {
+    const rail = this.blogRail?.nativeElement;
+    if (!rail) return;
+    const maximum = Math.max(0, rail.scrollWidth - rail.clientWidth);
+    const step = Math.max(260, rail.clientWidth * .78);
+    let target = rail.scrollLeft + direction * step;
+    if (direction > 0 && (rail.scrollLeft >= maximum - 4 || target > maximum)) target = 0;
+    if (direction < 0 && rail.scrollLeft <= 4) target = maximum;
+    rail.scrollTo({ left: target, behavior: 'smooth' });
+  }
+
+  pauseBlogRotation(): void {
+    if (this.blogTimer) clearInterval(this.blogTimer);
+    this.blogTimer = undefined;
+  }
+
+  startBlogRotation(): void {
+    this.pauseBlogRotation();
+    this.blogTimer = setInterval(() => this.scrollBlogs(1), 6500);
+  }
+
   ngOnDestroy(): void {
     this.pauseLeaderRotation();
+    this.pauseBlogRotation();
     this.subscriptions.unsubscribe();
     window.removeEventListener('scroll', this.handleSectionScroll);
     if (this.scrollFrame) cancelAnimationFrame(this.scrollFrame);

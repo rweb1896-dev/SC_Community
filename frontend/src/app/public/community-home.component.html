@@ -49,11 +49,14 @@
           <strong>Read article <svg lucideArrowRight></svg></strong>
         </div>
       </a>
-      <div class="blog-list">
-        <a *ngFor="let post of blogPosts | slice:1:5" [routerLink]="['/leaders', post.leaderId]" [queryParams]="{ article: post.articleIndex }">
-          <img [src]="post.imageUrl" [alt]="post.leaderName" [style.object-position]="post.imagePosition" />
-          <div><span>{{ post.leaderName }}</span><h3>{{ post.title }}</h3><p>{{ post.summary }}</p><small>Read article <svg lucideArrowRight></svg></small></div>
-        </a>
+      <div class="blog-side">
+        <header class="blog-scroll-head"><span>More readings</span><div class="rail-controls"><button type="button" title="Previous blogs" aria-label="Previous blogs" (click)="scrollBlogs(-1)"><svg lucideChevronLeft></svg></button><button type="button" title="Next blogs" aria-label="Next blogs" (click)="scrollBlogs(1)"><svg lucideChevronRight></svg></button></div></header>
+        <div class="blog-list" #blogRail (mouseenter)="pauseBlogRotation()" (mouseleave)="startBlogRotation()" (focusin)="pauseBlogRotation()" (focusout)="startBlogRotation()">
+          <a *ngFor="let post of blogPosts | slice:1" [routerLink]="['/leaders', post.leaderId]" [queryParams]="{ article: post.articleIndex }">
+            <img [src]="post.imageUrl" [alt]="post.leaderName" [style.object-position]="post.imagePosition" />
+            <div><span>{{ post.leaderName }}</span><h3>{{ post.title }}</h3><p>{{ post.summary }}</p><small>Read article <svg lucideArrowRight></svg></small></div>
+          </a>
+        </div>
       </div>
     </div>
   </section>
