@@ -87,6 +87,18 @@
   <form class="modal-card" (ngSubmit)="createPost()" #postRef="ngForm" (click)="$event.stopPropagation()">
     <header class="modal-head"><div><div class="avatar">{{ currentInitials() }}</div><div><strong>{{ 'feed.createPost' | translate }}</strong><span>{{ 'feed.postingAs' | translate }} {{ auth.session?.fullName }}</span></div></div><button class="close" type="button" aria-label="Close" (click)="closeComposer()">×</button></header>
     <textarea class="modal-textarea" required maxlength="3000" name="content" [(ngModel)]="postForm.content" [placeholder]="'feed.postPlaceholder' | translate"></textarea>
+    <section class="voice-composer" [class.recording]="isListening">
+      <div class="voice-controls">
+        <button class="voice-button" type="button" [disabled]="!speechSupported || posting" (click)="startVoiceInput()" [attr.aria-pressed]="isListening">
+          <svg *ngIf="!isListening" lucideMic aria-hidden="true"></svg><svg *ngIf="isListening" lucideMicOff aria-hidden="true"></svg>
+          <span>{{ (isListening ? 'feed.voiceStop' : 'feed.voiceStart') | translate }}</span><i *ngIf="isListening"></i>
+        </button>
+        <label><span>{{ 'feed.voiceLanguage' | translate }}</span><select name="speechLanguage" [ngModel]="speechLanguage" (ngModelChange)="changeSpeechLanguage($event)" [disabled]="posting"><option value="en-IN">English (India)</option><option value="hi-IN">हिन्दी (भारत)</option></select></label>
+      </div>
+      <p class="voice-status" *ngIf="isListening" aria-live="polite"><b>{{ 'feed.voiceListening' | translate }}</b><span>{{ speechInterim || ('feed.voiceSpeak' | translate) }}</span></p>
+      <p class="voice-help" *ngIf="!isListening && speechSupported">{{ 'feed.voiceHelp' | translate }}</p>
+      <p class="voice-error" *ngIf="!speechSupported || speechError" role="alert">{{ speechError || ('feed.voiceUnsupported' | translate) }}</p>
+    </section>
     <div class="field"><label>{{ 'feed.category' | translate }}</label><select required name="category" [(ngModel)]="postForm.categoryId"><option [ngValue]="0" disabled>{{ 'feed.selectCategory' | translate }}</option><option *ngFor="let category of categories" [ngValue]="category.id">{{ categoryLabel(category.name) }}</option></select></div>
     <section class="image-composer">
       <div class="image-tabs"><button type="button" [class.active]="imageMode === 'UPLOAD'" (click)="setImageMode('UPLOAD')">{{ 'feed.uploadImage' | translate }}</button><button type="button" [class.active]="imageMode === 'URL'" (click)="setImageMode('URL')">{{ 'feed.imageUrl' | translate }}</button></div>

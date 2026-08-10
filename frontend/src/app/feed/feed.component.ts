@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpEventType, HttpResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { LucideBookOpen, LucideBriefcaseBusiness, LucideChevronLeft, LucideChevronRight, LucideEllipsis, LucideHeartPulse, LucideHouse, LucideMessageCircle, LucideShare2, LucideShieldCheck, LucideSiren, LucideSquarePen, LucideStore, LucideThumbsUp, LucideUsersRound } from '@lucide/angular';
+import { LucideBookOpen, LucideBriefcaseBusiness, LucideChevronLeft, LucideChevronRight, LucideEllipsis, LucideHeartPulse, LucideHouse, LucideMessageCircle, LucideMic, LucideMicOff, LucideShare2, LucideShieldCheck, LucideSiren, LucideSquarePen, LucideStore, LucideThumbsUp, LucideUsersRound } from '@lucide/angular';
 import { auditTime, interval, Subscription } from 'rxjs';
 import { Category, Comment, ImageUploadResponse, Post, UserResponse } from '../core/models';
 import { CommunityApiService } from '../core/community-api.service';
@@ -17,7 +17,7 @@ import { TranslatePipe } from '../core/translate.pipe';
 @Component({
   selector: 'app-feed',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, LucideBookOpen, LucideBriefcaseBusiness, LucideChevronLeft, LucideChevronRight, LucideEllipsis, LucideHeartPulse, LucideHouse, LucideMessageCircle, LucideShare2, LucideShieldCheck, LucideSiren, LucideSquarePen, LucideStore, LucideThumbsUp, LucideUsersRound],
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, LucideBookOpen, LucideBriefcaseBusiness, LucideChevronLeft, LucideChevronRight, LucideEllipsis, LucideHeartPulse, LucideHouse, LucideMessageCircle, LucideMic, LucideMicOff, LucideShare2, LucideShieldCheck, LucideSiren, LucideSquarePen, LucideStore, LucideThumbsUp, LucideUsersRound],
   templateUrl: './feed.component.html',
   styleUrl: './feed.component.css'
 })
@@ -45,6 +45,11 @@ export class FeedComponent implements OnInit, OnDestroy {
   composerError = '';
   composerSuccess = '';
   discardConfirm = false;
+  speechLanguage: 'en-IN' | 'hi-IN' = 'en-IN';
+  speechSupported = false;
+  isListening = false;
+  speechInterim = '';
+  speechError = '';
   composerOpen = false;
   showScrollTop = false;
   searchTerm = '';
@@ -52,6 +57,7 @@ export class FeedComponent implements OnInit, OnDestroy {
   leaders = [...COMMUNITY_LEADERS];
   private leaderTimer?: ReturnType<typeof setInterval>;
   private readonly subscriptions = new Subscription();
+  private speechRecognition?: any;
 
   get activeLeader() {
     return this.leaders[this.activeLeaderIndex] || COMMUNITY_LEADERS[0];
@@ -78,6 +84,8 @@ export class FeedComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     document.body.classList.add('feed-lock');
+    this.speechSupported = !!((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
+    this.speechLanguage = this.i18n.language() === 'hi' ? 'hi-IN' : 'en-IN';
     this.subscriptions.add(this.route.queryParamMap.subscribe((params) => this.searchTerm = params.get('q') || ''));
     this.api.categories().subscribe({
       next: (categories) => {
@@ -145,6 +153,7 @@ export class FeedComponent implements OnInit, OnDestroy {
 
   closeComposer(): void {
     if (this.posting) return;
+    if (this.isListening) this.stopVoiceInput();
     if (this.hasDraft()) { this.discardConfirm = true; return; }
     this.composerOpen = false;
   }
@@ -152,6 +161,7 @@ export class FeedComponent implements OnInit, OnDestroy {
   keepEditing(): void { this.discardConfirm = false; }
 
   discardDraft(): void {
+    this.cancelVoiceInput();
     this.resetComposer();
     this.discardConfirm = false;
     this.composerOpen = false;
@@ -178,6 +188,71 @@ export class FeedComponent implements OnInit, OnDestroy {
     this.imagePreview = URL.createObjectURL(file);
     this.postForm.imageUrl = '';
     this.composerError = '';
+  }
+
+  startVoiceInput(): void {
+    if (this.isListening) { this.stopVoiceInput(); return; }
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      this.speechError = this.i18n.t('feed.voiceUnsupported');
+      return;
+    }
+
+    this.speechError = '';
+    this.speechInterim = '';
+    const recognition = new SpeechRecognition();
+    recognition.lang = this.speechLanguage;
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+    recognition.onstart = () => this.isListening = true;
+    recognition.onresult = (event: any) => {
+      let finalText = '';
+      let interimText = '';
+      for (let index = event.resultIndex; index < event.results.length; index += 1) {
+        const transcript = event.results[index][0]?.transcript?.trim() || '';
+        if (event.results[index].isFinal) finalText += `${transcript} `;
+        else interimText += `${transcript} `;
+      }
+      if (finalText.trim()) {
+        const separator = this.postForm.content.trim() ? ' ' : '';
+        this.postForm.content = `${this.postForm.content.trimEnd()}${separator}${finalText.trim()}`.slice(0, 3000);
+      }
+      this.speechInterim = interimText.trim();
+    };
+    recognition.onerror = (event: any) => {
+      this.isListening = false;
+      this.speechInterim = '';
+      if (this.speechRecognition === recognition) this.speechRecognition = undefined;
+      const key = event.error === 'not-allowed' || event.error === 'service-not-allowed'
+        ? 'feed.voicePermission'
+        : event.error === 'no-speech' ? 'feed.voiceNoSpeech' : 'feed.voiceError';
+      this.speechError = this.i18n.t(key);
+    };
+    recognition.onend = () => {
+      if (this.speechRecognition === recognition) this.speechRecognition = undefined;
+      this.isListening = false;
+      this.speechInterim = '';
+    };
+    this.speechRecognition = recognition;
+    try { recognition.start(); }
+    catch { this.speechError = this.i18n.t('feed.voiceError'); }
+  }
+
+  stopVoiceInput(): void {
+    if (this.speechRecognition) {
+      this.speechRecognition.onend = null;
+      this.speechRecognition.stop();
+      this.speechRecognition = undefined;
+    }
+    this.isListening = false;
+    this.speechInterim = '';
+  }
+
+  changeSpeechLanguage(language: 'en-IN' | 'hi-IN'): void {
+    if (this.isListening) this.stopVoiceInput();
+    this.speechLanguage = language;
+    this.speechError = '';
   }
 
   updateUrlPreview(): void {
@@ -214,6 +289,7 @@ export class FeedComponent implements OnInit, OnDestroy {
     if (this.leaderTimer) clearInterval(this.leaderTimer);
     this.subscriptions.unsubscribe();
     this.feedSocket.disconnect();
+    this.cancelVoiceInput();
     this.revokePreview();
   }
 
@@ -297,6 +373,7 @@ export class FeedComponent implements OnInit, OnDestroy {
   }
 
   private submitPost(imageUrl: string): void {
+    this.stopVoiceInput();
     this.api.createPost(this.postForm.categoryId, this.postForm.content.trim(), imageUrl).subscribe({
       next: () => {
         this.posting = false;
@@ -313,6 +390,7 @@ export class FeedComponent implements OnInit, OnDestroy {
   private hasDraft(): boolean { return !!(this.postForm.content.trim() || this.imageFile || this.postForm.imageUrl.trim()); }
 
   private resetComposer(): void {
+    this.cancelVoiceInput();
     this.revokePreview();
     this.postForm.content = '';
     this.postForm.imageUrl = '';
@@ -320,10 +398,24 @@ export class FeedComponent implements OnInit, OnDestroy {
     this.imagePreview = '';
     this.uploadProgress = 0;
     this.composerError = '';
+    this.speechError = '';
+    this.speechInterim = '';
   }
 
   private revokePreview(): void {
     if (this.imagePreview.startsWith('blob:')) URL.revokeObjectURL(this.imagePreview);
+  }
+
+  private cancelVoiceInput(): void {
+    if (this.speechRecognition) {
+      this.speechRecognition.onresult = null;
+      this.speechRecognition.onerror = null;
+      this.speechRecognition.onend = null;
+      this.speechRecognition.abort();
+      this.speechRecognition = undefined;
+    }
+    this.isListening = false;
+    this.speechInterim = '';
   }
 
   private apiError(error: any, fallback: string): string {
