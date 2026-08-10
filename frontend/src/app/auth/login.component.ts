@@ -24,7 +24,7 @@ import {
   LucideX
 } from '@lucide/angular';
 import { AuthService } from '../core/auth.service';
-import { GalleryImage, InviteRequest, OtpChannel, OtpPurpose } from '../core/models';
+import { ExpertiseField, GalleryImage, InviteRequest, OtpChannel, OtpPurpose } from '../core/models';
 import { CommunityApiService } from '../core/community-api.service';
 import { I18nService } from '../core/i18n.service';
 import { TranslatePipe } from '../core/translate.pipe';
@@ -89,6 +89,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   activeLeaderIndex = 0;
   activeGalleryIndex = 0;
   galleryImages: GalleryImage[] = [];
+  expertiseFields: ExpertiseField[] = [];
   readonly leaders = COMMUNITY_LEADERS;
   readonly books = COMMUNITY_BOOKS;
   readonly paidBooks = PAID_COMMUNITY_BOOKS;
@@ -116,6 +117,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     inviteCode: '',
     idProofUrl: '',
     professionalGroup: 'COMMUNITY' as const,
+    helpFieldIds: [] as number[],
     emailVerificationToken: '',
     phoneVerificationToken: ''
   };
@@ -167,6 +169,10 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.activeGalleryIndex = 0;
         this.startGalleryRotation();
       }
+    });
+    this.api.expertiseFields().subscribe({
+      next: (fields) => this.expertiseFields = fields,
+      error: () => this.setMessage('Help categories are temporarily unavailable. Please try again.', 'error')
     });
   }
 
@@ -297,7 +303,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.clearMessage();
     if (this.registerStep === 1) {
       if (this.canContinueProfile()) this.registerStep = 2;
-      else this.setMessage('Enter your full name before continuing.', 'error');
+      else this.setMessage('Enter your name and select at least one field where you can help.', 'error');
       return;
     }
     if (this.registerStep === 2) {
@@ -314,7 +320,14 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   canContinueProfile(): boolean {
-    return this.registerForm.fullName.trim().length >= 2;
+    return this.registerForm.fullName.trim().length >= 2 && this.registerForm.helpFieldIds.length > 0;
+  }
+
+  toggleHelpField(fieldId: number): void {
+    const selected = this.registerForm.helpFieldIds;
+    this.registerForm.helpFieldIds = selected.includes(fieldId)
+      ? selected.filter((id) => id !== fieldId)
+      : selected.length < 8 ? [...selected, fieldId] : selected;
   }
 
   canSubmitRegistration(): boolean {

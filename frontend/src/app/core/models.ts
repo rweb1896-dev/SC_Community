@@ -21,6 +21,9 @@ export interface AuthResponse {
   role: UserRole;
   status: UserStatus;
   professionalGroup: ProfessionalGroup;
+  helpFieldIds: number[];
+  helpFieldNames: string[];
+  profileComplete: boolean;
 }
 
 export interface OtpRequestResponse {
@@ -46,9 +49,36 @@ export interface UserResponse {
   role: UserRole;
   status: UserStatus;
   professionalGroup: ProfessionalGroup;
+  helpFieldIds: number[];
+  helpFieldNames: string[];
+  profileComplete: boolean;
   idProofUrl?: string;
   inviteCodeUsed?: string;
   createdAt: string;
+}
+
+export interface ExpertiseField {
+  id: number;
+  name: string;
+  description: string;
+  iconKey: string;
+  active: boolean;
+  displayOrder: number;
+}
+
+export interface Achiever {
+  id: number;
+  expertiseFieldId: number;
+  expertiseFieldName: string;
+  fullName: string;
+  title: string;
+  achievement: string;
+  biography: string;
+  imageUrl?: string;
+  profileUrl?: string;
+  active: boolean;
+  displayOrder: number;
+  updatedAt: string;
 }
 
 export interface Category {

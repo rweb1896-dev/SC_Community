@@ -166,6 +166,7 @@
       <div><p class="eyebrow">Public publishing</p><h2>Content Studio</h2><span>One workspace for leaders, books, events, gallery and live media.</span></div>
       <div class="studio-tabs" aria-label="Content type">
         <button type="button" [class.active]="contentTab === 'leaders'" (click)="contentTab = 'leaders'"><svg lucideUserRound></svg>Leaders</button>
+        <button type="button" [class.active]="contentTab === 'achievers'" (click)="contentTab = 'achievers'"><svg lucideAward></svg>Achievers</button>
         <button type="button" [class.active]="contentTab === 'books'" (click)="contentTab = 'books'"><svg lucideBookOpen></svg>Library</button>
         <button type="button" [class.active]="contentTab === 'events'" (click)="contentTab = 'events'"><svg lucideCalendarDays></svg>Events</button>
         <button type="button" [class.active]="contentTab === 'broadcasts'" (click)="contentTab = 'broadcasts'"><svg lucideRadio></svg>Live media</button>
@@ -195,6 +196,45 @@
             <button *ngIf="item.status !== 'REMOVED'" class="danger" type="button" title="Remove from website" (click)="setManagedStatus(item, 'REMOVED')"><svg lucideTrash2></svg></button>
           </div>
         </article>
+      </div>
+    </div>
+
+    <div class="directory-studio" *ngIf="contentTab === 'achievers'">
+      <section class="expertise-manager">
+        <header><div><strong>Community help fields</strong><span>These categories power member profiles and the achievers directory.</span></div><b>{{ expertiseFields.length }} fields</b></header>
+        <form (ngSubmit)="createExpertiseField()">
+          <input name="fieldName" maxlength="100" placeholder="Field name" [(ngModel)]="fieldForm.name" required />
+          <input name="fieldDescription" maxlength="280" placeholder="Short description" [(ngModel)]="fieldForm.description" required />
+          <select name="fieldIcon" [(ngModel)]="fieldForm.iconKey"><option value="AWARD">Achievement</option><option value="MUSIC">Music</option><option value="SCALE">Judiciary</option><option value="GAVEL">Law</option><option value="BRIEFCASE">Business</option><option value="HEART">Healthcare</option><option value="LANDMARK">Government</option><option value="BOOK">Education</option><option value="CODE">Technology</option><option value="USERS">Community</option><option value="STAR">General</option></select>
+          <input name="fieldOrder" type="number" min="0" max="999" aria-label="Display order" [(ngModel)]="fieldForm.displayOrder" />
+          <button class="btn" type="submit" [disabled]="savingContent"><svg lucidePlus></svg>Add field</button>
+        </form>
+        <div class="expertise-field-list">
+          <article *ngFor="let field of expertiseFields" [class.is-muted]="!field.active"><div><strong>{{ field.name }}</strong><small>{{ field.description }}</small></div><button *ngIf="field.active" type="button" title="Disable field" (click)="setExpertiseFieldActive(field, false)"><svg lucideBan></svg>Disable</button><button *ngIf="!field.active" type="button" title="Restore field" (click)="setExpertiseFieldActive(field, true)"><svg lucideRotateCcw></svg>Restore</button></article>
+        </div>
+      </section>
+
+      <div class="studio-layout achiever-layout">
+        <form class="studio-form" (ngSubmit)="createAchiever()">
+          <div class="studio-form-heading"><strong>Add a top achiever</strong><span>Publish verified accomplishments under a clear professional category.</span></div>
+          <label>Category<select name="achieverField" [(ngModel)]="achieverForm.expertiseFieldId" required><option [ngValue]="0" disabled>Select category</option><option *ngFor="let field of expertiseFields" [ngValue]="field.id" [disabled]="!field.active">{{ field.name }}</option></select></label>
+          <label>Full name<input name="achieverName" maxlength="120" [(ngModel)]="achieverForm.fullName" required /></label>
+          <label>Professional title<input name="achieverTitle" maxlength="160" placeholder="UPSC ranker, senior advocate, doctor..." [(ngModel)]="achieverForm.title" required /></label>
+          <label>Key achievement<textarea name="achieverAchievement" maxlength="500" [(ngModel)]="achieverForm.achievement" required></textarea></label>
+          <label>Profile summary<textarea name="achieverBiography" maxlength="1500" [(ngModel)]="achieverForm.biography" required></textarea></label>
+          <div class="form-row"><label>Photo URL <small>Optional</small><input name="achieverImage" type="url" placeholder="https://" [(ngModel)]="achieverForm.imageUrl" /></label><label>Reference URL <small>Optional</small><input name="achieverProfile" type="url" placeholder="https://" [(ngModel)]="achieverForm.profileUrl" /></label></div>
+          <label>Display order<input name="achieverOrder" type="number" min="0" max="999" [(ngModel)]="achieverForm.displayOrder" /></label>
+          <button class="btn" type="submit" [disabled]="savingContent"><svg lucideAward></svg>{{ savingContent ? 'Publishing...' : 'Publish achiever' }}</button>
+        </form>
+        <div class="studio-list managed-list">
+          <div class="studio-list-heading"><strong>Top achievers directory</strong><span>{{ achievers.length }} profiles</span></div>
+          <p class="studio-empty" *ngIf="achievers.length === 0">No achiever profile has been published.</p>
+          <article class="content-item managed-item achiever-admin-item" *ngFor="let achiever of achievers" [class.is-muted]="!achiever.active">
+            <span class="content-icon" *ngIf="!achiever.imageUrl"><svg lucideAward></svg></span><img *ngIf="achiever.imageUrl" [src]="achiever.imageUrl" [alt]="achiever.fullName" />
+            <div><span>{{ achiever.expertiseFieldName }} · {{ achiever.active ? 'ACTIVE' : 'BLOCKED' }}</span><strong>{{ achiever.fullName }}</strong><small>{{ achiever.title }} · {{ achiever.achievement }}</small></div>
+            <div class="icon-actions managed-actions"><button *ngIf="!achiever.active" type="button" title="Restore" (click)="setAchieverActive(achiever, true)"><svg lucideRotateCcw></svg></button><button *ngIf="achiever.active" type="button" title="Block from website" (click)="setAchieverActive(achiever, false)"><svg lucideBan></svg></button><button class="danger" type="button" title="Delete achiever" (click)="deleteAchiever(achiever)"><svg lucideTrash2></svg></button></div>
+          </article>
+        </div>
       </div>
     </div>
 

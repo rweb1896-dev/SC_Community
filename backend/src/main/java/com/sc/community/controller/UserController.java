@@ -4,10 +4,15 @@ import com.sc.community.dto.UserResponse;
 import com.sc.community.entity.UserStatus;
 import com.sc.community.repository.UserRepository;
 import com.sc.community.websocket.PresenceService;
+import com.sc.community.dto.DirectoryDtos.UpdateHelpFieldsRequest;
+import com.sc.community.service.DirectoryService;
+import jakarta.validation.Valid;
 import java.util.Set;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -15,10 +20,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     private final UserRepository userRepository;
     private final PresenceService presenceService;
+    private final DirectoryService directoryService;
 
-    public UserController(UserRepository userRepository, PresenceService presenceService) {
+    public UserController(UserRepository userRepository, PresenceService presenceService, DirectoryService directoryService) {
         this.userRepository = userRepository;
         this.presenceService = presenceService;
+        this.directoryService = directoryService;
     }
 
     @GetMapping("/verified")
@@ -29,5 +36,10 @@ public class UserController {
     @GetMapping("/online")
     public Set<Long> onlineUsers() {
         return presenceService.onlineUserIds();
+    }
+
+    @PatchMapping("/me/help-fields")
+    public UserResponse updateMyHelpFields(@Valid @RequestBody UpdateHelpFieldsRequest request) {
+        return directoryService.updateMyHelpFields(request.fieldIds());
     }
 }

@@ -15,6 +15,7 @@ import com.sc.community.entity.OtpChallenge;
 import com.sc.community.repository.UserRepository;
 import com.sc.community.repository.VerificationCodeRepository;
 import com.sc.community.repository.OtpChallengeRepository;
+import java.util.Comparator;
 import com.sc.community.security.JwtService;
 import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
@@ -34,6 +35,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final OtpService otpService;
     private final OtpChallengeRepository challengeRepository;
+    private final DirectoryService directoryService;
 
     public AuthService(
             UserRepository userRepository,
@@ -42,7 +44,8 @@ public class AuthService {
             AuthenticationManager authenticationManager,
             JwtService jwtService,
             OtpService otpService,
-            OtpChallengeRepository challengeRepository) {
+            OtpChallengeRepository challengeRepository,
+            DirectoryService directoryService) {
         this.userRepository = userRepository;
         this.codeRepository = codeRepository;
         this.passwordEncoder = passwordEncoder;
@@ -50,6 +53,7 @@ public class AuthService {
         this.jwtService = jwtService;
         this.otpService = otpService;
         this.challengeRepository = challengeRepository;
+        this.directoryService = directoryService;
     }
 
     @Transactional
@@ -96,6 +100,7 @@ public class AuthService {
         user.setIdProofUrl(idProofUrl.isBlank() ? null : idProofUrl);
         user.setInviteCodeUsed(code.getCode());
         user.setProfessionalGroup(request.professionalGroup());
+        user.setHelpFields(directoryService.resolveActiveFields(request.helpFieldIds()));
         User saved = userRepository.save(user);
 
         code.setUsed(true);
@@ -132,7 +137,12 @@ public class AuthService {
                 user.getEmail(),
                 user.getRole(),
                 user.getStatus(),
-                user.getProfessionalGroup() == null ? ProfessionalGroup.COMMUNITY : user.getProfessionalGroup()
+                user.getProfessionalGroup() == null ? ProfessionalGroup.COMMUNITY : user.getProfessionalGroup(),
+                user.getHelpFields().stream().sorted(Comparator.comparingInt(field -> field.getDisplayOrder()))
+                        .map(field -> field.getId()).toList(),
+                user.getHelpFields().stream().sorted(Comparator.comparingInt(field -> field.getDisplayOrder()))
+                        .map(field -> field.getName()).toList(),
+                user.isProfileComplete()
         );
     }
 }

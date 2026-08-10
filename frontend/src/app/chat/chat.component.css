@@ -276,24 +276,32 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
+  align-items: end;
   border-top: 1px solid #e8ebf1;
   padding: 11px 13px;
   background: #fff;
 }
 
-.send-box input {
+.send-box textarea {
+  box-sizing: border-box;
   min-width: 0;
-  height: 40px;
+  min-height: 42px;
+  max-height: 130px;
+  resize: none;
+  overflow-y: auto;
   border: 1px solid #dfe4ed;
-  border-radius: 999px;
+  border-radius: 18px;
   background: #f8f9fb;
-  padding: 0 14px;
+  padding: 10px 14px;
   outline: none;
+  font: inherit;
+  line-height: 20px;
 }
 
-.send-box input:focus {
+.send-box textarea:focus {
   border-color: #a9b8ef;
   background: #fff;
+  box-shadow: 0 0 0 3px rgba(79,70,229,.08);
 }
 
 .send-box .btn {

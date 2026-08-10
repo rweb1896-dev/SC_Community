@@ -17,6 +17,7 @@ import { Message, UserResponse } from '../core/models';
 })
 export class MessageDockComponent implements OnInit, OnDestroy, AfterViewChecked, OnChanges {
   @ViewChild('messageList') private messageList?: ElementRef<HTMLElement>;
+  @ViewChild('dockComposer') private dockComposer?: ElementRef<HTMLTextAreaElement>;
   @Input() openRequest = 0;
   users: UserResponse[] = [];
   messages: Message[] = [];
@@ -101,6 +102,20 @@ export class MessageDockComponent implements OnInit, OnDestroy, AfterViewChecked
     if (!this.selectedUser || !body) return;
     this.draft = '';
     this.chat.send(this.selectedUser.id, body);
+    this.resetComposer(this.dockComposer);
+  }
+
+  handleComposerKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      this.send();
+    }
+  }
+
+  resizeComposer(event: Event): void {
+    const textarea = event.target as HTMLTextAreaElement;
+    textarea.style.height = 'auto';
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 112)}px`;
   }
 
   isOnline(userId: number): boolean { return this.onlineUserIds.has(userId); }
@@ -124,5 +139,11 @@ export class MessageDockComponent implements OnInit, OnDestroy, AfterViewChecked
       return;
     }
     if (message.senderId !== currentId) this.unreadByUser.set(otherUserId, this.unreadFor(otherUserId) + 1);
+  }
+
+  private resetComposer(composer?: ElementRef<HTMLTextAreaElement>): void {
+    queueMicrotask(() => {
+      if (composer) composer.nativeElement.style.height = '40px';
+    });
   }
 }

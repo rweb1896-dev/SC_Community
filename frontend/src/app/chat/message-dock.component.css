@@ -23,9 +23,9 @@
 .dock-bubble { align-self: flex-start; display: grid; max-width: 78%; gap: 3px; border-radius: 14px 14px 14px 4px; background: #e6e9ef; padding: 8px 10px; color: #303744; font-size: 11px; line-height: 1.4; overflow-wrap: anywhere; }
 .dock-bubble.mine { align-self: flex-end; border-radius: 14px 14px 4px 14px; background: #2762db; color: #fff; }
 .dock-bubble small { justify-self: end; opacity: .64; font-size: 7px; }
-.dock-send { display: grid; grid-template-columns: minmax(0,1fr) 34px; align-items: center; gap: 7px; border-top: 1px solid #e7eaf0; padding: 9px; }
-.dock-send input { min-width: 0; height: 36px; border: 1px solid transparent; border-radius: 999px; background: #eff1f5; padding: 0 13px; outline: none; font-size: 11px; }
-.dock-send input:focus { border-color: #9ab2ef; background: #fff; }
+.dock-send { display: grid; grid-template-columns: minmax(0,1fr) 34px; align-items: end; gap: 7px; border-top: 1px solid #e7eaf0; padding: 9px; }
+.dock-send textarea { box-sizing: border-box; min-width: 0; min-height: 40px; max-height: 112px; resize: none; overflow-y: auto; border: 1px solid transparent; border-radius: 18px; background: #eff1f5; padding: 10px 13px; outline: none; font: inherit; font-size: 11px; line-height: 18px; }
+.dock-send textarea:focus { border-color: #9ab2ef; background: #fff; box-shadow: 0 0 0 3px rgba(39,98,219,.08); }
 .dock-send button { display: grid; width: 34px; height: 34px; place-items: center; border: 0; border-radius: 50%; background: #2762db; color: #fff; }
 .dock-send button:disabled { opacity: .45; }.dock-send svg { width: 15px; }
 .contact-panel { display: grid; grid-template-rows: 58px auto minmax(0,1fr); width: 290px; height: min(540px,calc(100vh - 96px)); }

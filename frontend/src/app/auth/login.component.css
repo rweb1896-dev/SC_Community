@@ -151,6 +151,16 @@ form { display: grid; gap: 14px; }
 .step-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 2px; }
 .step-actions.end { justify-content: flex-end; }
 .step-actions .btn { min-width: 112px; }
+.help-field-picker { display: grid; gap: 9px; min-width: 0; border: 0; margin: 3px 0 0; padding: 0; }
+.help-field-picker legend { display: grid; gap: 2px; margin-bottom: 7px; color: #354052; }
+.help-field-picker legend strong { font-size: 11px; }.help-field-picker legend span { color: #7c8798; font-size: 9px; font-weight: 500; }
+.help-field-options { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; max-height: 220px; overflow-y: auto; padding: 1px; scrollbar-width: thin; }
+.help-field-options button { display: grid; min-height: 62px; gap: 4px; border: 1px solid #dce2ec; border-radius: 8px; background: #fff; padding: 9px; color: #364154; text-align: left; }
+.help-field-options button:hover { border-color: #a8bcec; background: #f8faff; }
+.help-field-options button.selected { border-color: #3970dd; background: #edf3ff; box-shadow: inset 0 0 0 1px rgba(57,112,221,.14); }
+.help-field-options button > span { display: flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 850; }.help-field-options button svg { width: 14px; color: #2563d7; }
+.help-field-options button small { color: #7c8798; font-size: 8px; line-height: 1.4; }
+.selection-count { color: #69758a; font-size: 8px; font-weight: 750; }
 
 .channel-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .channel-tabs button { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; gap: 8px; border: 1px solid #d6deec; border-radius: 7px; background: #fff; color: #536074; font-weight: 800; }
@@ -179,6 +189,7 @@ form { display: grid; gap: 14px; }
   .auth-heading { margin-bottom: 20px; }
   .auth-heading h2 { font-size: 26px; }
   .grid { grid-template-columns: 1fr; }
+  .help-field-options { grid-template-columns: 1fr; max-height: 250px; }
   .registration-progress { grid-template-columns: 48px minmax(10px,1fr) 48px minmax(10px,1fr) 48px; }
   .verification-row { grid-template-columns: minmax(0, 1fr) 82px; }
   .outline-button, .verify-button { min-width: 0; padding: 0 8px; }

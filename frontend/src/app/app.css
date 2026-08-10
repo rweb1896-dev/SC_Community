@@ -144,6 +144,11 @@ nav a svg { width: 20px; height: 20px; }
 .profile-menu-head strong { color: #232a39; font-size: 13px; }
 .profile-menu-head span { color: #768095; font-size: 10px; }
 .profile-menu-head small { width: max-content; border-radius: 999px; background: #edf1ff; color: #315ac0; padding: 3px 7px; font-size: 8px; font-weight: 800; }
+.profile-help-summary { display: grid; gap: 7px; border-top: 1px solid #e6eaf1; padding-top: 10px; }
+.profile-help-summary > span { color: #697489; font-size: 8px; font-weight: 850; letter-spacing: .05em; text-transform: uppercase; }
+.profile-help-summary > div { display: flex; flex-wrap: wrap; gap: 5px; }
+.profile-help-summary > div small { border-radius: 999px; background: #edf7f3; padding: 4px 7px; color: #16715e; font-size: 8px; font-weight: 750; }
+.profile-help-summary button { width: max-content; border: 0; background: transparent; padding: 2px 0; color: #285bc2; font-size: 9px; font-weight: 850; }
 .nav-logout { display: inline-grid; width: 40px; height: 40px; place-items: center; border: 1px solid #f1c9c5; border-radius: 8px; background: #fff7f6; color: #a73229; padding: 0; }
 .nav-logout:hover { border-color: #e9aaa4; background: #fff0ee; color: #8f2119; }
 .nav-logout svg { width: 16px; height: 16px; }
@@ -193,6 +198,17 @@ nav a svg { width: 20px; height: 20px; }
 @keyframes invite-pulse { 0% { opacity: .8; transform: scale(.8); } 100% { opacity: 0; transform: scale(1.35); } }
 @keyframes invite-approved { 0% { opacity: 0; transform: scale(.6) rotate(-10deg); } 70% { transform: scale(1.08) rotate(2deg); } }
 @keyframes invite-dot { 0%,100% { opacity: .35; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-5px); } }
+.profile-help-backdrop { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; overflow-y: auto; background: rgba(11,20,35,.62); padding: 20px; backdrop-filter: blur(9px); }
+.profile-help-modal { display: grid; width: min(680px,100%); max-height: min(760px,calc(100dvh - 40px)); gap: 11px; overflow: hidden; border: 1px solid rgba(255,255,255,.78); border-radius: 20px; background: #fff; box-shadow: 0 32px 90px rgba(8,23,48,.3); padding: 26px; }
+.profile-help-icon { display: grid; width: 48px; height: 48px; place-items: center; border-radius: 14px; background: linear-gradient(135deg,#e5edff,#dcf8ee); color: #255ecb; }.profile-help-icon svg { width: 23px; }
+.profile-help-kicker { margin: 1px 0 -7px; color: #147b68; font-size: 9px; font-weight: 900; letter-spacing: .11em; text-transform: uppercase; }
+.profile-help-modal h2 { margin: 0; color: #1e293b; font-size: clamp(24px,4vw,34px); letter-spacing: -.03em; }.profile-help-modal > p:not(.profile-help-kicker):not(.profile-help-error) { margin: 0; color: #68758a; font-size: 11px; line-height: 1.55; }
+.profile-help-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; min-height: 0; overflow-y: auto; padding: 2px; scrollbar-width: thin; }
+.profile-help-options button { display: grid; min-height: 72px; gap: 5px; border: 1px solid #dce3ee; border-radius: 10px; background: #fff; padding: 11px; color: #344054; text-align: left; }
+.profile-help-options button:hover { border-color: #a8baeb; background: #f8faff; }.profile-help-options button.selected { border-color: #3169da; background: #edf3ff; box-shadow: inset 0 0 0 1px rgba(49,105,218,.12); }
+.profile-help-options button span { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 850; }.profile-help-options button svg { width: 14px; color: #2461d3; }.profile-help-options button small { color: #7a8598; font-size: 8px; line-height: 1.45; }
+.profile-help-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid #e7ebf1; padding-top: 12px; }.profile-help-footer span { color: #738095; font-size: 9px; font-weight: 750; }.profile-help-footer button { min-height: 42px; border: 0; border-radius: 9px; background: #2762d7; padding: 0 17px; color: #fff; font-size: 11px; font-weight: 850; }.profile-help-footer button:disabled { opacity: .5; }
+.profile-help-error { border-radius: 8px; background: #fff0ee; margin: 0; padding: 8px 10px; color: #a93229; font-size: 9px; font-weight: 750; }
 
 nav a.active {
   background: #eaf0ff;
@@ -304,6 +320,7 @@ main {
   .language-select select { width: 100%; height: 40px; }
   .member-invite-backdrop { align-items: end; padding: 10px; }
   .member-invite-modal { border-radius: 22px 22px 14px 14px; padding: 28px 20px 22px; }
+  .profile-help-backdrop { align-items: end; padding: 8px; }.profile-help-modal { max-height: 92dvh; border-radius: 18px 18px 10px 10px; padding: 20px 16px; }.profile-help-options { grid-template-columns: 1fr; }.profile-help-footer { align-items: stretch; flex-direction: column; }.profile-help-footer button { width: 100%; }
 
 }
 

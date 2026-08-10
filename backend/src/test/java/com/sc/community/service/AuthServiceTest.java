@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -15,11 +16,14 @@ import com.sc.community.entity.ProfessionalGroup;
 import com.sc.community.entity.User;
 import com.sc.community.entity.UserStatus;
 import com.sc.community.entity.VerificationCode;
+import com.sc.community.entity.ExpertiseField;
 import com.sc.community.repository.UserRepository;
 import com.sc.community.repository.VerificationCodeRepository;
 import com.sc.community.repository.OtpChallengeRepository;
 import com.sc.community.security.JwtService;
 import java.util.Optional;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,6 +43,7 @@ class AuthServiceTest {
     @Mock private JwtService jwtService;
     @Mock private OtpService otpService;
     @Mock private OtpChallengeRepository challengeRepository;
+    @Mock private DirectoryService directoryService;
 
     private AuthService service;
 
@@ -51,7 +56,13 @@ class AuthServiceTest {
                 authenticationManager,
                 jwtService,
                 otpService,
-                challengeRepository);
+                challengeRepository,
+                directoryService);
+        ExpertiseField field = new ExpertiseField();
+        field.setId(1L);
+        field.setName("Education & Mentoring");
+        field.setDescription("Guidance");
+        lenient().when(directoryService.resolveActiveFields(any())).thenReturn(new LinkedHashSet<>(Set.of(field)));
     }
 
     @Test
@@ -119,6 +130,7 @@ class AuthServiceTest {
                 "SC-ABC123",
                 "",
                 ProfessionalGroup.COMMUNITY,
+                Set.of(1L),
                 "email-token",
                 "mobile-token");
         VerificationCode invite = new VerificationCode();
@@ -176,6 +188,7 @@ class AuthServiceTest {
                 "SC-ABC123",
                 "https://drive.google.com/id-proof",
                 ProfessionalGroup.COMMUNITY,
+                Set.of(1L),
                 "email-token",
                 "mobile-token");
     }

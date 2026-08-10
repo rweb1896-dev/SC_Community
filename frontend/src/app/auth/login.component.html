@@ -146,6 +146,16 @@
         </div>
       </div>
 
+      <fieldset class="help-field-picker">
+        <legend><strong>Where can you help the community?</strong><span>Select one or more fields. You can update this later.</span></legend>
+        <div class="help-field-options">
+          <button type="button" *ngFor="let field of expertiseFields" [class.selected]="registerForm.helpFieldIds.includes(field.id)" [attr.aria-pressed]="registerForm.helpFieldIds.includes(field.id)" (click)="toggleHelpField(field.id)">
+            <span><svg *ngIf="registerForm.helpFieldIds.includes(field.id)" lucideCheckCircle2></svg>{{ field.name }}</span><small>{{ field.description }}</small>
+          </button>
+        </div>
+        <small class="selection-count">{{ registerForm.helpFieldIds.length }} selected · maximum 8</small>
+      </fieldset>
+
       <div class="step-actions end">
         <button class="btn" type="button" (click)="continueRegistration()">
           {{ 'auth.continueVerification' | translate }}

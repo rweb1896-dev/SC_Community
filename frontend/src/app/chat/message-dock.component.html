@@ -12,7 +12,7 @@
         <div class="conversation-intro"><span class="dock-avatar large">{{ initials(selectedUser.fullName) }}</span><strong>{{ selectedUser.fullName }}</strong><small>Private community conversation</small></div>
         <div class="dock-bubble" *ngFor="let message of messages" [class.mine]="message.senderId === auth.session?.userId"><span>{{ message.messageBody }}</span><small>{{ message.timestamp | date:'shortTime' }}</small></div>
       </div>
-      <form class="dock-send" (ngSubmit)="send()"><input name="dockDraft" [(ngModel)]="draft" maxlength="2000" autocomplete="off" placeholder="Aa" aria-label="Write a message" /><button type="submit" [disabled]="!draft.trim()" aria-label="Send message"><svg lucideSend></svg></button></form>
+      <form class="dock-send" (ngSubmit)="send()"><textarea #dockComposer name="dockDraft" [(ngModel)]="draft" rows="1" maxlength="2000" autocomplete="off" placeholder="Write a message…" aria-label="Write a message" (input)="resizeComposer($event)" (keydown)="handleComposerKeydown($event)"></textarea><button type="submit" [disabled]="!draft.trim()" aria-label="Send message"><svg lucideSend></svg></button></form>
     </ng-container>
   </section>
 

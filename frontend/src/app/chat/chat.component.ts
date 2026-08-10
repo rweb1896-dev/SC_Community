@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize, retry, Subscription } from 'rxjs';
@@ -16,6 +16,7 @@ import { Message, UserResponse } from '../core/models';
   styleUrl: './chat.component.css'
 })
 export class ChatComponent implements OnInit, OnDestroy {
+  @ViewChild('threadComposer') private threadComposer?: ElementRef<HTMLTextAreaElement>;
   users: UserResponse[] = [];
   messages: Message[] = [];
   selectedUser?: UserResponse;
@@ -74,9 +75,25 @@ export class ChatComponent implements OnInit, OnDestroy {
     if (!this.selectedUser || !this.draft.trim()) {
       return;
     }
-    const body = this.draft;
+    const body = this.draft.trim();
     this.draft = '';
     this.chat.send(this.selectedUser.id, body);
+    queueMicrotask(() => {
+      if (this.threadComposer) this.threadComposer.nativeElement.style.height = '42px';
+    });
+  }
+
+  handleComposerKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      this.send();
+    }
+  }
+
+  resizeComposer(event: Event): void {
+    const textarea = event.target as HTMLTextAreaElement;
+    textarea.style.height = 'auto';
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 130)}px`;
   }
 
   isOnline(userId: number): boolean {

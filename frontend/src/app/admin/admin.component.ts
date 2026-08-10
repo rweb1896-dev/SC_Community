@@ -2,10 +2,10 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CommunityApiService } from '../core/community-api.service';
-import { Broadcast, BroadcastMediaType, BroadcastStatus, CommunityEvent, Dashboard, EventStatus, GalleryImage, InviteCode, InviteRequest, ManagedContent, ManagedContentInput, ManagedContentStatus, MemberInviteRequest, Meeting, Post, ProfessionalGroup, UserResponse } from '../core/models';
+import { Achiever, Broadcast, BroadcastMediaType, BroadcastStatus, CommunityEvent, Dashboard, EventStatus, ExpertiseField, GalleryImage, InviteCode, InviteRequest, ManagedContent, ManagedContentInput, ManagedContentStatus, MemberInviteRequest, Meeting, Post, ProfessionalGroup, UserResponse } from '../core/models';
 import { MeetingSocketService } from '../core/meeting-socket.service';
 import { auditTime, interval, Subscription } from 'rxjs';
-import { LucideBan, LucideBookOpen, LucideCalendarDays, LucideCheck, LucideCopy, LucideImages, LucideMail, LucidePause, LucidePlay, LucidePlus, LucideRadio, LucideRotateCcw, LucideSend, LucideSmartphone, LucideSquare, LucideTrash2, LucideUpload, LucideUserRound, LucideX } from '@lucide/angular';
+import { LucideAward, LucideBan, LucideBookOpen, LucideCalendarDays, LucideCheck, LucideCopy, LucideImages, LucideMail, LucidePause, LucidePlay, LucidePlus, LucideRadio, LucideRotateCcw, LucideSend, LucideSmartphone, LucideSquare, LucideTrash2, LucideUpload, LucideUserRound, LucideX } from '@lucide/angular';
 import { COMMUNITY_LEADERS } from '../core/community-leaders';
 import { COMMUNITY_BOOKS, PAID_COMMUNITY_BOOKS } from '../core/community-resources';
 import { TranslatePipe } from '../core/translate.pipe';
@@ -13,7 +13,7 @@ import { TranslatePipe } from '../core/translate.pipe';
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslatePipe, LucideBan, LucideBookOpen, LucideCalendarDays, LucideCheck, LucideCopy, LucideImages, LucideMail, LucidePause, LucidePlay, LucidePlus, LucideRadio, LucideRotateCcw, LucideSend, LucideSmartphone, LucideSquare, LucideTrash2, LucideUpload, LucideUserRound, LucideX],
+  imports: [CommonModule, FormsModule, TranslatePipe, LucideAward, LucideBan, LucideBookOpen, LucideCalendarDays, LucideCheck, LucideCopy, LucideImages, LucideMail, LucidePause, LucidePlay, LucidePlus, LucideRadio, LucideRotateCcw, LucideSend, LucideSmartphone, LucideSquare, LucideTrash2, LucideUpload, LucideUserRound, LucideX],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.css'
 })
@@ -41,13 +41,17 @@ export class AdminComponent implements OnInit, OnDestroy {
   inviteChannel: 'EMAIL' | 'MOBILE' = 'EMAIL';
   inviteRecipient = '';
   inviteFeedback = '';
-  contentTab: 'leaders' | 'books' | 'events' | 'broadcasts' | 'gallery' = 'leaders';
+  contentTab: 'leaders' | 'achievers' | 'books' | 'events' | 'broadcasts' | 'gallery' = 'leaders';
   workspaceTab: 'overview' | 'invitations' | 'content' | 'members' | 'moderation' = 'overview';
   managedContent: ManagedContent[] = [];
   managingRecordId?: number;
   leaderForm = { name: '', role: '', contribution: '', era: 'CURRENT', department: '', imageUrl: '', overview: '' };
   bookForm = { title: '', author: '', summary: '', kind: 'FREE', languageOrFormat: 'English', url: '', imageUrl: '', sourceOrPrice: '' };
   savingContent = false;
+  expertiseFields: ExpertiseField[] = [];
+  achievers: Achiever[] = [];
+  fieldForm = { name: '', description: '', iconKey: 'STAR', displayOrder: 100 };
+  achieverForm = { expertiseFieldId: 0, fullName: '', title: '', achievement: '', biography: '', imageUrl: '', profileUrl: '', displayOrder: 100 };
   eventForm = { title: '', summary: '', venue: '', eventAt: '', registrationUrl: '' };
   broadcastForm = {
     title: '',
@@ -155,6 +159,46 @@ export class AdminComponent implements OnInit, OnDestroy {
       source: form.languageOrFormat.trim() || (form.kind === 'FREE' ? 'English' : 'Print edition'), url: form.url.trim(),
       imageUrl: form.imageUrl.trim() || '/favicon.svg', details: form.sourceOrPrice.trim() || 'Community Library' };
     this.saveManaged(input, () => this.bookForm = { title: '', author: '', summary: '', kind: 'FREE', languageOrFormat: 'English', url: '', imageUrl: '', sourceOrPrice: '' });
+  }
+
+  createExpertiseField(): void {
+    const form = this.fieldForm;
+    if (!form.name.trim() || !form.description.trim()) { this.error = 'Add a field name and description.'; return; }
+    this.savingContent = true; this.error = '';
+    this.api.createExpertiseField(form.name, form.description, form.iconKey, form.displayOrder).subscribe({
+      next: () => { this.fieldForm = { name: '', description: '', iconKey: 'STAR', displayOrder: 100 }; this.savingContent = false; this.loadDirectory(); },
+      error: (error) => { this.error = error.error?.detail || 'Expertise field could not be added'; this.savingContent = false; }
+    });
+  }
+
+  setExpertiseFieldActive(field: ExpertiseField, active: boolean): void {
+    this.api.setExpertiseFieldActive(field.id, active).subscribe({
+      next: (updated) => Object.assign(field, updated),
+      error: (error) => this.error = error.error?.detail || 'Expertise field could not be updated'
+    });
+  }
+
+  createAchiever(): void {
+    const form = this.achieverForm;
+    if (!form.expertiseFieldId || !form.fullName.trim() || !form.title.trim() || !form.achievement.trim() || !form.biography.trim()) {
+      this.error = 'Complete category, name, title, achievement and profile summary.'; return;
+    }
+    this.savingContent = true; this.error = '';
+    this.api.createAchiever({ ...form, fullName: form.fullName.trim(), title: form.title.trim(),
+      achievement: form.achievement.trim(), biography: form.biography.trim(), imageUrl: form.imageUrl.trim(), profileUrl: form.profileUrl.trim() }).subscribe({
+      next: () => { this.achieverForm = { expertiseFieldId: 0, fullName: '', title: '', achievement: '', biography: '', imageUrl: '', profileUrl: '', displayOrder: 100 }; this.savingContent = false; this.loadDirectory(); },
+      error: (error) => { this.error = error.error?.detail || 'Achiever could not be added'; this.savingContent = false; }
+    });
+  }
+
+  setAchieverActive(achiever: Achiever, active: boolean): void {
+    this.api.setAchieverActive(achiever.id, active).subscribe({ next: (updated) => Object.assign(achiever, updated),
+      error: (error) => this.error = error.error?.detail || 'Achiever status could not be updated' });
+  }
+
+  deleteAchiever(achiever: Achiever): void {
+    this.api.deleteAchiever(achiever.id).subscribe({ next: () => this.achievers = this.achievers.filter((item) => item.id !== achiever.id),
+      error: (error) => this.error = error.error?.detail || 'Achiever could not be removed' });
   }
 
   setManagedStatus(item: ManagedContent, status: ManagedContentStatus): void {
@@ -491,6 +535,7 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   private loadContent(): void {
     this.loadManagedContent();
+    this.loadDirectory();
     this.api.adminEvents().subscribe({
       next: (events) => this.events = events,
       error: (error) => this.error = error.error?.detail || 'Events could not be loaded'
@@ -503,6 +548,14 @@ export class AdminComponent implements OnInit, OnDestroy {
       next: (images) => this.galleryImages = images,
       error: (error) => this.error = error.error?.detail || 'Gallery could not be loaded'
     });
+  }
+
+  private loadDirectory(): void {
+    this.api.adminExpertiseFields().subscribe({ next: (fields) => { this.expertiseFields = fields;
+      if (!this.achieverForm.expertiseFieldId) this.achieverForm.expertiseFieldId = fields.find((field) => field.active)?.id || 0; },
+      error: (error) => this.error = error.error?.detail || 'Expertise fields could not be loaded' });
+    this.api.adminAchievers().subscribe({ next: (achievers) => this.achievers = achievers,
+      error: (error) => this.error = error.error?.detail || 'Achievers could not be loaded' });
   }
 
   private loadManagedContent(): void {

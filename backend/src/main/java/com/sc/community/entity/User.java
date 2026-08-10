@@ -7,9 +7,14 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -48,6 +53,12 @@ public class User {
     @Column(name = "professional_group", nullable = false, length = 40)
     private ProfessionalGroup professionalGroup = ProfessionalGroup.COMMUNITY;
 
+    @ManyToMany(fetch = jakarta.persistence.FetchType.EAGER)
+    @JoinTable(name = "user_expertise_fields",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "expertise_field_id"))
+    private Set<ExpertiseField> helpFields = new LinkedHashSet<>();
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -76,6 +87,9 @@ public class User {
     public void setInviteCodeUsed(String inviteCodeUsed) { this.inviteCodeUsed = inviteCodeUsed; }
     public ProfessionalGroup getProfessionalGroup() { return professionalGroup; }
     public void setProfessionalGroup(ProfessionalGroup professionalGroup) { this.professionalGroup = professionalGroup; }
+    public Set<ExpertiseField> getHelpFields() { return helpFields; }
+    public void setHelpFields(Set<ExpertiseField> helpFields) { this.helpFields = helpFields; }
+    public boolean isProfileComplete() { return role == UserRole.ROLE_ADMIN || (helpFields != null && !helpFields.isEmpty()); }
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
 }

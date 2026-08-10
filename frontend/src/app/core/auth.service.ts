@@ -44,6 +44,7 @@ export class AuthService {
     inviteCode: string;
     idProofUrl: string;
     professionalGroup: ProfessionalGroup;
+    helpFieldIds: number[];
     emailVerificationToken: string;
     phoneVerificationToken: string;
   }): Observable<UserResponse> {
@@ -114,6 +115,15 @@ export class AuthService {
     this.router.navigateByUrl('/community');
   }
 
+  syncHelpProfile(user: UserResponse): void {
+    const session = this.session;
+    if (!session) return;
+    const updated: AuthResponse = { ...session, helpFieldIds: user.helpFieldIds,
+      helpFieldNames: user.helpFieldNames, profileComplete: user.profileComplete };
+    this.storage()?.setItem(SESSION_KEY, JSON.stringify(updated));
+    this.sessionSubject.next(updated);
+  }
+
   clearSession(navigate = true): void {
     this.storage()?.removeItem(SESSION_KEY);
     this.sessionSubject.next(null);
@@ -135,7 +145,12 @@ export class AuthService {
         storage.removeItem(SESSION_KEY);
         return null;
       }
-      return session as AuthResponse;
+      return {
+        ...session,
+        helpFieldIds: Array.isArray(session.helpFieldIds) ? session.helpFieldIds : [],
+        helpFieldNames: Array.isArray(session.helpFieldNames) ? session.helpFieldNames : [],
+        profileComplete: session.role === 'ROLE_ADMIN' || session.profileComplete === true
+      } as AuthResponse;
     } catch {
       storage.removeItem(SESSION_KEY);
       return null;

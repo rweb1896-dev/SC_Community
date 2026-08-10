@@ -4,8 +4,10 @@ import com.sc.community.entity.ProfessionalGroup;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import java.util.Set;
 
 public record RegisterRequest(
         @NotBlank @Size(min = 2, max = 100) String fullName,
@@ -24,6 +26,9 @@ public record RegisterRequest(
         @Size(max = 1000)
         String idProofUrl,
         @NotNull ProfessionalGroup professionalGroup,
+        @NotEmpty(message = "Select at least one field where you can help")
+        @Size(max = 8, message = "Select no more than 8 fields")
+        Set<@NotNull Long> helpFieldIds,
         @NotBlank String emailVerificationToken,
         @NotBlank String phoneVerificationToken
 ) {

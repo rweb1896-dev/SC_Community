@@ -32,6 +32,11 @@
             <small>{{ session.role === 'ROLE_ADMIN' ? 'Administrator' : 'Community member' }}</small>
           </div>
         </div>
+        <div class="profile-help-summary" *ngIf="session.role === 'ROLE_USER'">
+          <span>I can help with</span>
+          <div><small *ngFor="let fieldName of session.helpFieldNames">{{ fieldName }}</small></div>
+          <button type="button" (click)="editProfileHelp()">Edit help fields</button>
+        </div>
       </section>
     </div>
     <button class="nav-logout" type="button" aria-label="Log out" title="Log out" (click)="logout()"><svg lucideLogOut aria-hidden="true"></svg></button>
@@ -89,6 +94,20 @@
     </ng-container>
 
     <p class="member-invite-error" *ngIf="inviteFeedback">{{ inviteFeedback }}</p>
+  </section>
+</div>
+
+<div class="profile-help-backdrop" *ngIf="profileHelpOpen">
+  <section class="profile-help-modal" role="dialog" aria-modal="true" aria-labelledby="profile-help-title">
+    <span class="profile-help-icon"><svg lucideUsersRound></svg></span>
+    <p class="profile-help-kicker">Complete your member profile</p>
+    <h2 id="profile-help-title">How can you help the community?</h2>
+    <p>Select the areas where members may approach you for guidance. Choose up to eight; only your field names will be shown.</p>
+    <div class="profile-help-options">
+      <button type="button" *ngFor="let field of expertiseFields" [class.selected]="selectedHelpFieldIds.includes(field.id)" [attr.aria-pressed]="selectedHelpFieldIds.includes(field.id)" (click)="toggleProfileHelpField(field.id)"><span><svg *ngIf="selectedHelpFieldIds.includes(field.id)" lucideCheck></svg>{{ field.name }}</span><small>{{ field.description }}</small></button>
+    </div>
+    <div class="profile-help-footer"><span>{{ selectedHelpFieldIds.length }} selected · maximum 8</span><button type="button" [disabled]="profileHelpSaving || !selectedHelpFieldIds.length" (click)="saveProfileHelp()">{{ profileHelpSaving ? 'Saving profile...' : 'Save and continue' }}</button></div>
+    <p class="profile-help-error" *ngIf="profileHelpError">{{ profileHelpError }}</p>
   </section>
 </div>
 

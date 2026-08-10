@@ -1,4 +1,35 @@
 <section class="public-page leaders-page">
+  <section class="achiever-directory" aria-labelledby="achiever-title">
+    <header class="achiever-heading">
+      <div class="achiever-title-icon"><svg lucideAward aria-hidden="true"></svg></div>
+      <div><p class="eyebrow">Community excellence</p><h1 id="achiever-title">Top achievers</h1><p>Discover accomplished people by field. Every profile shown here is curated and published by the community administrator.</p></div>
+      <div class="archive-count"><strong>{{ achievers.length }}</strong><span>achievers</span></div>
+    </header>
+
+    <nav class="achiever-categories" *ngIf="achievers.length" aria-label="Achiever categories">
+      <button type="button" [class.active]="selectedAchieverField === 'ALL'" (click)="selectedAchieverField = 'ALL'">All fields</button>
+      <button type="button" *ngFor="let field of achieverFields" [class.active]="selectedAchieverField === field.id" (click)="selectedAchieverField = field.id">{{ field.name }}</button>
+    </nav>
+
+    <div class="achiever-grid" *ngIf="visibleAchievers.length; else achieverEmpty">
+      <article class="achiever-card" *ngFor="let achiever of visibleAchievers">
+        <div class="achiever-portrait">
+          <img *ngIf="achiever.imageUrl; else achieverAvatar" [src]="achiever.imageUrl" [alt]="achiever.fullName" />
+          <ng-template #achieverAvatar><span>{{ achieverInitials(achiever.fullName) }}</span></ng-template>
+        </div>
+        <div class="achiever-copy">
+          <small>{{ achiever.expertiseFieldName }}</small>
+          <h2>{{ achiever.fullName }}</h2>
+          <strong>{{ achiever.title }}</strong>
+          <p class="achievement">{{ achiever.achievement }}</p>
+          <p *ngIf="achiever.biography">{{ achiever.biography }}</p>
+          <a *ngIf="achiever.profileUrl" [href]="achiever.profileUrl" target="_blank" rel="noopener noreferrer">View reference <svg lucideExternalLink aria-hidden="true"></svg></a>
+        </div>
+      </article>
+    </div>
+    <ng-template #achieverEmpty><div class="achiever-empty"><svg lucideAward aria-hidden="true"></svg><strong>Achiever profiles are being curated</strong><span>Published profiles will appear here category-wise.</span></div></ng-template>
+  </section>
+
   <header class="page-heading">
     <div>
       <p class="eyebrow">People and public service</p>

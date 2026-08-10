@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Broadcast, BroadcastMediaType, BroadcastStatus, Category, Comment, CommunityEvent, Dashboard, EventStatus, GalleryImage, ImageUploadResponse, InviteCode, InviteRequest, ManagedContent, ManagedContentInput, ManagedContentStatus, Meeting, MeetingAudience, MemberInviteRequest, Message, Post, ProfessionalGroup, SupportResponse, UserResponse, UserStatus } from './models';
+import { Achiever, Broadcast, BroadcastMediaType, BroadcastStatus, Category, Comment, CommunityEvent, Dashboard, EventStatus, ExpertiseField, GalleryImage, ImageUploadResponse, InviteCode, InviteRequest, ManagedContent, ManagedContentInput, ManagedContentStatus, Meeting, MeetingAudience, MemberInviteRequest, Message, Post, ProfessionalGroup, SupportResponse, UserResponse, UserStatus } from './models';
 
 const API = '/api';
 
@@ -64,6 +64,26 @@ export class CommunityApiService {
   onlineUserIds() {
     return this.http.get<number[]>(`${API}/users/online`);
   }
+
+  expertiseFields() { return this.http.get<ExpertiseField[]>(`${API}/public/expertise-fields`); }
+  publicAchievers() { return this.http.get<Achiever[]>(`${API}/public/achievers`); }
+  updateMyHelpFields(fieldIds: number[]) { return this.http.patch<UserResponse>(`${API}/users/me/help-fields`, { fieldIds }); }
+
+  adminExpertiseFields() { return this.http.get<ExpertiseField[]>(`${API}/admin/directory/expertise-fields`); }
+  createExpertiseField(name: string, description: string, iconKey: string, displayOrder: number) {
+    return this.http.post<ExpertiseField>(`${API}/admin/directory/expertise-fields`, { name, description, iconKey, displayOrder });
+  }
+  setExpertiseFieldActive(fieldId: number, active: boolean) {
+    return this.http.patch<ExpertiseField>(`${API}/admin/directory/expertise-fields/${fieldId}/active`, { active });
+  }
+  adminAchievers() { return this.http.get<Achiever[]>(`${API}/admin/directory/achievers`); }
+  createAchiever(payload: Omit<Achiever, 'id' | 'expertiseFieldName' | 'active' | 'updatedAt'>) {
+    return this.http.post<Achiever>(`${API}/admin/directory/achievers`, payload);
+  }
+  setAchieverActive(achieverId: number, active: boolean) {
+    return this.http.patch<Achiever>(`${API}/admin/directory/achievers/${achieverId}/active`, { active });
+  }
+  deleteAchiever(achieverId: number) { return this.http.delete<void>(`${API}/admin/directory/achievers/${achieverId}`); }
 
   setUserStatus(userId: number, status: Extract<UserStatus, 'VERIFIED' | 'BLOCKED'>) {
     const action = status === 'BLOCKED' ? 'block' : 'approve';

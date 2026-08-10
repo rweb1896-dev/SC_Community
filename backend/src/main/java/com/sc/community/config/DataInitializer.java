@@ -11,6 +11,8 @@ import com.sc.community.repository.CommunityEventRepository;
 import com.sc.community.repository.CategoryRepository;
 import com.sc.community.repository.UserRepository;
 import com.sc.community.repository.VerificationCodeRepository;
+import com.sc.community.entity.ExpertiseField;
+import com.sc.community.repository.ExpertiseFieldRepository;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -26,6 +28,7 @@ public class DataInitializer implements CommandLineRunner {
     private final VerificationCodeRepository codeRepository;
     private final CommunityEventRepository eventRepository;
     private final CategoryRepository categoryRepository;
+    private final ExpertiseFieldRepository expertiseFieldRepository;
     private final PasswordEncoder passwordEncoder;
     private final String adminEmail;
     private final String adminPassword;
@@ -37,6 +40,7 @@ public class DataInitializer implements CommandLineRunner {
             VerificationCodeRepository codeRepository,
             CommunityEventRepository eventRepository,
             CategoryRepository categoryRepository,
+            ExpertiseFieldRepository expertiseFieldRepository,
             PasswordEncoder passwordEncoder,
             @Value("${APP_ADMIN_EMAIL:admin@scconnect.local}") String adminEmail,
             @Value("${APP_ADMIN_PASSWORD:Admin@12345}") String adminPassword,
@@ -46,6 +50,7 @@ public class DataInitializer implements CommandLineRunner {
         this.codeRepository = codeRepository;
         this.eventRepository = eventRepository;
         this.categoryRepository = categoryRepository;
+        this.expertiseFieldRepository = expertiseFieldRepository;
         this.passwordEncoder = passwordEncoder;
         this.adminEmail = adminEmail;
         this.adminPassword = adminPassword;
@@ -59,6 +64,16 @@ public class DataInitializer implements CommandLineRunner {
         seedCategory("Job Updates", "Career opportunities, referrals, exam alerts, and professional guidance.");
         seedCategory("Business Growth", "Local businesses, entrepreneurship, vendor support, and collaboration.");
         seedCategory("Open Forum/SOS", "Community discussions, urgent support, and open announcements.");
+        seedExpertiseField("UPSC & Civil Services", "Guidance for UPSC, state services and public administration careers.", "AWARD", 10);
+        seedExpertiseField("Music & Performing Arts", "Mentoring in singing, music, stage performance and creative practice.", "MUSIC", 20);
+        seedExpertiseField("Judiciary Preparation", "Support for judicial service examinations and legal study planning.", "SCALE", 30);
+        seedExpertiseField("Law & Legal Assistance", "Professional legal awareness, advocacy and access-to-justice guidance.", "GAVEL", 40);
+        seedExpertiseField("Business & Entrepreneurship", "Support for enterprise, finance, markets and business growth.", "BRIEFCASE", 50);
+        seedExpertiseField("Medicine & Healthcare", "Health education, medical careers and verified care navigation.", "HEART", 60);
+        seedExpertiseField("Government & Public Service", "Experience in governance, ministries, policy and public programmes.", "LANDMARK", 70);
+        seedExpertiseField("Education & Mentoring", "Academic guidance, teaching, scholarships and student mentoring.", "BOOK", 80);
+        seedExpertiseField("Engineering & Technology", "Technical careers, engineering practice and digital skills.", "CODE", 90);
+        seedExpertiseField("Community & Social Work", "Community mobilisation, welfare access and grassroots support.", "USERS", 100);
 
         User admin = userRepository.findByEmail(adminEmail).orElseGet(() -> {
             User user = new User();
@@ -111,6 +126,17 @@ public class DataInitializer implements CommandLineRunner {
         category.setName(name);
         category.setDescription(description);
         categoryRepository.save(category);
+    }
+
+    private void seedExpertiseField(String name, String description, String iconKey, int displayOrder) {
+        if (expertiseFieldRepository.findByNameIgnoreCase(name).isPresent()) return;
+        ExpertiseField field = new ExpertiseField();
+        field.setName(name);
+        field.setDescription(description);
+        field.setIconKey(iconKey);
+        field.setDisplayOrder(displayOrder);
+        field.setActive(true);
+        expertiseFieldRepository.save(field);
     }
 
     private Instant scheduledAt(int daysFromNow, int hour, int minute) {

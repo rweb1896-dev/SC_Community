@@ -34,7 +34,7 @@
     </div>
 
     <form class="send-box" (ngSubmit)="send()" *ngIf="selectedUser">
-      <input name="draft" [(ngModel)]="draft" placeholder="Write a message..." autocomplete="off" />
+      <textarea #threadComposer name="draft" [(ngModel)]="draft" rows="1" maxlength="2000" placeholder="Write a message…" autocomplete="off" aria-label="Write a message" (input)="resizeComposer($event)" (keydown)="handleComposerKeydown($event)"></textarea>
       <button class="btn" type="submit" [disabled]="!draft.trim()" aria-label="Send message"><svg lucideSend aria-hidden="true"></svg><span>Send</span></button>
     </form>
   </section>
