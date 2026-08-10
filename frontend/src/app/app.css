@@ -104,6 +104,31 @@ nav a {
   text-decoration: none;
 }
 
+.nav-messages {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: #4b463d;
+  padding: 12px 15px;
+  font: inherit;
+  font-weight: 800;
+}
+.nav-messages:hover { background: #eef2fb; color: #2457bd; }
+.nav-messages svg { width: 20px; height: 20px; }
+.admin-topbar { border-bottom-color: rgba(137,164,153,.22); background: rgba(21,35,30,.98); box-shadow: 0 10px 30px rgba(9,23,17,.14); }
+.admin-topbar .brand { color: #fff; }
+.admin-topbar .mark { background: linear-gradient(135deg,#31a77b,#176349); box-shadow: 0 10px 22px rgba(4,25,17,.32); }
+.admin-topbar .brand-copy small { color: #91a69d; }
+.admin-session-label { display: inline-flex; align-items: center; gap: 7px; border: 1px solid rgba(150,194,177,.24); border-radius: 999px; background: rgba(255,255,255,.06); padding: 8px 11px; color: #b9d6ca; font-size: 9px; font-weight: 850; letter-spacing: .04em; text-transform: uppercase; }
+.admin-session-label svg { width: 15px; height: 15px; color: #6ee7b7; }
+.admin-topbar .language-select { color: #8fa39b; }
+.admin-topbar .language-select select { border-color: #40534c; background: #20352d; color: #e5eee9; }
+.admin-topbar .profile-trigger { border-color: #40534c; background: #20352d; color: #b9cbc4; }
+.admin-topbar .nav-logout { border-color: #71443e; background: #3d2825; color: #f4aaa2; }
+
 nav a svg { width: 20px; height: 20px; }
 .profile-menu-wrap { position: relative; margin-left: 5px; }
 .profile-trigger { display: inline-flex; height: 42px; align-items: center; gap: 4px; border: 1px solid #e0e5ef; border-radius: 999px; background: #fff; padding: 3px 7px 3px 3px; color: #68748a; }
@@ -255,6 +280,8 @@ main {
     justify-content: flex-start;
     width: 100%;
   }
+
+  .nav-messages { justify-content: flex-start; width: 100%; }
 
   .public-nav a { font-size: 13px; }
   .public-nav a svg { display: block; }

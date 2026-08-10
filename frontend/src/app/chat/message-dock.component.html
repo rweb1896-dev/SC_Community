@@ -1,0 +1,32 @@
+<div class="messenger-shell">
+  <section class="conversation-window" *ngIf="selectedUser" [class.minimized]="conversationMinimized">
+    <header (click)="conversationMinimized && restoreConversation()">
+      <div class="conversation-person"><span class="dock-avatar">{{ initials(selectedUser.fullName) }}<i [class.online]="isOnline(selectedUser.id)"></i></span><div><strong>{{ selectedUser.fullName }}</strong><small>{{ isOnline(selectedUser.id) ? 'Active now' : 'Offline' }}</small></div></div>
+      <div class="window-actions">
+        <button type="button" [attr.aria-label]="conversationMinimized ? 'Restore conversation' : 'Minimize conversation'" (click)="$event.stopPropagation(); conversationMinimized ? restoreConversation() : minimizeConversation()"><svg *ngIf="!conversationMinimized" lucideMinus></svg><svg *ngIf="conversationMinimized" lucideChevronDown></svg></button>
+        <button type="button" aria-label="Close conversation" (click)="$event.stopPropagation(); closeConversation()"><svg lucideX></svg></button>
+      </div>
+    </header>
+    <ng-container *ngIf="!conversationMinimized">
+      <div class="dock-messages" #messageList>
+        <div class="conversation-intro"><span class="dock-avatar large">{{ initials(selectedUser.fullName) }}</span><strong>{{ selectedUser.fullName }}</strong><small>Private community conversation</small></div>
+        <div class="dock-bubble" *ngFor="let message of messages" [class.mine]="message.senderId === auth.session?.userId"><span>{{ message.messageBody }}</span><small>{{ message.timestamp | date:'shortTime' }}</small></div>
+      </div>
+      <form class="dock-send" (ngSubmit)="send()"><input name="dockDraft" [(ngModel)]="draft" maxlength="2000" autocomplete="off" placeholder="Aa" aria-label="Write a message" /><button type="submit" [disabled]="!draft.trim()" aria-label="Send message"><svg lucideSend></svg></button></form>
+    </ng-container>
+  </section>
+
+  <aside class="contact-panel" *ngIf="panelOpen">
+    <header><div><strong>Messages</strong><small>{{ users.length }} community members</small></div><button type="button" aria-label="Hide messages" (click)="togglePanel()"><svg lucideX></svg></button></header>
+    <label class="contact-search"><svg lucideSearch></svg><input [(ngModel)]="searchTerm" placeholder="Search people" aria-label="Search people" /></label>
+    <div class="contact-list">
+      <div class="dock-loading" *ngIf="loadingUsers"><i></i><span></span></div>
+      <div class="dock-loading" *ngIf="loadingUsers"><i></i><span></span></div>
+      <p class="dock-empty" *ngIf="!loadingUsers && filteredUsers.length === 0">No matching member found.</p>
+      <div class="dock-error" *ngIf="error"><span>{{ error }}</span><button type="button" (click)="loadUsers()"><svg lucideRefreshCw></svg>Retry</button></div>
+      <button class="contact-row" type="button" *ngFor="let user of filteredUsers" [class.active]="selectedUser?.id === user.id" (click)="selectUser(user)"><span class="dock-avatar">{{ initials(user.fullName) }}<i [class.online]="isOnline(user.id)"></i></span><span><strong>{{ user.fullName }}</strong><small>{{ isOnline(user.id) ? 'Active now' : user.professionalGroup.replace('_', ' ') }}</small></span><b *ngIf="unreadFor(user.id)">{{ unreadFor(user.id) > 9 ? '9+' : unreadFor(user.id) }}</b></button>
+    </div>
+  </aside>
+</div>
+
+<button class="messenger-launcher" type="button" *ngIf="!panelOpen && !selectedUser" (click)="togglePanel()" aria-label="Show messages"><svg lucideMessageCircle></svg><span>Messages</span><b *ngIf="unreadTotal">{{ unreadTotal > 9 ? '9+' : unreadTotal }}</b></button>

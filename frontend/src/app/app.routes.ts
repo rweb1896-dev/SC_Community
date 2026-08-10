@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/auth.guard';
 import { adminGuard } from './core/admin.guard';
 import { guestGuard } from './core/guest.guard';
+import { memberGuard } from './core/member.guard';
 
 export const routes: Routes = [
   {
@@ -36,22 +37,22 @@ export const routes: Routes = [
   {
     path: 'feed',
     loadComponent: () => import('./feed/feed.component').then((module) => module.FeedComponent),
-    canActivate: [authGuard]
+    canActivate: [memberGuard]
   },
   {
     path: 'chat',
     loadComponent: () => import('./chat/chat.component').then((module) => module.ChatComponent),
-    canActivate: [authGuard]
+    canActivate: [memberGuard]
   },
   {
     path: 'meetings',
     loadComponent: () => import('./meetings/meetings.component').then((module) => module.MeetingsComponent),
-    canActivate: [authGuard]
+    canActivate: [memberGuard]
   },
   {
     path: 'meetings/:meetingId',
     loadComponent: () => import('./meetings/meeting-room.component').then((module) => module.MeetingRoomComponent),
-    canActivate: [authGuard]
+    canActivate: [memberGuard]
   },
   {
     path: 'admin',
