@@ -32,6 +32,24 @@
     <a class="section-link" routerLink="/leaders">View all leadership profiles <svg lucideArrowRight></svg></a>
   </section>
 
+  <section id="achievers" class="community-section achievers-band" data-community-section="achievers">
+    <header class="section-heading">
+      <div><span>Community excellence</span><h2>Top achievers</h2><p>Discover accomplished people category-wise. Every profile is curated and published independently by the community administrator.</p></div>
+      <span class="section-count"><svg lucideAward></svg>{{ achievers.length }} achievers</span>
+    </header>
+    <div class="home-achiever-grid" *ngIf="achievers.length; else noAchievers">
+      <article class="home-achiever-card" *ngFor="let achiever of achievers | slice:0:6">
+        <div class="home-achiever-photo">
+          <img *ngIf="achiever.imageUrl; else achieverAvatar" [src]="achiever.imageUrl" [alt]="achiever.fullName" loading="lazy" />
+          <ng-template #achieverAvatar><span>{{ initials(achiever.fullName) }}</span></ng-template>
+        </div>
+        <div><small>{{ achiever.expertiseFieldName }}</small><h3>{{ achiever.fullName }}</h3><strong>{{ achiever.title }}</strong><p>{{ achiever.achievement }}</p></div>
+      </article>
+    </div>
+    <ng-template #noAchievers><div class="home-achiever-empty"><svg lucideAward></svg><strong>Achiever profiles are being curated</strong><span>Published profiles will appear here category-wise.</span></div></ng-template>
+    <a class="section-link" routerLink="/achievers">View all top achievers <svg lucideArrowRight></svg></a>
+  </section>
+
   <section id="blogs" class="community-section blogs-band" data-community-section="blogs">
     <header class="section-heading">
       <div><span>Community journal</span><h2>Ideas worth carrying forward</h2><p>Short editorial readings on constitutional values, representation, education and public service.</p></div>

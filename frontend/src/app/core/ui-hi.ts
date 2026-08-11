@@ -352,6 +352,7 @@ export const UI_HI: Record<string, string> = Object.fromEntries([
   ['Previous leaders', 'पिछले नेता'], ['Next leaders', 'अगले नेता'], ['Previous blogs', 'पिछले लेख'], ['Next blogs', 'अगले लेख'],
   ['Scroll leaders left', 'नेताओं को बाईं ओर स्क्रॉल करें'], ['Scroll leaders right', 'नेताओं को दाईं ओर स्क्रॉल करें'],
   ['Achiever categories', 'उपलब्धि श्रेणियां'], ['Live community video', 'लाइव सामुदायिक वीडियो'], ['PDF', 'PDF'],
+  ['View all top achievers', 'सभी शीर्ष उपलब्धि प्राप्तकर्ता देखें'],
   ['pending', 'लंबित'], ['active', 'सक्रिय'], ['profiles', 'प्रोफ़ाइल'], ['fields', 'क्षेत्र'], ['programmes', 'कार्यक्रम'],
   ['photos', 'तस्वीरें'], ['members', 'सदस्य'], ['helpers', 'सहायक'], ['active chats', 'सक्रिय चैट'],
   ['participants', 'प्रतिभागी'], ['rooms', 'कक्ष'], ['achievers', 'उपलब्धि प्राप्तकर्ता'], ['readings', 'लेख'], ['scheduled', 'निर्धारित'],

@@ -12,16 +12,17 @@ import {
   LucideImages,
   LucideMapPin,
   LucideNewspaper,
-  LucideRadio
+  LucideRadio,
+  LucideAward
 } from '@lucide/angular';
 import { interval, Subscription } from 'rxjs';
 import { COMMUNITY_LEADERS } from '../core/community-leaders';
 import { CommunityApiService } from '../core/community-api.service';
 import { COMMUNITY_NOTICES } from '../core/community-resources';
-import { Broadcast, CommunityEvent, GalleryImage } from '../core/models';
+import { Achiever, Broadcast, CommunityEvent, GalleryImage } from '../core/models';
 import { managedLeaders } from '../core/managed-content';
 
-type CommunitySection = 'leaders' | 'blogs' | 'events' | 'gallery' | 'live';
+type CommunitySection = 'leaders' | 'achievers' | 'blogs' | 'events' | 'gallery' | 'live';
 
 @Component({
   selector: 'app-community-home',
@@ -38,7 +39,8 @@ type CommunitySection = 'leaders' | 'blogs' | 'events' | 'gallery' | 'live';
     LucideImages,
     LucideMapPin,
     LucideNewspaper,
-    LucideRadio
+    LucideRadio,
+    LucideAward
   ],
   templateUrl: './community-home.component.html',
   styleUrl: './community-home.component.css'
@@ -62,6 +64,7 @@ export class CommunityHomeComponent implements OnInit, AfterViewInit, OnDestroy 
     }))
   ); }
   events: CommunityEvent[] = [];
+  achievers: Achiever[] = [];
   galleryImages: GalleryImage[] = [];
   broadcasts: Broadcast[] = [];
   activeLeaderIndex = 0;
@@ -185,7 +188,7 @@ export class CommunityHomeComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   private loadPublicContent(): void {
-    let requestsPending = 4;
+    let requestsPending = 5;
     const completed = () => {
       requestsPending -= 1;
       if (requestsPending === 0) this.loading = false;
@@ -206,6 +209,14 @@ export class CommunityHomeComponent implements OnInit, AfterViewInit, OnDestroy 
       next: (items) => { this.leaders = managedLeaders(items); completed(); },
       error: () => { this.contentError = 'Some public updates are temporarily unavailable.'; completed(); }
     });
+    this.api.publicAchievers().subscribe({
+      next: (achievers) => { this.achievers = achievers; completed(); },
+      error: () => { this.contentError = 'Some public updates are temporarily unavailable.'; completed(); }
+    });
+  }
+
+  initials(name: string): string {
+    return name.split(/\s+/).slice(0, 2).map((part) => part.charAt(0)).join('').toUpperCase();
   }
 
   private loadBroadcasts(): void {
