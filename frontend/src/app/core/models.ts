@@ -129,10 +129,12 @@ export interface Message {
 
 export type HelpConversationStatus = 'ACTIVE' | 'ENDED_BY_USER' | 'ENDED_POST_CLOSED' | 'BLOCKED';
 export type ReconnectRequestStatus = 'PENDING' | 'ACCEPTED' | 'DECLINED' | 'CANCELLED' | 'EXPIRED';
+export type VolunteerRequestStatus = 'PENDING' | 'ACCEPTED' | 'DECLINED' | 'CANCELLED';
 export interface HelpConversation { id:number; postId:number; postTitle:string; postContent:string; categoryName:string; postStatus:PostStatus; otherUserId:number; otherUserName:string; status:HelpConversationStatus; sessionNumber:number; activatedAt:string; endedAt?:string; endedByUserId?:number; endedByName?:string; endReason?:string; lastMessageAt?:string; reconnectAllowed:boolean; pendingReconnectRequestId?:number; reconnectRequestedByMe:boolean; }
 export interface HelpMessage { id:number; conversationId:number; senderId:number; senderName:string; messageBody:string; read:boolean; timestamp:string; }
 export interface ReconnectRequest { id:number; conversationId:number; requestedByUserId:number; requestedByName:string; requestedToUserId:number; postTitle:string; status:ReconnectRequestStatus; createdAt:string; respondedAt?:string; }
-export interface MyHelpPost { id:number; title:string; content:string; categoryId:number; categoryName:string; status:PostStatus; createdAt:string; closedAt?:string; helperCount:number; activeConversationCount:number; }
+export interface VolunteerRequest { id:number; postId:number; postTitle:string; volunteerUserId:number; volunteerName:string; requestedToUserId:number; status:VolunteerRequestStatus; conversationId?:number; createdAt:string; respondedAt?:string; }
+export interface MyHelpPost { id:number; title:string; content:string; categoryId:number; categoryName:string; status:PostStatus; createdAt:string; closedAt?:string; helperCount:number; activeConversationCount:number; pendingVolunteerCount:number; audienceExpanded:boolean; canRequestAll:boolean; }
 export interface HelpNotification { id:number; type:string; title:string; body:string; postId?:number; conversationId?:number; read:boolean; createdAt:string; }
 
 export interface Dashboard {

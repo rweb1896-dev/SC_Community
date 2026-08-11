@@ -4,6 +4,8 @@ import com.sc.community.dto.HelpChatDtos.*; import com.sc.community.entity.PostS
 public class HelpChatController{
  private final HelpChatService service; public HelpChatController(HelpChatService service){this.service=service;}
  @PostMapping("/posts/{postId}/offer") @ResponseStatus(HttpStatus.CREATED) public ConversationResponse offer(@PathVariable Long postId){return service.offer(postId);}
+ @PostMapping("/posts/{postId}/volunteer") @ResponseStatus(HttpStatus.CREATED) public VolunteerRequestResponse volunteer(@PathVariable Long postId){return service.volunteer(postId);}
+ @PostMapping("/posts/{postId}/request-all") public MyHelpPostResponse requestAll(@PathVariable Long postId){return service.requestAll(postId);}
  @PostMapping("/posts/{postId}/close") public MyHelpPostResponse close(@PathVariable Long postId){return service.closePost(postId);}
  @GetMapping("/posts/mine") public List<MyHelpPostResponse> mine(@RequestParam(defaultValue="ACTIVE") PostStatus status){return service.myPosts(status);}
  @GetMapping("/conversations") public List<ConversationResponse> conversations(@RequestParam(defaultValue="ACTIVE") String view){return service.list(view);}
@@ -14,6 +16,9 @@ public class HelpChatController{
  @GetMapping("/reconnect-requests/incoming") public List<ReconnectResponse> incoming(){return service.incoming();}
  @PostMapping("/reconnect-requests/{id}/accept") public ReconnectResponse accept(@PathVariable Long id){return service.decide(id,true);}
  @PostMapping("/reconnect-requests/{id}/decline") public ReconnectResponse decline(@PathVariable Long id){return service.decide(id,false);}
+ @GetMapping("/volunteer-requests/incoming") public List<VolunteerRequestResponse> incomingVolunteers(){return service.incomingVolunteers();}
+ @PostMapping("/volunteer-requests/{id}/open-chat") public VolunteerRequestResponse openVolunteerChat(@PathVariable Long id){return service.decideVolunteer(id,true);}
+ @PostMapping("/volunteer-requests/{id}/decline") public VolunteerRequestResponse declineVolunteer(@PathVariable Long id){return service.decideVolunteer(id,false);}
  @PostMapping("/conversations/{id}/block") @ResponseStatus(HttpStatus.NO_CONTENT) public void block(@PathVariable Long id){service.block(id);}
  @PostMapping("/conversations/{id}/report") @ResponseStatus(HttpStatus.NO_CONTENT) public void report(@PathVariable Long id,@RequestBody(required=false) EndConversationRequest request){service.report(id,request==null?null:request.reason());}
  @GetMapping("/notifications") public List<NotificationResponse> notifications(){return service.notificationList();}

@@ -35,6 +35,8 @@ export class FeedComponent implements OnInit, OnDestroy {
   commentSubmitting = new Set<number>();
   supporting = new Set<number>();
   offering = new Set<number>();
+  volunteering = new Set<number>();
+  requestingAll = new Set<number>();
   offerFeedback:Record<number,string>={};
   myPostsOpen=false;myPostsTab:'ACTIVE'|'CLOSED'='ACTIVE';myHelpPosts:MyHelpPost[]=[];myPostsLoading=false;closeTarget?:{id:number;title:string};
   error = '';
@@ -336,10 +338,12 @@ export class FeedComponent implements OnInit, OnDestroy {
   }
 
   offerHelp(post:Post):void{if(this.offering.has(post.id))return;this.offering.add(post.id);this.offerFeedback[post.id]='';this.api.offerHelp(post.id).subscribe({next:()=>{this.offering.delete(post.id);this.offerFeedback[post.id]='Help conversation started. Open Help Messages to continue.';},error:e=>{this.offering.delete(post.id);this.offerFeedback[post.id]=this.apiError(e,'Help offer could not be started.');}});}
+  volunteer(post:Post):void{if(this.volunteering.has(post.id))return;this.volunteering.add(post.id);this.offerFeedback[post.id]='';this.api.volunteerForPost(post.id).subscribe({next:()=>{this.volunteering.delete(post.id);this.offerFeedback[post.id]='Volunteer request sent. The post owner can open a private chat from Help Messenger.';},error:e=>{this.volunteering.delete(post.id);this.offerFeedback[post.id]=this.apiError(e,'Volunteer request could not be sent.');}});}
   openMyPosts():void{this.myPostsOpen=true;this.loadMyPosts('ACTIVE');}
   loadMyPosts(status:'ACTIVE'|'CLOSED'):void{this.myPostsTab=status;this.myPostsLoading=true;this.api.myHelpPosts(status).subscribe({next:r=>{this.myHelpPosts=r;this.myPostsLoading=false;},error:e=>{this.error=this.apiError(e,'Your help posts could not be loaded.');this.myPostsLoading=false;}});}
   askClose(id:number,title:string):void{this.closeTarget={id,title};}
   closeHelpRequest():void{if(!this.closeTarget)return;this.api.closeHelpPost(this.closeTarget.id).subscribe({next:()=>{this.closeTarget=undefined;this.loadPosts(this.selectedCategory,true);this.loadMyPosts(this.myPostsTab);},error:e=>{this.error=this.apiError(e,'Help request could not be closed.');this.closeTarget=undefined;}});}
+  requestAll(item:MyHelpPost):void{if(this.requestingAll.has(item.id))return;this.requestingAll.add(item.id);this.api.requestHelpFromAll(item.id).subscribe({next:updated=>{this.requestingAll.delete(item.id);Object.assign(item,updated);},error:e=>{this.requestingAll.delete(item.id);this.error=this.apiError(e,'Request to all could not be sent.');}});}
 
   async sharePost(post: Post): Promise<void> {
     const url = `${location.origin}/feed?post=${post.id}`;

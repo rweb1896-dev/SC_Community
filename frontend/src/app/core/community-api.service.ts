@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Achiever, Broadcast, BroadcastMediaType, BroadcastStatus, Category, Comment, CommunityEvent, Dashboard, EventStatus, ExpertiseField, GalleryImage, HelpConversation, HelpMessage, HelpNotification, ImageUploadResponse, InviteCode, InviteRequest, ManagedContent, ManagedContentInput, ManagedContentStatus, Meeting, MeetingAudience, MemberInviteRequest, Message, MyHelpPost, Post, ProfessionalGroup, ReconnectRequest, SupportResponse, UserResponse, UserStatus } from './models';
+import { Achiever, Broadcast, BroadcastMediaType, BroadcastStatus, Category, Comment, CommunityEvent, Dashboard, EventStatus, ExpertiseField, GalleryImage, HelpConversation, HelpMessage, HelpNotification, ImageUploadResponse, InviteCode, InviteRequest, ManagedContent, ManagedContentInput, ManagedContentStatus, Meeting, MeetingAudience, MemberInviteRequest, Message, MyHelpPost, Post, ProfessionalGroup, ReconnectRequest, SupportResponse, UserResponse, UserStatus, VolunteerRequest } from './models';
 
 const API = '/api';
 
@@ -53,10 +53,14 @@ export class CommunityApiService {
   helpMessages(conversationId: number) { return this.http.get<HelpMessage[]>(`${API}/help/conversations/${conversationId}/messages`); }
   sendHelpMessage(conversationId: number, messageBody: string) { return this.http.post<HelpMessage>(`${API}/help/conversations/${conversationId}/messages`, { messageBody }); }
   offerHelp(postId: number) { return this.http.post<HelpConversation>(`${API}/help/posts/${postId}/offer`, {}); }
+  volunteerForPost(postId: number) { return this.http.post<VolunteerRequest>(`${API}/help/posts/${postId}/volunteer`, {}); }
+  requestHelpFromAll(postId: number) { return this.http.post<MyHelpPost>(`${API}/help/posts/${postId}/request-all`, {}); }
   endHelpConversation(id: number, reason = '') { return this.http.post<HelpConversation>(`${API}/help/conversations/${id}/end`, { reason }); }
   requestReconnect(id: number) { return this.http.post<ReconnectRequest>(`${API}/help/conversations/${id}/reconnect`, {}); }
   incomingReconnects() { return this.http.get<ReconnectRequest[]>(`${API}/help/reconnect-requests/incoming`); }
   decideReconnect(id: number, accept: boolean) { return this.http.post<ReconnectRequest>(`${API}/help/reconnect-requests/${id}/${accept ? 'accept' : 'decline'}`, {}); }
+  incomingVolunteerRequests() { return this.http.get<VolunteerRequest[]>(`${API}/help/volunteer-requests/incoming`); }
+  decideVolunteerRequest(id: number, accept: boolean) { return this.http.post<VolunteerRequest>(`${API}/help/volunteer-requests/${id}/${accept ? 'open-chat' : 'decline'}`, {}); }
   blockHelpUser(id: number) { return this.http.post<void>(`${API}/help/conversations/${id}/block`, {}); }
   reportHelpConversation(id: number, reason: string) { return this.http.post<void>(`${API}/help/conversations/${id}/report`, { reason }); }
   myHelpPosts(status: 'ACTIVE' | 'CLOSED') { return this.http.get<MyHelpPost[]>(`${API}/help/posts/mine?status=${status}`); }

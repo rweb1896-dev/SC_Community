@@ -256,6 +256,7 @@ export const UI_HI: Record<string, string> = Object.fromEntries([
   ['People in your network', 'आपके नेटवर्क के लोग'], ['Verified members', 'सत्यापित सदस्य'],
   ['Privacy-first help', 'गोपनीयता-आधारित सहायता'],
   ['Private conversations start only when a member selects “I Can Help” on an active post.', 'निजी बातचीत तभी शुरू होती है जब कोई सदस्य सक्रिय पोस्ट पर “मैं सहायता कर सकता/सकती हूं” चुनता है।'],
+  ['Private chat starts directly with “I Can Help”, or after the post owner accepts a Volunteer request.', 'निजी चैट “मैं सहायता कर सकता/सकती हूं” से सीधे, या पोस्ट करने वाले द्वारा स्वयंसेवा अनुरोध स्वीकार करने के बाद शुरू होती है।'],
   ['Featured reading', 'विशेष लेख'], ['Ideas for an equal society', 'समान समाज के विचार'],
   ['Inspired by Dr. B. R. Ambedkar', 'डॉ. बी. आर. आंबेडकर से प्रेरित'], ['Top', 'ऊपर'],
   ['Member workspace', 'सदस्य कार्यक्षेत्र'], ['Loading your help requests…', 'आपके सहायता अनुरोध लोड हो रहे हैं…'],
@@ -397,6 +398,15 @@ export const UI_HI: Record<string, string> = Object.fromEntries([
   ['Comment could not be sent.', 'टिप्पणी नहीं भेजी जा सकी।'], ['Support could not be updated.', 'समर्थन अपडेट नहीं हो सका।'],
   ['Help conversation started. Open Help Messages to continue.', 'सहायता बातचीत शुरू हुई। आगे बढ़ने के लिए सहायता संदेश खोलें।'],
   ['Help offer could not be started.', 'सहायता प्रस्ताव शुरू नहीं हो सका।'], ['Your help posts could not be loaded.', 'आपकी सहायता पोस्ट लोड नहीं हो सकीं।'],
+  ['I Can Help', 'मैं सहायता कर सकता/सकती हूं'], ['Starting…', 'शुरू हो रहा है…'],
+  ['Volunteer', 'स्वयंसेवा'], ['Volunteer request', 'स्वयंसेवा अनुरोध'], ['Volunteer requests', 'स्वयंसेवा अनुरोध'], ['Open chat', 'चैट खोलें'],
+  ['Volunteer request accepted', 'स्वयंसेवा अनुरोध स्वीकृत'], ['Volunteer request declined', 'स्वयंसेवा अनुरोध अस्वीकृत'],
+  ['Help requested from everyone', 'सभी से सहायता मांगी गई'],
+  ['Volunteer request sent. The post owner can open a private chat from Help Messenger.', 'स्वयंसेवा अनुरोध भेज दिया गया है। पोस्ट करने वाला सहायता संदेश से निजी चैट खोल सकता है।'],
+  ['Volunteer request could not be sent.', 'स्वयंसेवा अनुरोध नहीं भेजा जा सका।'], ['Volunteer request could not be updated.', 'स्वयंसेवा अनुरोध अपडेट नहीं हो सका।'],
+  ['Request to all', 'सभी से सहायता मांगें'], ['Sent to all community members', 'सभी समुदाय सदस्यों को भेजा गया'],
+  ['Request to all could not be sent.', 'सभी से सहायता का अनुरोध नहीं भेजा जा सका।'], ['volunteers pending', 'स्वयंसेवक लंबित'],
+  ['Sending…', 'भेजा जा रहा है…'],
   ['Help request could not be closed.', 'सहायता अनुरोध बंद नहीं किया जा सका।'], ['Post could not be created.', 'पोस्ट नहीं बनाई जा सकी।'],
   ['Network connection unavailable. Please check your internet and try again.', 'नेटवर्क कनेक्शन उपलब्ध नहीं है। इंटरनेट जांचकर फिर प्रयास करें।'],
   ['Network connection unavailable. Check your internet and try again.', 'नेटवर्क कनेक्शन उपलब्ध नहीं है। इंटरनेट जांचकर फिर प्रयास करें।'],
@@ -432,6 +442,10 @@ export function translateUiText(value: string): string {
     ,[/^(Email|Mobile) testing OTP: (.+)$/, '$1 परीक्षण OTP: $2']
     ,[/^(Email|Mobile number) verified successfully\.$/, '$1 सफलतापूर्वक सत्यापित हुआ।']
     ,[/^Hosted by (.+) · (\d+) joined$/, 'मेज़बान: $1 · $2 जुड़े']
+    ,[/^(.+) volunteered to help with “(.+)”\. Open Help Messenger to review\.$/, '$1 ने “$2” में सहायता के लिए स्वयंसेवा की है। समीक्षा के लिए सहायता संदेश खोलें।']
+    ,[/^(.+) opened a help chat for “(.+)”\.$/, '$1 ने “$2” के लिए सहायता चैट खोल दी है।']
+    ,[/^(.+) declined your volunteer request for “(.+)”\.$/, '$1 ने “$2” के लिए आपका स्वयंसेवा अनुरोध अस्वीकार कर दिया।']
+    ,[/^(.+) requested community help: (.+)$/, '$1 ने समुदाय से सहायता मांगी: $2']
   ];
   for (const [pattern, replacement] of patterns) if (pattern.test(value)) return value.replace(pattern, replacement);
   return value;
