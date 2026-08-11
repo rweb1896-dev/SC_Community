@@ -4,6 +4,8 @@ import { HI } from './locales/hi';
 
 export type AppLanguage = 'en' | 'hi';
 const LANGUAGE_KEY = 'sc-connect-language';
+const LANGUAGE_VERSION_KEY = 'sc-connect-language-version';
+const HINDI_RELEASE = 'complete-hi-v1';
 
 @Injectable({ providedIn: 'root' })
 export class I18nService {
@@ -23,9 +25,15 @@ export class I18nService {
   }
 
   private initialLanguage(): AppLanguage {
+    const release = typeof localStorage === 'undefined' ? null : localStorage.getItem(LANGUAGE_VERSION_KEY);
+    if (release !== HINDI_RELEASE && typeof localStorage !== 'undefined') {
+      localStorage.setItem(LANGUAGE_KEY, 'hi');
+      localStorage.setItem(LANGUAGE_VERSION_KEY, HINDI_RELEASE);
+      return 'hi';
+    }
     const saved = typeof localStorage === 'undefined' ? null : localStorage.getItem(LANGUAGE_KEY);
     if (saved === 'en' || saved === 'hi') return saved;
-    return typeof navigator !== 'undefined' && navigator.language.toLowerCase().startsWith('hi') ? 'hi' : 'en';
+    return 'hi';
   }
 
   private applyDocumentLanguage(language: AppLanguage): void {

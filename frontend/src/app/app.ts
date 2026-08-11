@@ -12,6 +12,7 @@ import { interval, Subscription } from 'rxjs';
 import { AppLanguage, I18nService } from './core/i18n.service';
 import { TranslatePipe } from './core/translate.pipe';
 import { MessageDockComponent } from './chat/message-dock.component';
+import { UiLocalizationService } from './core/ui-localization.service';
 
 @Component({
   selector: 'app-root',
@@ -40,7 +41,7 @@ export class App implements OnInit, OnDestroy {
   private inviteCreatingNew = false;
   private subscriptions = new Subscription();
 
-  constructor(public auth: AuthService, public router: Router, private api: CommunityApiService, public i18n: I18nService) {}
+  constructor(public auth: AuthService, public router: Router, private api: CommunityApiService, public i18n: I18nService, private uiLocalization: UiLocalizationService) {}
 
   changeLanguage(value: string): void { this.i18n.setLanguage(value as AppLanguage); }
   openMessages(): void {
@@ -49,6 +50,7 @@ export class App implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.uiLocalization.start();
     this.subscriptions.add(this.auth.session$.subscribe((session) => {
       if (session) {
         this.refreshMemberInvite(false);
@@ -70,6 +72,9 @@ export class App implements OnInit, OnDestroy {
     const code = this.inviteRequest?.inviteCode;
     if (!code) return '';
     const url = `${window.location.origin}/login?mode=register&invite=${encodeURIComponent(code)}`;
+    if (this.i18n.language() === 'hi') {
+      return `आपको एससी कम्युनिटी कनेक्ट से जुड़ने के लिए आमंत्रित किया गया है।\n\nपंजीकरण लिंक: ${url}\nआमंत्रण कोड: ${code}\nईमेल OTP: SC1E\nमोबाइल OTP: SC2M\n\nयह आमंत्रण कोड केवल एक बार उपयोग किया जा सकता है।`;
+    }
     return `You're invited to join SC Community Connect.\n\nRegister here: ${url}\nInvite code: ${code}\nEmail OTP: SC1E\nMobile OTP: SC2M\n\nThis invite code can be used once.`;
   }
 

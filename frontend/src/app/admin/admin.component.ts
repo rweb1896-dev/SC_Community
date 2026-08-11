@@ -9,6 +9,7 @@ import { LucideAward, LucideBan, LucideBookOpen, LucideCalendarDays, LucideCheck
 import { COMMUNITY_LEADERS } from '../core/community-leaders';
 import { COMMUNITY_BOOKS, PAID_COMMUNITY_BOOKS } from '../core/community-resources';
 import { TranslatePipe } from '../core/translate.pipe';
+import { I18nService } from '../core/i18n.service';
 
 @Component({
   selector: 'app-admin',
@@ -92,7 +93,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
   private subscriptions = new Subscription();
 
-  constructor(private api: CommunityApiService, private meetingSocket: MeetingSocketService) {}
+  constructor(private api: CommunityApiService, private meetingSocket: MeetingSocketService, private i18n: I18nService) {}
 
   get inviteRegistrationUrl(): string {
     if (!this.latestCode) return '';
@@ -530,6 +531,9 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   private messageForCode(code: string): string {
+    if (this.i18n.language() === 'hi') {
+      return `आपको एससी कम्युनिटी कनेक्ट से जुड़ने के लिए आमंत्रित किया गया है।\n\nपंजीकरण लिंक: ${this.registrationUrlFor(code)}\nआमंत्रण कोड: ${code}\nईमेल OTP: SC1E\nमोबाइल OTP: SC2M\n\nयह आमंत्रण कोड केवल एक बार उपयोग किया जा सकता है।`;
+    }
     return `You're invited to join SC Community Connect.\n\nRegister here: ${this.registrationUrlFor(code)}\nInvite code: ${code}\nEmail OTP: SC1E\nMobile OTP: SC2M\n\nThis invite code can be used once.`;
   }
 
