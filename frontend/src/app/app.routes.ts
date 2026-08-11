@@ -19,6 +19,10 @@ export const routes: Routes = [
     loadComponent: () => import('./public/leaders.component').then((module) => module.LeadersComponent)
   },
   {
+    path: 'achievers',
+    loadComponent: () => import('./public/achievers.component').then((module) => module.AchieversComponent)
+  },
+  {
     path: 'leaders/:leaderId',
     loadComponent: () => import('./public/leader-detail.component').then((module) => module.LeaderDetailComponent)
   },

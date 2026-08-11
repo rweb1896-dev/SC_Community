@@ -4,7 +4,7 @@ import { RouterOutlet } from '@angular/router';
 import { AsyncPipe, DatePipe, NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LucideBookOpen, LucideCalendarDays, LucideCheck, LucideChevronDown, LucideClock3, LucideCopy, LucideHouse, LucideImages, LucideKeyRound, LucideLogOut, LucideMessageCircle, LucideNewspaper, LucideRadio, LucideSearch, LucideSend, LucideShare2, LucideShieldCheck, LucideUsersRound, LucideVideo, LucideX } from '@lucide/angular';
+import { LucideAward, LucideBookOpen, LucideCalendarDays, LucideCheck, LucideChevronDown, LucideClock3, LucideCopy, LucideHouse, LucideImages, LucideKeyRound, LucideLogOut, LucideMessageCircle, LucideNewspaper, LucideRadio, LucideSearch, LucideSend, LucideShare2, LucideShieldCheck, LucideUsersRound, LucideVideo, LucideX } from '@lucide/angular';
 import { AuthService } from './core/auth.service';
 import { CommunityApiService } from './core/community-api.service';
 import { ExpertiseField, MemberInviteRequest } from './core/models';
@@ -15,7 +15,7 @@ import { MessageDockComponent } from './chat/message-dock.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, AsyncPipe, DatePipe, NgFor, NgIf, FormsModule, TranslatePipe, MessageDockComponent, LucideBookOpen, LucideCalendarDays, LucideCheck, LucideChevronDown, LucideClock3, LucideCopy, LucideHouse, LucideImages, LucideKeyRound, LucideLogOut, LucideMessageCircle, LucideNewspaper, LucideRadio, LucideSearch, LucideSend, LucideShare2, LucideShieldCheck, LucideUsersRound, LucideVideo, LucideX],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, AsyncPipe, DatePipe, NgFor, NgIf, FormsModule, TranslatePipe, MessageDockComponent, LucideAward, LucideBookOpen, LucideCalendarDays, LucideCheck, LucideChevronDown, LucideClock3, LucideCopy, LucideHouse, LucideImages, LucideKeyRound, LucideLogOut, LucideMessageCircle, LucideNewspaper, LucideRadio, LucideSearch, LucideSend, LucideShare2, LucideShieldCheck, LucideUsersRound, LucideVideo, LucideX],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

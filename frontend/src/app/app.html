@@ -43,6 +43,7 @@
   </nav>
   <nav class="public-nav" *ngIf="!(auth.session$ | async)" [class.open]="menuOpen">
     <a [routerLink]="['/community']" fragment="leaders" [class.active]="isPublicSection('leaders')" (click)="selectPublicSection('leaders')"><svg lucideUsersRound aria-hidden="true"></svg><span>{{ 'nav.leaders' | translate }}</span></a>
+    <a routerLink="/achievers" routerLinkActive="active" (click)="closeMenu()"><svg lucideAward aria-hidden="true"></svg><span>Top Achievers</span></a>
     <a [routerLink]="['/community']" fragment="blogs" [class.active]="isPublicSection('blogs')" (click)="selectPublicSection('blogs')"><svg lucideNewspaper aria-hidden="true"></svg><span>{{ 'nav.blogs' | translate }}</span></a>
     <a [routerLink]="['/community']" fragment="events" [class.active]="isPublicSection('events')" (click)="selectPublicSection('events')"><svg lucideCalendarDays aria-hidden="true"></svg><span>{{ 'nav.events' | translate }}</span></a>
     <a [routerLink]="['/community']" fragment="gallery" [class.active]="isPublicSection('gallery')" (click)="selectPublicSection('gallery')"><svg lucideImages aria-hidden="true"></svg><span>{{ 'nav.gallery' | translate }}</span></a>

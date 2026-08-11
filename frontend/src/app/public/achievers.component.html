@@ -1,0 +1,27 @@
+<section class="public-page achievers-page" aria-labelledby="achiever-title">
+  <header class="achiever-heading">
+    <div class="achiever-title-icon"><svg lucideAward aria-hidden="true"></svg></div>
+    <div><p class="eyebrow">Community excellence</p><h1 id="achiever-title">Top achievers</h1><p>Discover accomplished people category-wise. Every profile is curated and published independently by the community administrator.</p></div>
+    <div class="archive-count"><strong>{{ achievers.length }}</strong><span>achievers</span></div>
+  </header>
+
+  <nav class="achiever-categories" *ngIf="achievers.length" aria-label="Achiever categories">
+    <button type="button" [class.active]="selectedField === 'ALL'" (click)="selectedField = 'ALL'">All fields</button>
+    <button type="button" *ngFor="let field of visibleFields" [class.active]="selectedField === field.id" (click)="selectedField = field.id">{{ field.name }}</button>
+  </nav>
+
+  <div class="achiever-grid" *ngIf="visibleAchievers.length; else emptyState">
+    <article class="achiever-card" *ngFor="let achiever of visibleAchievers">
+      <div class="achiever-portrait">
+        <img *ngIf="achiever.imageUrl; else avatar" [src]="achiever.imageUrl" [alt]="achiever.fullName" />
+        <ng-template #avatar><span>{{ initials(achiever.fullName) }}</span></ng-template>
+      </div>
+      <div class="achiever-copy">
+        <small>{{ achiever.expertiseFieldName }}</small><h2>{{ achiever.fullName }}</h2><strong>{{ achiever.title }}</strong>
+        <p class="achievement">{{ achiever.achievement }}</p><p *ngIf="achiever.biography">{{ achiever.biography }}</p>
+        <a *ngIf="achiever.profileUrl" [href]="achiever.profileUrl" target="_blank" rel="noopener noreferrer">View reference <svg lucideExternalLink aria-hidden="true"></svg></a>
+      </div>
+    </article>
+  </div>
+  <ng-template #emptyState><div class="achiever-empty"><svg lucideAward aria-hidden="true"></svg><strong>Achiever profiles are being curated</strong><span>Published profiles will appear here category-wise.</span></div></ng-template>
+</section>
