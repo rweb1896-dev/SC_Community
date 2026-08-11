@@ -17,7 +17,7 @@ public final class HelpChatDtos {
   public static ReconnectResponse from(HelpReconnectRequest r){return new ReconnectResponse(r.getId(),r.getConversation().getId(),r.getRequestedBy().getId(),r.getRequestedBy().getFullName(),r.getRequestedTo().getId(),title(r.getConversation().getPost()),r.getStatus(),r.getCreatedAt(),r.getRespondedAt());}
  }
  public record VolunteerRequestResponse(Long id,Long postId,String postTitle,Long volunteerUserId,String volunteerName,Long requestedToUserId,String status,Long conversationId,Instant createdAt,Instant respondedAt){ }
- public record MyHelpPostResponse(Long id,String title,String content,Long categoryId,String categoryName,PostStatus status,Instant createdAt,Instant closedAt,long helperCount,long activeConversationCount,long pendingVolunteerCount,boolean audienceExpanded,boolean canRequestAll){ }
+ public record MyHelpPostResponse(Long id,String title,String content,String imageUrl,Long categoryId,String categoryName,PostStatus status,Instant createdAt,Instant closedAt,long helperCount,long activeConversationCount,long pendingVolunteerCount,boolean audienceExpanded,boolean canRequestAll){ }
  public record NotificationResponse(Long id,HelpNotificationType type,String title,String body,Long postId,Long conversationId,boolean read,Instant createdAt){
   public static NotificationResponse from(HelpNotification n){return new NotificationResponse(n.getId(),n.getType(),n.getTitle(),n.getBody(),n.getPost()==null?null:n.getPost().getId(),n.getConversation()==null?null:n.getConversation().getId(),n.isRead(),n.getCreatedAt());}
  }

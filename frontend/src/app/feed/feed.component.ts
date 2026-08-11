@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpEventType, HttpResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { LucideBookOpen, LucideBriefcaseBusiness, LucideChevronLeft, LucideChevronRight, LucideCircleX, LucideEllipsis, LucideHandHeart, LucideHeartPulse, LucideHouse, LucideListChecks, LucideMessageCircle, LucideMic, LucideMicOff, LucideShare2, LucideShieldCheck, LucideSiren, LucideSquarePen, LucideStore, LucideThumbsUp, LucideUsersRound } from '@lucide/angular';
+import { LucideBookOpen, LucideBriefcaseBusiness, LucideChevronLeft, LucideChevronRight, LucideEllipsis, LucideHandHeart, LucideHeartPulse, LucideHouse, LucideListChecks, LucideMic, LucideMicOff, LucideShieldCheck, LucideSiren, LucideSquarePen, LucideStore, LucideThumbsUp, LucideUsersRound } from '@lucide/angular';
 import { auditTime, interval, Subscription } from 'rxjs';
 import { Category, Comment, ImageUploadResponse, MyHelpPost, Post, UserResponse } from '../core/models';
 import { CommunityApiService } from '../core/community-api.service';
@@ -17,7 +17,7 @@ import { TranslatePipe } from '../core/translate.pipe';
 @Component({
   selector: 'app-feed',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslatePipe, LucideBookOpen, LucideBriefcaseBusiness, LucideChevronLeft, LucideChevronRight, LucideCircleX, LucideEllipsis, LucideHandHeart, LucideHeartPulse, LucideHouse, LucideListChecks, LucideMessageCircle, LucideMic, LucideMicOff, LucideShare2, LucideShieldCheck, LucideSiren, LucideSquarePen, LucideStore, LucideThumbsUp, LucideUsersRound],
+  imports: [CommonModule, FormsModule, TranslatePipe, LucideBookOpen, LucideBriefcaseBusiness, LucideChevronLeft, LucideChevronRight, LucideEllipsis, LucideHandHeart, LucideHeartPulse, LucideHouse, LucideListChecks, LucideMic, LucideMicOff, LucideShieldCheck, LucideSiren, LucideSquarePen, LucideStore, LucideThumbsUp, LucideUsersRound],
   templateUrl: './feed.component.html',
   styleUrl: './feed.component.css'
 })
@@ -38,6 +38,10 @@ export class FeedComponent implements OnInit, OnDestroy {
   volunteering = new Set<number>();
   requestingAll = new Set<number>();
   offerFeedback:Record<number,string>={};
+  myHelpPostIndex:Record<number,MyHelpPost>={};
+  postMenuId?:number;
+  deleteTarget?:{id:number;title:string};
+  editingPostId?:number;
   myPostsOpen=false;myPostsTab:'ACTIVE'|'CLOSED'='ACTIVE';myHelpPosts:MyHelpPost[]=[];myPostsLoading=false;closeTarget?:{id:number;title:string};
   error = '';
   loadingCategories = true;
@@ -110,6 +114,7 @@ export class FeedComponent implements OnInit, OnDestroy {
       this.activeLeaderIndex = 0;
     }});
     this.loadPosts();
+    this.loadMyPostIndex();
     this.feedSocket.connect();
     this.subscriptions.add(this.feedSocket.updates$.pipe(auditTime(350)).subscribe(() => this.loadPosts(this.selectedCategory, true)));
     this.subscriptions.add(interval(15000).subscribe(() => this.loadPosts(this.selectedCategory, true)));
@@ -149,6 +154,7 @@ export class FeedComponent implements OnInit, OnDestroy {
   }
 
   openComposer(categoryId?: number): void {
+    this.editingPostId = undefined;
     const preferredCategory = categoryId || this.selectedCategory;
     this.postForm.categoryId = preferredCategory || this.postForm.categoryId || this.categories[0]?.id || 0;
     this.composerError = '';
@@ -172,8 +178,18 @@ export class FeedComponent implements OnInit, OnDestroy {
     this.composerOpen = false;
   }
 
+  openEditPost(post: Post | MyHelpPost): void {
+    this.postMenuId = undefined; this.editingPostId = post.id;
+    this.postForm = { categoryId: post.categoryId, content: post.content, imageUrl: 'imageUrl' in post ? (post.imageUrl || '') : '' };
+    this.imageMode = this.postForm.imageUrl ? 'URL' : 'UPLOAD'; this.imagePreview = this.postForm.imageUrl;
+    this.composerError = ''; this.discardConfirm = false; this.composerOpen = true;
+  }
+
   @HostListener('document:keydown.escape')
   onEscape(): void { if (this.composerOpen) this.closeComposer(); }
+
+  @HostListener('document:click')
+  closePostMenu():void { this.postMenuId=undefined; }
 
   onImageSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -337,22 +353,15 @@ export class FeedComponent implements OnInit, OnDestroy {
     });
   }
 
-  offerHelp(post:Post):void{if(this.offering.has(post.id))return;this.offering.add(post.id);this.offerFeedback[post.id]='';this.api.offerHelp(post.id).subscribe({next:()=>{this.offering.delete(post.id);this.offerFeedback[post.id]='Help conversation started. Open Help Messages to continue.';},error:e=>{this.offering.delete(post.id);this.offerFeedback[post.id]=this.apiError(e,'Help offer could not be started.');}});}
   volunteer(post:Post):void{if(this.volunteering.has(post.id))return;this.volunteering.add(post.id);this.offerFeedback[post.id]='';this.api.volunteerForPost(post.id).subscribe({next:()=>{this.volunteering.delete(post.id);this.offerFeedback[post.id]='Volunteer request sent. The post owner can open a private chat from Help Messenger.';},error:e=>{this.volunteering.delete(post.id);this.offerFeedback[post.id]=this.apiError(e,'Volunteer request could not be sent.');}});}
   openMyPosts():void{this.myPostsOpen=true;this.loadMyPosts('ACTIVE');}
-  loadMyPosts(status:'ACTIVE'|'CLOSED'):void{this.myPostsTab=status;this.myPostsLoading=true;this.api.myHelpPosts(status).subscribe({next:r=>{this.myHelpPosts=r;this.myPostsLoading=false;},error:e=>{this.error=this.apiError(e,'Your help posts could not be loaded.');this.myPostsLoading=false;}});}
-  askClose(id:number,title:string):void{this.closeTarget={id,title};}
+  loadMyPosts(status:'ACTIVE'|'CLOSED'):void{this.myPostsTab=status;this.myPostsLoading=true;this.api.myHelpPosts(status).subscribe({next:r=>{this.myHelpPosts=r;if(status==='ACTIVE')this.myHelpPostIndex=Object.fromEntries(r.map(item=>[item.id,item]));this.myPostsLoading=false;},error:e=>{this.error=this.apiError(e,'Your help posts could not be loaded.');this.myPostsLoading=false;}});}
+  loadMyPostIndex():void{this.api.myHelpPosts('ACTIVE').subscribe({next:r=>this.myHelpPostIndex=Object.fromEntries(r.map(item=>[item.id,item]))});}
+  askClose(id:number,title:string):void{this.postMenuId=undefined;this.closeTarget={id,title};}
   closeHelpRequest():void{if(!this.closeTarget)return;this.api.closeHelpPost(this.closeTarget.id).subscribe({next:()=>{this.closeTarget=undefined;this.loadPosts(this.selectedCategory,true);this.loadMyPosts(this.myPostsTab);},error:e=>{this.error=this.apiError(e,'Help request could not be closed.');this.closeTarget=undefined;}});}
-  requestAll(item:MyHelpPost):void{if(this.requestingAll.has(item.id))return;this.requestingAll.add(item.id);this.api.requestHelpFromAll(item.id).subscribe({next:updated=>{this.requestingAll.delete(item.id);Object.assign(item,updated);},error:e=>{this.requestingAll.delete(item.id);this.error=this.apiError(e,'Request to all could not be sent.');}});}
-
-  async sharePost(post: Post): Promise<void> {
-    const url = `${location.origin}/feed?post=${post.id}`;
-    const data = { title: `${post.authorName} — Community Connect`, text: post.content, url };
-    try {
-      if (navigator.share) await navigator.share(data);
-      else await navigator.clipboard.writeText(`${data.text}\n${url}`);
-    } catch { /* The user may cancel the native share sheet. */ }
-  }
+  requestAll(item:MyHelpPost):void{if(this.requestingAll.has(item.id))return;this.requestingAll.add(item.id);this.api.requestHelpFromAll(item.id).subscribe({next:updated=>{this.requestingAll.delete(item.id);Object.assign(item,updated);this.myHelpPostIndex[item.id]=updated;this.offerFeedback[item.id]='Help notification sent to all community members.';},error:e=>{this.requestingAll.delete(item.id);this.offerFeedback[item.id]=this.apiError(e,'Request to all could not be sent.');}});}
+  askDelete(id:number,title:string):void{this.postMenuId=undefined;this.deleteTarget={id,title};}
+  deletePost():void{if(!this.deleteTarget)return;this.api.deletePost(this.deleteTarget.id).subscribe({next:()=>{this.deleteTarget=undefined;this.loadPosts(this.selectedCategory,true);this.loadMyPostIndex();if(this.myPostsOpen)this.loadMyPosts(this.myPostsTab);},error:e=>{this.error=this.apiError(e,'Post could not be deleted.');this.deleteTarget=undefined;}});}
 
   currentInitials(): string {
     const name = this.auth.session?.fullName || 'Community Member';
@@ -387,10 +396,13 @@ export class FeedComponent implements OnInit, OnDestroy {
 
   private submitPost(imageUrl: string): void {
     this.stopVoiceInput();
-    this.api.createPost(this.postForm.categoryId, this.postForm.content.trim(), imageUrl).subscribe({
+    const request = this.editingPostId
+      ? this.api.updatePost(this.editingPostId, this.postForm.categoryId, this.postForm.content.trim(), imageUrl)
+      : this.api.createPost(this.postForm.categoryId, this.postForm.content.trim(), imageUrl);
+    request.subscribe({
       next: () => {
         this.posting = false;
-        this.composerSuccess = this.i18n.t('feed.posted');
+        this.composerSuccess = this.editingPostId ? 'Post updated successfully.' : this.i18n.t('feed.posted');
         this.resetComposer();
         this.composerOpen = false;
         this.loadPosts(this.selectedCategory, true);
@@ -413,6 +425,7 @@ export class FeedComponent implements OnInit, OnDestroy {
     this.composerError = '';
     this.speechError = '';
     this.speechInterim = '';
+    this.editingPostId = undefined;
   }
 
   private revokePreview(): void {

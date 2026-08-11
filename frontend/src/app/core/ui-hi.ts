@@ -257,6 +257,7 @@ export const UI_HI: Record<string, string> = Object.fromEntries([
   ['Privacy-first help', 'गोपनीयता-आधारित सहायता'],
   ['Private conversations start only when a member selects “I Can Help” on an active post.', 'निजी बातचीत तभी शुरू होती है जब कोई सदस्य सक्रिय पोस्ट पर “मैं सहायता कर सकता/सकती हूं” चुनता है।'],
   ['Private chat starts directly with “I Can Help”, or after the post owner accepts a Volunteer request.', 'निजी चैट “मैं सहायता कर सकता/सकती हूं” से सीधे, या पोस्ट करने वाले द्वारा स्वयंसेवा अनुरोध स्वीकार करने के बाद शुरू होती है।'],
+  ['“I Can Help” sends a private request. Chat opens only after the post owner accepts it.', '“मैं सहायता कर सकता/सकती हूं” निजी अनुरोध भेजता है। पोस्ट करने वाले की स्वीकृति के बाद ही चैट खुलती है।'],
   ['Featured reading', 'विशेष लेख'], ['Ideas for an equal society', 'समान समाज के विचार'],
   ['Inspired by Dr. B. R. Ambedkar', 'डॉ. बी. आर. आंबेडकर से प्रेरित'], ['Top', 'ऊपर'],
   ['Member workspace', 'सदस्य कार्यक्षेत्र'], ['Loading your help requests…', 'आपके सहायता अनुरोध लोड हो रहे हैं…'],
@@ -264,6 +265,13 @@ export const UI_HI: Record<string, string> = Object.fromEntries([
   ['Close this help request?', 'क्या यह सहायता अनुरोध बंद करना है?'],
   ['Closing this post will remove it from the active feed, stop new help offers, close all related active conversations and disable reconnect requests.', 'इस पोस्ट को बंद करने पर यह सक्रिय फ़ीड से हटेगी, नए सहायता प्रस्ताव रुकेंगे, संबंधित सक्रिय बातचीत बंद होगी और दोबारा जुड़ने के अनुरोध अक्षम हो जाएंगे।'],
   ['The post and chat history will remain available for reference.', 'पोस्ट और चैट इतिहास संदर्भ के लिए उपलब्ध रहेंगे।'],
+  ['Post actions', 'पोस्ट कार्रवाइयां'], ['Edit post', 'पोस्ट संपादित करें'], ['Delete post', 'पोस्ट हटाएं'], ['Save changes', 'बदलाव सहेजें'],
+  ['Sent to all members', 'सभी सदस्यों को भेजा गया'], ['Help notification sent to all community members.', 'सभी समुदाय सदस्यों को सहायता सूचना भेज दी गई।'],
+  ['Delete this post?', 'क्या यह पोस्ट हटानी है?'], ['View and edit profile', 'प्रोफ़ाइल देखें और बदलें'], ['Edit profile', 'प्रोफ़ाइल संपादित करें'],
+  ['My account', 'मेरा खाता'], ['Update your personal and contact details securely.', 'अपनी व्यक्तिगत और संपर्क जानकारी सुरक्षित रूप से बदलें।'],
+  ['Full name', 'पूरा नाम'], ['Email address', 'ईमेल पता'], ['Mobile number', 'मोबाइल नंबर'], ['Address', 'पता'], ['Your current address', 'आपका वर्तमान पता'],
+  ['Send OTP', 'OTP भेजें'], ['Email OTP', 'ईमेल OTP'], ['Mobile OTP', 'मोबाइल OTP'], ['Save profile', 'प्रोफ़ाइल सहेजें'], ['Saving…', 'सहेजा जा रहा है…'],
+  ['Edit help fields', 'सहायता क्षेत्र बदलें'], ['Profile updated successfully.', 'प्रोफ़ाइल सफलतापूर्वक बदल दी गई।'],
   ['English (India)', 'अंग्रेज़ी (भारत)'], ['हिन्दी (भारत)', 'हिन्दी (भारत)'], ['JPG / PNG · max 5 MB', 'JPG / PNG · अधिकतम 5 MB'],
 
   // Meetings

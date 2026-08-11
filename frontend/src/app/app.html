@@ -32,6 +32,7 @@
             <small>{{ session.role === 'ROLE_ADMIN' ? 'Administrator' : 'Community member' }}</small>
           </div>
         </div>
+        <button class="profile-edit-link" type="button" (click)="openSelfProfile()">View and edit profile</button>
         <div class="profile-help-summary" *ngIf="session.role === 'ROLE_USER'">
           <span>I can help with</span>
           <div><small *ngFor="let fieldName of session.helpFieldNames">{{ fieldName }}</small></div>
@@ -100,16 +101,34 @@
 
 <div class="profile-help-backdrop" *ngIf="profileHelpOpen">
   <section class="profile-help-modal" role="dialog" aria-modal="true" aria-labelledby="profile-help-title">
+    <button *ngIf="!profileHelpRequired" class="profile-modal-close" type="button" aria-label="Close" (click)="closeProfileHelp()">×</button>
     <span class="profile-help-icon"><svg lucideUsersRound></svg></span>
     <p class="profile-help-kicker">Complete your member profile</p>
     <h2 id="profile-help-title">How can you help the community?</h2>
     <p>Select the areas where members may approach you for guidance. Choose up to eight; only your field names will be shown.</p>
+    <div class="selected-help-chips" *ngIf="selectedHelpFieldIds.length"><button type="button" *ngFor="let field of selectedHelpFields()" (click)="removeProfileHelpField(field.id)">{{ field.name }} <span aria-hidden="true">×</span></button></div>
     <div class="profile-help-options">
       <button type="button" *ngFor="let field of expertiseFields" [class.selected]="selectedHelpFieldIds.includes(field.id)" [attr.aria-pressed]="selectedHelpFieldIds.includes(field.id)" (click)="toggleProfileHelpField(field.id)"><span><svg *ngIf="selectedHelpFieldIds.includes(field.id)" lucideCheck></svg>{{ field.name }}</span><small>{{ field.description }}</small></button>
     </div>
     <div class="profile-help-footer"><span>{{ selectedHelpFieldIds.length }} selected · maximum 8</span><button type="button" [disabled]="profileHelpSaving || !selectedHelpFieldIds.length" (click)="saveProfileHelp()">{{ profileHelpSaving ? 'Saving profile...' : 'Save and continue' }}</button></div>
     <p class="profile-help-error" *ngIf="profileHelpError">{{ profileHelpError }}</p>
   </section>
+</div>
+
+<div class="profile-editor-backdrop" *ngIf="profileEditorOpen" (click)="closeSelfProfile()">
+  <form class="profile-editor-modal" (ngSubmit)="saveSelfProfile()" (click)="$event.stopPropagation()">
+    <header><div><span>My account</span><h2>Edit profile</h2><p>Update your personal and contact details securely.</p></div><button type="button" aria-label="Close profile" (click)="closeSelfProfile()">×</button></header>
+    <p *ngIf="profileEditorLoading">Loading profile…</p>
+    <ng-container *ngIf="!profileEditorLoading">
+      <label><span>Full name</span><input required maxlength="120" name="profileFullName" [(ngModel)]="profileForm.fullName" /></label>
+      <section class="verified-profile-field"><label><span>Email address</span><input required type="email" name="profileEmail" [(ngModel)]="profileForm.email" (ngModelChange)="profileEmailToken='';profileEmailFeedback=''" /></label><div class="verify-row" *ngIf="emailChanged()"><button type="button" (click)="sendProfileOtp('EMAIL')">Send OTP</button><input maxlength="8" name="profileEmailOtp" [(ngModel)]="profileEmailOtp" placeholder="Email OTP" /><button type="button" (click)="verifyProfileOtp('EMAIL')">Verify</button></div><small *ngIf="profileEmailFeedback">{{ profileEmailFeedback }}</small></section>
+      <section class="verified-profile-field"><label><span>Mobile number</span><input required name="profileMobile" [(ngModel)]="profileForm.phoneNumber" (ngModelChange)="profileMobileToken='';profileMobileFeedback=''" /></label><div class="verify-row" *ngIf="mobileChanged()"><button type="button" (click)="sendProfileOtp('MOBILE')">Send OTP</button><input maxlength="8" name="profileMobileOtp" [(ngModel)]="profileMobileOtp" placeholder="Mobile OTP" /><button type="button" (click)="verifyProfileOtp('MOBILE')">Verify</button></div><small *ngIf="profileMobileFeedback">{{ profileMobileFeedback }}</small></section>
+      <label><span>Address</span><textarea maxlength="500" name="profileAddress" [(ngModel)]="profileForm.address" placeholder="Your current address"></textarea></label>
+      <button class="profile-help-shortcut" type="button" (click)="profileEditorOpen=false;editProfileHelp()">Edit help fields</button>
+      <p class="profile-editor-success" *ngIf="profileEditorSuccess">{{ profileEditorSuccess }}</p><p class="profile-editor-error" *ngIf="profileEditorError">{{ profileEditorError }}</p>
+      <footer><button type="button" (click)="closeSelfProfile()">Cancel</button><button class="primary" [disabled]="profileEditorSaving">{{ profileEditorSaving ? 'Saving…' : 'Save profile' }}</button></footer>
+    </ng-container>
+  </form>
 </div>
 
 <main>

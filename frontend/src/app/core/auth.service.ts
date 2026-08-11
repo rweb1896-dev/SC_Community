@@ -124,6 +124,15 @@ export class AuthService {
     this.sessionSubject.next(updated);
   }
 
+  syncProfile(user: UserResponse, token?: string): void {
+    const session = this.session;
+    if (!session) return;
+    const updated: AuthResponse = { ...session, token: token || session.token, fullName: user.fullName, email: user.email,
+      helpFieldIds: user.helpFieldIds, helpFieldNames: user.helpFieldNames, profileComplete: user.profileComplete };
+    this.storage()?.setItem(SESSION_KEY, JSON.stringify(updated));
+    this.sessionSubject.next(updated);
+  }
+
   clearSession(navigate = true): void {
     this.storage()?.removeItem(SESSION_KEY);
     this.sessionSubject.next(null);

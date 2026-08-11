@@ -5,7 +5,7 @@ export type ProfessionalGroup = 'COMMUNITY' | 'DOCTOR' | 'ENGINEER' | 'EDUCATION
 export type MeetingAudience = 'ALL' | 'DOCTORS' | 'ENGINEERS' | 'EDUCATION' | 'SOCIAL_WORKERS';
 export type MeetingStatus = 'PENDING_APPROVAL' | 'LIVE' | 'REJECTED' | 'ENDED';
 export type OtpChannel = 'EMAIL' | 'MOBILE';
-export type OtpPurpose = 'SIGNUP_EMAIL' | 'SIGNUP_MOBILE' | 'PASSWORD_RESET';
+export type OtpPurpose = 'SIGNUP_EMAIL' | 'SIGNUP_MOBILE' | 'PROFILE_EMAIL' | 'PROFILE_MOBILE' | 'PASSWORD_RESET';
 export type EventStatus = 'SCHEDULED' | 'CANCELLED' | 'COMPLETED';
 export type BroadcastMediaType = 'PODCAST' | 'VIDEO' | 'YOUTUBE';
 export type BroadcastStatus = 'DRAFT' | 'LIVE' | 'PAUSED' | 'ENDED';
@@ -46,6 +46,7 @@ export interface UserResponse {
   fullName: string;
   email: string;
   phoneNumber?: string;
+  address?: string;
   role: UserRole;
   status: UserStatus;
   professionalGroup: ProfessionalGroup;
@@ -56,6 +57,7 @@ export interface UserResponse {
   inviteCodeUsed?: string;
   createdAt: string;
 }
+export interface ProfileUpdateResponse { user: UserResponse; token: string; }
 
 export interface ExpertiseField {
   id: number;
@@ -134,7 +136,7 @@ export interface HelpConversation { id:number; postId:number; postTitle:string; 
 export interface HelpMessage { id:number; conversationId:number; senderId:number; senderName:string; messageBody:string; read:boolean; timestamp:string; }
 export interface ReconnectRequest { id:number; conversationId:number; requestedByUserId:number; requestedByName:string; requestedToUserId:number; postTitle:string; status:ReconnectRequestStatus; createdAt:string; respondedAt?:string; }
 export interface VolunteerRequest { id:number; postId:number; postTitle:string; volunteerUserId:number; volunteerName:string; requestedToUserId:number; status:VolunteerRequestStatus; conversationId?:number; createdAt:string; respondedAt?:string; }
-export interface MyHelpPost { id:number; title:string; content:string; categoryId:number; categoryName:string; status:PostStatus; createdAt:string; closedAt?:string; helperCount:number; activeConversationCount:number; pendingVolunteerCount:number; audienceExpanded:boolean; canRequestAll:boolean; }
+export interface MyHelpPost { id:number; title:string; content:string; imageUrl?:string; categoryId:number; categoryName:string; status:PostStatus; createdAt:string; closedAt?:string; helperCount:number; activeConversationCount:number; pendingVolunteerCount:number; audienceExpanded:boolean; canRequestAll:boolean; }
 export interface HelpNotification { id:number; type:string; title:string; body:string; postId?:number; conversationId?:number; read:boolean; createdAt:string; }
 
 export interface Dashboard {

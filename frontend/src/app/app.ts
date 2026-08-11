@@ -37,6 +37,17 @@ export class App implements OnInit, OnDestroy {
   profileHelpError = '';
   expertiseFields: ExpertiseField[] = [];
   selectedHelpFieldIds: number[] = [];
+  profileHelpRequired = false;
+  profileEditorOpen = false;
+  profileEditorLoading = false;
+  profileEditorSaving = false;
+  profileEditorError = '';
+  profileEditorSuccess = '';
+  profileForm = { fullName:'', email:'', phoneNumber:'', address:'' };
+  private profileOriginal = { email:'', phoneNumber:'' };
+  profileEmailOtp = ''; profileMobileOtp = '';
+  profileEmailToken = ''; profileMobileToken = '';
+  profileEmailFeedback = ''; profileMobileFeedback = '';
   messageOpenRequest = 0;
   private inviteCreatingNew = false;
   private subscriptions = new Subscription();
@@ -54,7 +65,7 @@ export class App implements OnInit, OnDestroy {
     this.subscriptions.add(this.auth.session$.subscribe((session) => {
       if (session) {
         this.refreshMemberInvite(false);
-        if (session.role === 'ROLE_USER' && !session.profileComplete) this.openProfileHelp(session.helpFieldIds || []);
+        if (session.role === 'ROLE_USER' && !session.profileComplete) { this.profileHelpRequired = true; this.openProfileHelp(session.helpFieldIds || []); }
         else this.profileHelpOpen = false;
       } else {
         this.inviteRequest = undefined; this.inviteWorkspaceOpen = false; this.profileHelpOpen = false;
@@ -133,8 +144,39 @@ export class App implements OnInit, OnDestroy {
 
   editProfileHelp(): void {
     this.profileOpen = false;
+    this.profileHelpRequired = false;
     this.openProfileHelp(this.auth.session?.helpFieldIds || []);
   }
+
+  closeProfileHelp(): void { if (!this.profileHelpRequired) this.profileHelpOpen = false; }
+
+  removeProfileHelpField(fieldId:number):void {
+    this.selectedHelpFieldIds = this.selectedHelpFieldIds.filter(id => id !== fieldId);
+  }
+
+  selectedHelpFields(): ExpertiseField[] { return this.expertiseFields.filter(field => this.selectedHelpFieldIds.includes(field.id)); }
+
+  openSelfProfile():void {
+    this.profileOpen=false;this.profileEditorOpen=true;this.profileEditorLoading=true;this.profileEditorError='';this.profileEditorSuccess='';
+    this.api.myProfile().subscribe({next:user=>{this.profileForm={fullName:user.fullName,email:user.email,phoneNumber:user.phoneNumber||'',address:user.address||''};this.profileOriginal={email:user.email,phoneNumber:user.phoneNumber||''};this.resetProfileVerification();this.profileEditorLoading=false;},error:e=>{this.profileEditorError=e.error?.detail||'Profile could not be loaded.';this.profileEditorLoading=false;}});
+  }
+  closeSelfProfile():void{if(!this.profileEditorSaving)this.profileEditorOpen=false;}
+  sendProfileOtp(channel:'EMAIL'|'MOBILE'):void{
+    const destination=(channel==='EMAIL'?this.profileForm.email:this.profileForm.phoneNumber).trim();const purpose=channel==='EMAIL'?'PROFILE_EMAIL':'PROFILE_MOBILE';
+    this.auth.requestOtp(channel,purpose,destination).subscribe({next:r=>{const message=`Code sent${r.developmentCode?' · OTP: '+r.developmentCode:''}`;if(channel==='EMAIL')this.profileEmailFeedback=message;else this.profileMobileFeedback=message;},error:e=>{const message=e.error?.detail||'OTP could not be sent.';if(channel==='EMAIL')this.profileEmailFeedback=message;else this.profileMobileFeedback=message;}});
+  }
+  verifyProfileOtp(channel:'EMAIL'|'MOBILE'):void{
+    const email=channel==='EMAIL',destination=(email?this.profileForm.email:this.profileForm.phoneNumber).trim(),code=email?this.profileEmailOtp:this.profileMobileOtp,purpose=email?'PROFILE_EMAIL':'PROFILE_MOBILE';
+    this.auth.verifyOtp(channel,purpose,destination,code).subscribe({next:r=>{if(email){this.profileEmailToken=r.verificationToken;this.profileEmailFeedback='Email verified.';}else{this.profileMobileToken=r.verificationToken;this.profileMobileFeedback='Mobile verified.';}},error:e=>{const message=e.error?.detail||'OTP verification failed.';if(email)this.profileEmailFeedback=message;else this.profileMobileFeedback=message;}});
+  }
+  saveSelfProfile():void{
+    const emailChanged=this.profileForm.email.trim().toLowerCase()!==this.profileOriginal.email.toLowerCase(),phoneChanged=this.profileForm.phoneNumber.trim()!==this.profileOriginal.phoneNumber;
+    if(emailChanged&&!this.profileEmailToken){this.profileEditorError='Verify the new email before saving.';return;}if(phoneChanged&&!this.profileMobileToken){this.profileEditorError='Verify the new mobile number before saving.';return;}
+    this.profileEditorSaving=true;this.profileEditorError='';this.api.updateMyProfile({...this.profileForm,emailVerificationToken:this.profileEmailToken||undefined,phoneVerificationToken:this.profileMobileToken||undefined}).subscribe({next:result=>{const user=result.user;this.auth.syncProfile(user,result.token);this.profileOriginal={email:user.email,phoneNumber:user.phoneNumber||''};this.profileEditorSuccess='Profile updated successfully.';this.profileEditorSaving=false;this.resetProfileVerification();},error:e=>{this.profileEditorError=e.error?.detail||'Profile could not be updated.';this.profileEditorSaving=false;}});
+  }
+  emailChanged():boolean{return this.profileForm.email.trim().toLowerCase()!==this.profileOriginal.email.toLowerCase();}
+  mobileChanged():boolean{return this.profileForm.phoneNumber.trim()!==this.profileOriginal.phoneNumber;}
+  private resetProfileVerification():void{this.profileEmailOtp='';this.profileMobileOtp='';this.profileEmailToken='';this.profileMobileToken='';this.profileEmailFeedback='';this.profileMobileFeedback='';}
 
   private openProfileHelp(selected: number[]): void {
     this.selectedHelpFieldIds = [...selected];

@@ -39,6 +39,7 @@ public class DirectoryService {
     private static final String FIELD = ROOT + "EXPERTISE:";
     private static final String ACHIEVER = ROOT + "ACHIEVER:";
     private static final String USER_HELP = ROOT + "USER_HELP:";
+    private static final String USER_PROFILE = ROOT + "USER_PROFILE:";
 
     private final BroadcastRepository repository;
     private final UserRepository userRepository;
@@ -145,7 +146,30 @@ public class DirectoryService {
     @Transactional(readOnly = true)
     public UserResponse responseForUser(User user) {
         populateHelpFields(user);
+        populateProfile(user);
         return UserResponse.from(user);
+    }
+
+    @Transactional
+    public void saveProfileAddress(User user, String address) {
+        String marker = USER_PROFILE + user.getId();
+        Broadcast item = repository.findAllByOrderByCreatedAtDesc().stream()
+                .filter(candidate -> marker.equals(candidate.getTitle())).findFirst()
+                .orElseGet(() -> content(marker, user.getEmail(), "", BroadcastStatus.LIVE));
+        item.setHostName(user.getEmail());
+        item.setDescription(payload("", address == null ? "" : address.trim(), "", "", "", ""));
+        item.setStatus(BroadcastStatus.LIVE);
+        repository.save(item);
+        user.setAddress(address == null || address.isBlank() ? null : address.trim());
+    }
+
+    @Transactional(readOnly = true)
+    public void populateProfile(User user) {
+        String marker = USER_PROFILE + user.getId();
+        Broadcast item = repository.findAllByOrderByCreatedAtDesc().stream()
+                .filter(candidate -> marker.equals(candidate.getTitle()) && candidate.getStatus() != BroadcastStatus.ENDED)
+                .findFirst().orElse(null);
+        user.setAddress(item == null ? null : emptyToNull(data(item).get("summary")));
     }
 
     @Transactional(readOnly = true)

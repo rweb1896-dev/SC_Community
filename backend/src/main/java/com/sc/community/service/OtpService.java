@@ -219,6 +219,12 @@ public class OtpService {
         if (purpose == OtpPurpose.SIGNUP_MOBILE && channel != OtpChannel.MOBILE) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mobile verification requires mobile channel");
         }
+        if (purpose == OtpPurpose.PROFILE_EMAIL && channel != OtpChannel.EMAIL) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email verification requires email channel");
+        }
+        if (purpose == OtpPurpose.PROFILE_MOBILE && channel != OtpChannel.MOBILE) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mobile verification requires mobile channel");
+        }
     }
 
     private void validateDestination(OtpChannel channel, String destination) {

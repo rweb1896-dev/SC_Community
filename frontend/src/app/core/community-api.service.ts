@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Achiever, Broadcast, BroadcastMediaType, BroadcastStatus, Category, Comment, CommunityEvent, Dashboard, EventStatus, ExpertiseField, GalleryImage, HelpConversation, HelpMessage, HelpNotification, ImageUploadResponse, InviteCode, InviteRequest, ManagedContent, ManagedContentInput, ManagedContentStatus, Meeting, MeetingAudience, MemberInviteRequest, Message, MyHelpPost, Post, ProfessionalGroup, ReconnectRequest, SupportResponse, UserResponse, UserStatus, VolunteerRequest } from './models';
+import { Achiever, Broadcast, BroadcastMediaType, BroadcastStatus, Category, Comment, CommunityEvent, Dashboard, EventStatus, ExpertiseField, GalleryImage, HelpConversation, HelpMessage, HelpNotification, ImageUploadResponse, InviteCode, InviteRequest, ManagedContent, ManagedContentInput, ManagedContentStatus, Meeting, MeetingAudience, MemberInviteRequest, Message, MyHelpPost, Post, ProfessionalGroup, ProfileUpdateResponse, ReconnectRequest, SupportResponse, UserResponse, UserStatus, VolunteerRequest } from './models';
 
 const API = '/api';
 
@@ -20,6 +20,8 @@ export class CommunityApiService {
   createPost(categoryId: number, content: string, imageUrl: string) {
     return this.http.post<Post>(`${API}/posts`, { categoryId, content, imageUrl });
   }
+  updatePost(postId: number, categoryId: number, content: string, imageUrl: string) { return this.http.patch<Post>(`${API}/posts/${postId}`, { categoryId, content, imageUrl }); }
+  deletePost(postId: number) { return this.http.delete<void>(`${API}/posts/${postId}`); }
 
   comments(postId: number) {
     return this.http.get<Comment[]>(`${API}/posts/${postId}/comments`);
@@ -87,6 +89,8 @@ export class CommunityApiService {
   expertiseFields() { return this.http.get<ExpertiseField[]>(`${API}/public/expertise-fields`); }
   publicAchievers() { return this.http.get<Achiever[]>(`${API}/public/achievers`); }
   updateMyHelpFields(fieldIds: number[]) { return this.http.patch<UserResponse>(`${API}/users/me/help-fields`, { fieldIds }); }
+  myProfile() { return this.http.get<UserResponse>(`${API}/users/me`); }
+  updateMyProfile(payload: { fullName:string; email:string; phoneNumber:string; address:string; emailVerificationToken?:string; phoneVerificationToken?:string }) { return this.http.patch<ProfileUpdateResponse>(`${API}/users/me/profile`, payload); }
 
   adminExpertiseFields() { return this.http.get<ExpertiseField[]>(`${API}/admin/directory/expertise-fields`); }
   createExpertiseField(name: string, description: string, iconKey: string, displayOrder: number) {

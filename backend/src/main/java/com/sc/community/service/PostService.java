@@ -6,6 +6,7 @@ import com.sc.community.dto.PostDtos.CreatePostRequest;
 import com.sc.community.dto.PostDtos.PostResponse;
 import com.sc.community.dto.PostDtos.SupportResponse;
 import com.sc.community.dto.PostDtos.FeedEvent;
+import com.sc.community.dto.PostDtos.UpdatePostRequest;
 import com.sc.community.entity.Category;
 import com.sc.community.entity.Comment;
 import com.sc.community.entity.Post;
@@ -82,6 +83,28 @@ public class PostService {
         helpChatService.notifyNewPost(saved);
         publish("POST_CREATED", saved.getId());
         return response(saved, user.getId());
+    }
+
+    @Transactional
+    public PostResponse update(Long postId, UpdatePostRequest request) {
+        User user = currentUserService.verifiedUser();
+        Post post = postRepository.findLockedById(postId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+        if (!post.getUser().getId().equals(user.getId()))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the post creator can edit this post");
+        if (post.getStatus() != PostStatus.ACTIVE)
+            throw new ResponseStatusException(HttpStatus.GONE, "Closed posts cannot be edited");
+        Category category = categoryRepository.findById(request.categoryId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
+        post.setCategory(category); post.setContent(request.content().trim()); post.setImageUrl(cleanOptional(request.imageUrl()));
+        publish("POST_UPDATED", postId);
+        return response(post, user.getId());
+    }
+
+    @Transactional
+    public void delete(Long postId) {
+        helpChatService.deletePost(postId);
+        publish("POST_REMOVED", postId);
     }
 
     @Transactional

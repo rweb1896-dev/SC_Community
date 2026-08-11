@@ -54,6 +54,9 @@ public class User {
     @Transient
     private Set<ExpertiseField> helpFields = new LinkedHashSet<>();
 
+    @Transient
+    private String address;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -84,6 +87,8 @@ public class User {
     public void setProfessionalGroup(ProfessionalGroup professionalGroup) { this.professionalGroup = professionalGroup; }
     public Set<ExpertiseField> getHelpFields() { return helpFields; }
     public void setHelpFields(Set<ExpertiseField> helpFields) { this.helpFields = helpFields; }
+    public String getAddress() { return address; }
+    public void setAddress(String address) { this.address = address; }
     public boolean isProfileComplete() { return role == UserRole.ROLE_ADMIN || (helpFields != null && !helpFields.isEmpty()); }
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }

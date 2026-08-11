@@ -6,6 +6,9 @@ import com.sc.community.repository.UserRepository;
 import com.sc.community.websocket.PresenceService;
 import com.sc.community.dto.DirectoryDtos.UpdateHelpFieldsRequest;
 import com.sc.community.service.DirectoryService;
+import com.sc.community.service.ProfileService;
+import com.sc.community.dto.ProfileDtos.UpdateProfileRequest;
+import com.sc.community.dto.ProfileDtos.ProfileUpdateResponse;
 import jakarta.validation.Valid;
 import java.util.Set;
 import java.util.List;
@@ -21,11 +24,13 @@ public class UserController {
     private final UserRepository userRepository;
     private final PresenceService presenceService;
     private final DirectoryService directoryService;
+    private final ProfileService profileService;
 
-    public UserController(UserRepository userRepository, PresenceService presenceService, DirectoryService directoryService) {
+    public UserController(UserRepository userRepository, PresenceService presenceService, DirectoryService directoryService, ProfileService profileService) {
         this.userRepository = userRepository;
         this.presenceService = presenceService;
         this.directoryService = directoryService;
+        this.profileService = profileService;
     }
 
     @GetMapping("/verified")
@@ -41,5 +46,13 @@ public class UserController {
     @PatchMapping("/me/help-fields")
     public UserResponse updateMyHelpFields(@Valid @RequestBody UpdateHelpFieldsRequest request) {
         return directoryService.updateMyHelpFields(request.fieldIds());
+    }
+
+    @GetMapping("/me")
+    public UserResponse me() { return profileService.me(); }
+
+    @PatchMapping("/me/profile")
+    public ProfileUpdateResponse updateMyProfile(@Valid @RequestBody UpdateProfileRequest request) {
+        return profileService.update(request);
     }
 }

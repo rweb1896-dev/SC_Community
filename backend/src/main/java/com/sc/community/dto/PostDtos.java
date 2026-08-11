@@ -20,6 +20,13 @@ public final class PostDtos {
             String imageUrl) {
     }
 
+    public record UpdatePostRequest(
+            @NotNull Long categoryId,
+            @NotBlank @Size(max = 3000) String content,
+            @Size(max = 1200)
+            @Pattern(regexp = "^$|^https?://.+$|^/api/public/gallery/\\d+/image$", message = "Image must be a valid uploaded image or http(s) URL")
+            String imageUrl) { }
+
     public record PostResponse(
             Long id,
             Long userId,
