@@ -82,7 +82,8 @@
 .community-section.is-visible .gallery-grid > figure:nth-child(n+4) { animation-delay: .43s; }
 .blogs-band { opacity: 1; background: #fff; transform: none; transition: none; }
 .blogs-band .section-heading, .blogs-band .blog-layout > *, .blogs-band .blog-list > a { opacity: 1; transform: none; animation: none !important; }
-.achievers-band { background: linear-gradient(145deg, #f4f8ff 0%, #fff 55%, #f2faf7 100%); }
+.achievers-band { opacity: 1; background: linear-gradient(145deg, #f4f8ff 0%, #fff 55%, #f2faf7 100%); transform: none; transition: none; }
+.achievers-band .section-heading { opacity: 1; transform: none; animation: none !important; }
 .home-achiever-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
 .home-achiever-card { display: grid; min-width: 0; min-height: 168px; grid-template-columns: 82px minmax(0, 1fr); gap: 16px; align-items: center; border: 1px solid #dce6e1; border-radius: 18px; background: rgba(255,255,255,.94); padding: 20px; box-shadow: 0 12px 34px rgba(31,61,49,.07); }
 .home-achiever-photo { display: grid; width: 82px; height: 96px; overflow: hidden; place-items: center; border-radius: 14px; background: linear-gradient(145deg, #225fd5, #673de6); color: #fff; font-size: 22px; font-weight: 900; }
