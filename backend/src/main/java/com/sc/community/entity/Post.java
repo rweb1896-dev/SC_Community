@@ -49,9 +49,6 @@ public class Post {
     @JoinColumn(name = "closed_by_user_id")
     private User closedBy;
 
-    @Column(name = "audience_expanded_at")
-    private Instant audienceExpandedAt;
-
     @PrePersist
     void prePersist() {
         createdAt = Instant.now();
@@ -75,6 +72,4 @@ public class Post {
     public void setClosedAt(Instant closedAt) { this.closedAt = closedAt; }
     public User getClosedBy() { return closedBy; }
     public void setClosedBy(User closedBy) { this.closedBy = closedBy; }
-    public Instant getAudienceExpandedAt() { return audienceExpandedAt; }
-    public void setAudienceExpandedAt(Instant audienceExpandedAt) { this.audienceExpandedAt = audienceExpandedAt; }
 }
