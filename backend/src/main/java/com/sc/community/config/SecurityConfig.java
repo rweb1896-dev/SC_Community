@@ -61,7 +61,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/error", "/index.html", "/favicon.svg", "/assets/**", "/*.js", "/*.css",
-                                "/community", "/login", "/leaders", "/leaders/**", "/library", "/events", "/live",
+                                "/community", "/login", "/leaders", "/leaders/**", "/achievers", "/library", "/events", "/live",
                                 "/feed", "/chat", "/meetings", "/meetings/**", "/admin").permitAll()
                         .requestMatchers("/api/auth/**", "/api/health", "/api/public/**", "/ws/**", "/ws-native/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
