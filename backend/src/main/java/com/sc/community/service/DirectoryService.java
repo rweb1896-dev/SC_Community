@@ -153,13 +153,15 @@ public class DirectoryService {
 
     @Transactional
     public void saveProfile(User user, String address, String photoUrl, String currentPost, String position,
-            String school, String college, String bestAchievement) {
+            String school, String college, String bestAchievement, String profileCategory, String workStatus,
+            String employmentType) {
         String marker = USER_PROFILE + user.getId();
         Broadcast item = repository.findAllByOrderByCreatedAtDesc().stream()
                 .filter(candidate -> marker.equals(candidate.getTitle())).findFirst()
                 .orElseGet(() -> content(marker, user.getEmail(), "", BroadcastStatus.LIVE));
         item.setHostName(user.getEmail());
-        item.setDescription(payload(trim(currentPost), trim(address), trim(position), trim(school), trim(college), trim(bestAchievement)));
+        item.setDescription(payload(trim(currentPost), trim(address), trim(position), trim(school), trim(college),
+                profileDetails(bestAchievement, profileCategory, workStatus, employmentType)));
         item.setMediaUrl(trim(photoUrl));
         item.setStatus(BroadcastStatus.LIVE);
         repository.save(item);
@@ -282,14 +284,14 @@ public class DirectoryService {
         user.setPosition(emptyToNull(values.get("category")));
         user.setSchool(emptyToNull(values.get("source")));
         user.setCollege(emptyToNull(values.get("url")));
-        user.setBestAchievement(emptyToNull(values.get("details")));
+        applyProfileDetails(user, values.get("details"));
         user.setPhotoUrl(item == null ? null : emptyToNull(item.getMediaUrl()));
         user.setProfileCompletion(profileCompletion(user));
     }
 
     private int profileCompletion(User user) {
         int completed = 0;
-        int total = 10;
+        int total = 12;
         if (!blank(user.getFullName())) completed++;
         if (!blank(user.getEmail())) completed++;
         if (!blank(user.getPhoneNumber())) completed++;
@@ -299,8 +301,45 @@ public class DirectoryService {
         if (!blank(user.getSchool())) completed++;
         if (!blank(user.getCollege())) completed++;
         if (!blank(user.getBestAchievement())) completed++;
+        if (!blank(user.getProfileCategory())) completed++;
+        if (!blank(user.getWorkStatus()) || !blank(user.getEmploymentType())) completed++;
         if (user.getHelpFields() != null && !user.getHelpFields().isEmpty()) completed++;
         return Math.min(100, Math.round(completed * 100f / total));
+    }
+
+    private String profileDetails(String bestAchievement, String profileCategory, String workStatus, String employmentType) {
+        try {
+            String json = objectMapper.writeValueAsString(Map.of(
+                    "bestAchievement", trim(bestAchievement),
+                    "profileCategory", trim(profileCategory),
+                    "workStatus", trim(workStatus),
+                    "employmentType", trim(employmentType)));
+            return json.length() <= 560 ? json : trim(bestAchievement);
+        } catch (JsonProcessingException exception) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Profile details are invalid", exception);
+        }
+    }
+
+    private void applyProfileDetails(User user, String details) {
+        if (details == null || details.isBlank()) {
+            user.setBestAchievement(null);
+            user.setProfileCategory(null);
+            user.setWorkStatus(null);
+            user.setEmploymentType(null);
+            return;
+        }
+        try {
+            Map<String, String> values = objectMapper.readValue(details, new TypeReference<>() {});
+            user.setBestAchievement(emptyToNull(values.get("bestAchievement")));
+            user.setProfileCategory(emptyToNull(values.get("profileCategory")));
+            user.setWorkStatus(emptyToNull(values.get("workStatus")));
+            user.setEmploymentType(emptyToNull(values.get("employmentType")));
+        } catch (JsonProcessingException exception) {
+            user.setBestAchievement(emptyToNull(details));
+            user.setProfileCategory(null);
+            user.setWorkStatus(null);
+            user.setEmploymentType(null);
+        }
     }
 
     private Broadcast content(String marker, String hostName, String mediaUrl, BroadcastStatus status) {

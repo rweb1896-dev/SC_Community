@@ -136,6 +136,9 @@
 
       <section class="profile-editor-grid">
         <label><span>Full name</span><input required maxlength="120" name="profileFullName" [(ngModel)]="profileForm.fullName" /></label>
+        <label><span>Profile category</span><select name="profileCategory" [(ngModel)]="profileForm.profileCategory"><option value="">Select category</option><option *ngFor="let item of profileCategoryOptions" [value]="item.value">{{ item.label }}</option></select></label>
+        <label><span>Work status</span><select name="profileWorkStatus" [(ngModel)]="profileForm.workStatus"><option value="">Select status</option><option *ngFor="let item of workStatusOptions" [value]="item.value">{{ item.label }}</option></select></label>
+        <label><span>Employment type</span><select name="profileEmploymentType" [(ngModel)]="profileForm.employmentType"><option value="">Select type</option><option *ngFor="let item of employmentTypeOptions" [value]="item.value">{{ item.label }}</option></select></label>
         <label><span>Current post</span><input maxlength="80" name="profileCurrentPost" placeholder="Teacher, Doctor, Advocate..." [(ngModel)]="profileForm.currentPost" /></label>
         <label><span>Position / role</span><input maxlength="100" name="profilePosition" placeholder="Senior resident, founder, principal..." [(ngModel)]="profileForm.position" /></label>
         <label><span>School</span><input maxlength="120" name="profileSchool" [(ngModel)]="profileForm.school" /></label>

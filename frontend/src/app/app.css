@@ -355,9 +355,11 @@ main {
 .profile-completion-card > div { overflow: hidden; height: 9px; border-radius: 999px; background: #dfe8f1; }
 .profile-completion-card b { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg,#0f766e,#2563eb); }
 .profile-completion-card small { color: #657286; font-size: 10px; line-height: 1.55; }
-.profile-editor-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
-.profile-editor-grid label:nth-child(1),
-.profile-editor-grid label:nth-child(6) { grid-column: 1 / -1; }
+.profile-editor-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
+.profile-editor-grid label:first-child,
+.profile-editor-grid label:last-child { grid-column: 1 / -1; }
+.profile-editor-modal select { width: 100%; border: 1px solid #d9e0e9; border-radius: 9px; background: #fff; padding: 11px 12px; color: #202a3b; font: inherit; outline: none; }
+.profile-editor-modal select:focus { border-color: #7398e8; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
 .profile-editor-modal label span { color: #2f3b4d; }
 .profile-editor-modal footer { margin-inline: 24px; padding-bottom: 22px; }
 .profile-editor-modal .profile-editor-summary { margin: 0 24px; }

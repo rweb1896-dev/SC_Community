@@ -43,6 +43,9 @@ export class AdminComponent implements OnInit, OnDestroy {
   memberGroupFilter: ProfessionalGroup | 'ALL' = 'ALL';
   memberHelpFilter: number | 'ALL' = 'ALL';
   memberCompletionFilter: 'ALL' | 'COMPLETE' | 'INCOMPLETE' = 'ALL';
+  memberProfileCategoryFilter = 'ALL';
+  memberWorkStatusFilter = 'ALL';
+  memberEmploymentTypeFilter = 'ALL';
   invitePanelOpen = false;
   inviteChannel: 'EMAIL' | 'MOBILE' = 'EMAIL';
   inviteRecipient = '';
@@ -78,24 +81,50 @@ export class AdminComponent implements OnInit, OnDestroy {
     { value: 'EDUCATION', label: 'Education' },
     { value: 'SOCIAL_WORKER', label: 'Social worker' }
   ];
+  readonly profileCategoryOptions = [
+    { value: 'DOCTOR', label: 'Doctor' }, { value: 'ENGINEER', label: 'Engineer' },
+    { value: 'STUDENT', label: 'Student' }, { value: 'TEACHER', label: 'Teacher' },
+    { value: 'LAWYER', label: 'Lawyer' }, { value: 'BUSINESS', label: 'Business' },
+    { value: 'GOVERNMENT', label: 'Government service' }, { value: 'COMMUNITY', label: 'Community' },
+    { value: 'OTHER', label: 'Other' }
+  ];
+  readonly workStatusOptions = [
+    { value: 'WORKING', label: 'Working' }, { value: 'STUDENT', label: 'Student' },
+    { value: 'RETIRED', label: 'Retired' }, { value: 'LOOKING', label: 'Looking for work' },
+    { value: 'SELF_EMPLOYED', label: 'Self-employed' }
+  ];
+  readonly employmentTypeOptions = [
+    { value: 'GOVT_JOB', label: 'Govt job' }, { value: 'PRIVATE_JOB', label: 'Private job' },
+    { value: 'BUSINESS', label: 'Business' }, { value: 'FREELANCE', label: 'Freelance' },
+    { value: 'NOT_APPLICABLE', label: 'Not applicable' }
+  ];
 
   get filteredUsers(): UserResponse[] {
     const query = this.memberSearch.trim().toLowerCase();
     return this.users.filter((user) => {
       const profileText = [
         user.fullName, user.email, user.phoneNumber, user.currentPost, user.position,
-        user.school, user.college, user.bestAchievement, user.address, ...(user.helpFieldNames || [])
+        user.school, user.college, user.bestAchievement, user.address, user.profileCategory, user.workStatus, user.employmentType, ...(user.helpFieldNames || [])
       ].filter(Boolean).join(' ').toLowerCase();
       const matchesQuery = !query || profileText.includes(query);
       const matchesStatus = this.memberStatusFilter === 'ALL' || user.status === this.memberStatusFilter;
       const matchesGroup = this.memberGroupFilter === 'ALL' || user.professionalGroup === this.memberGroupFilter;
       const matchesHelp = this.memberHelpFilter === 'ALL' || (user.helpFieldIds || []).includes(Number(this.memberHelpFilter));
+      const matchesProfileCategory = this.memberProfileCategoryFilter === 'ALL' || user.profileCategory === this.memberProfileCategoryFilter;
+      const matchesWorkStatus = this.memberWorkStatusFilter === 'ALL' || user.workStatus === this.memberWorkStatusFilter;
+      const matchesEmploymentType = this.memberEmploymentTypeFilter === 'ALL' || user.employmentType === this.memberEmploymentTypeFilter;
       const completion = user.profileCompletion || 0;
       const matchesCompletion = this.memberCompletionFilter === 'ALL'
         || (this.memberCompletionFilter === 'COMPLETE' && completion >= 80)
         || (this.memberCompletionFilter === 'INCOMPLETE' && completion < 80);
-      return matchesQuery && matchesStatus && matchesGroup && matchesHelp && matchesCompletion;
+      return matchesQuery && matchesStatus && matchesGroup && matchesHelp && matchesProfileCategory
+        && matchesWorkStatus && matchesEmploymentType && matchesCompletion;
     });
+  }
+
+  profileOptionLabel(value?: string): string {
+    return [...this.profileCategoryOptions, ...this.workStatusOptions, ...this.employmentTypeOptions]
+      .find((item) => item.value === value)?.label || value || 'Not added';
   }
 
   get memberCompletionAverage(): number {

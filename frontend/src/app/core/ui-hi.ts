@@ -440,7 +440,17 @@ export const UI_HI: Record<string, string> = Object.fromEntries([
   ['Completion', 'पूर्णता'], ['All status', 'सभी स्थिति'], ['All groups', 'सभी समूह'], ['All help fields', 'सभी सहायता क्षेत्र'],
   ['Any completion', 'कोई भी पूर्णता'], ['80% and above', '80% और अधिक'], ['Needs update', 'अपडेट चाहिए'],
   ['matching members out of', 'कुल में से मिलते सदस्य'], ['No member matches these filters.', 'इन फ़िल्टर से कोई सदस्य नहीं मिला।'],
-  ['updated', 'अपडेट'], ['Not added', 'जोड़ा नहीं गया'], ['ID proof', 'पहचान प्रमाण']
+  ['updated', 'अपडेट'], ['Not added', 'जोड़ा नहीं गया'], ['ID proof', 'पहचान प्रमाण'],
+  ['Profile category', 'प्रोफ़ाइल श्रेणी'], ['Select category', 'श्रेणी चुनें'], ['Work status', 'कार्य स्थिति'],
+  ['Select status', 'स्थिति चुनें'], ['Employment type', 'रोज़गार प्रकार'], ['Select type', 'प्रकार चुनें'],
+  ['Doctor', 'डॉक्टर'], ['Engineer', 'इंजीनियर'], ['Student', 'विद्यार्थी'], ['Teacher', 'शिक्षक'],
+  ['Lawyer', 'वकील'], ['Business', 'व्यवसाय'], ['Government service', 'सरकारी सेवा'], ['Other', 'अन्य'],
+  ['Working', 'कार्यरत'], ['Retired', 'सेवानिवृत्त'], ['Looking for work', 'काम की तलाश'], ['Self-employed', 'स्वरोज़गार'],
+  ['Govt job', 'सरकारी नौकरी'], ['Private job', 'निजी नौकरी'], ['Freelance', 'फ्रीलांस'], ['Not applicable', 'लागू नहीं'],
+  ['Profile network', 'प्रोफ़ाइल नेटवर्क'], ['Members by profession', 'पेशे के अनुसार सदस्य'],
+  ['Doctors', 'डॉक्टर'], ['Engineers', 'इंजीनियर'], ['Students', 'विद्यार्थी'], ['Teachers', 'शिक्षक'],
+  ['Profile type', 'प्रोफ़ाइल प्रकार'], ['All profile types', 'सभी प्रोफ़ाइल प्रकार'], ['All work status', 'सभी कार्य स्थिति'],
+  ['Employment', 'रोज़गार'], ['All employment', 'सभी रोज़गार']
 ]);
 
 export function translateUiText(value: string): string {

@@ -19,6 +19,9 @@ public final class ProfileDtos {
             @Size(max = 120) String school,
             @Size(max = 120) String college,
             @Size(max = 260) String bestAchievement,
+            @Size(max = 40) String profileCategory,
+            @Size(max = 40) String workStatus,
+            @Size(max = 40) String employmentType,
             String emailVerificationToken,
             String phoneVerificationToken) { }
 

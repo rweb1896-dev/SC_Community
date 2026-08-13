@@ -76,6 +76,15 @@ public class User {
     private String bestAchievement;
 
     @Transient
+    private String profileCategory;
+
+    @Transient
+    private String workStatus;
+
+    @Transient
+    private String employmentType;
+
+    @Transient
     private int profileCompletion;
 
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -122,6 +131,12 @@ public class User {
     public void setCollege(String college) { this.college = college; }
     public String getBestAchievement() { return bestAchievement; }
     public void setBestAchievement(String bestAchievement) { this.bestAchievement = bestAchievement; }
+    public String getProfileCategory() { return profileCategory; }
+    public void setProfileCategory(String profileCategory) { this.profileCategory = profileCategory; }
+    public String getWorkStatus() { return workStatus; }
+    public void setWorkStatus(String workStatus) { this.workStatus = workStatus; }
+    public String getEmploymentType() { return employmentType; }
+    public void setEmploymentType(String employmentType) { this.employmentType = employmentType; }
     public int getProfileCompletion() { return profileCompletion; }
     public void setProfileCompletion(int profileCompletion) { this.profileCompletion = profileCompletion; }
     public boolean isProfileComplete() { return role == UserRole.ROLE_ADMIN || (helpFields != null && !helpFields.isEmpty()); }

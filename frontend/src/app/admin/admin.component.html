@@ -382,6 +382,9 @@
       <label class="member-search">Search members<input name="memberSearch" [(ngModel)]="memberSearch" placeholder="Doctor, UPSC, college, lawyer..." /></label>
       <label>Status<select name="memberStatusFilter" [(ngModel)]="memberStatusFilter"><option value="ALL">All status</option><option value="PENDING">Pending</option><option value="VERIFIED">Verified</option><option value="BLOCKED">Blocked</option></select></label>
       <label>Group<select name="memberGroupFilter" [(ngModel)]="memberGroupFilter"><option value="ALL">All groups</option><option *ngFor="let group of professionalGroups" [value]="group.value">{{ group.label }}</option></select></label>
+      <label>Profile type<select name="memberProfileCategoryFilter" [(ngModel)]="memberProfileCategoryFilter"><option value="ALL">All profile types</option><option *ngFor="let item of profileCategoryOptions" [value]="item.value">{{ item.label }}</option></select></label>
+      <label>Work status<select name="memberWorkStatusFilter" [(ngModel)]="memberWorkStatusFilter"><option value="ALL">All work status</option><option *ngFor="let item of workStatusOptions" [value]="item.value">{{ item.label }}</option></select></label>
+      <label>Employment<select name="memberEmploymentTypeFilter" [(ngModel)]="memberEmploymentTypeFilter"><option value="ALL">All employment</option><option *ngFor="let item of employmentTypeOptions" [value]="item.value">{{ item.label }}</option></select></label>
       <label>Help field<select name="memberHelpFilter" [(ngModel)]="memberHelpFilter"><option [ngValue]="'ALL'">All help fields</option><option *ngFor="let field of expertiseFields" [ngValue]="field.id">{{ field.name }}</option></select></label>
       <label>Completion<select name="memberCompletionFilter" [(ngModel)]="memberCompletionFilter"><option value="ALL">Any completion</option><option value="COMPLETE">80% and above</option><option value="INCOMPLETE">Needs update</option></select></label>
     </div>
@@ -405,6 +408,7 @@
           </div>
           <div class="profile-strength"><span><b [style.width.%]="user.profileCompletion || 0"></b></span><small>{{ user.profileCompletion || 0 }}% updated</small></div>
           <p *ngIf="user.bestAchievement">{{ user.bestAchievement }}</p>
+          <div class="member-profile-tags"><span>{{ profileOptionLabel(user.profileCategory) }}</span><span>{{ profileOptionLabel(user.workStatus) }}</span><span>{{ profileOptionLabel(user.employmentType) }}</span></div>
           <dl>
             <div><dt>Email</dt><dd>{{ user.email }}</dd></div>
             <div><dt>Mobile</dt><dd>{{ user.phoneNumber || 'Not added' }}</dd></div>

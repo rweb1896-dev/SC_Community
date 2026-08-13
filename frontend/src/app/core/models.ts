@@ -55,6 +55,9 @@ export interface UserResponse {
   school?: string;
   college?: string;
   bestAchievement?: string;
+  profileCategory?: string;
+  workStatus?: string;
+  employmentType?: string;
   profileCompletion: number;
   role: UserRole;
   status: UserStatus;

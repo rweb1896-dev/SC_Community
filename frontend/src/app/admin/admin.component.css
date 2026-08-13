@@ -703,7 +703,7 @@ td {
 
 .member-filters {
   display: grid;
-  grid-template-columns: minmax(240px,1.2fr) repeat(4,minmax(140px,.7fr));
+  grid-template-columns: minmax(240px,1.2fr) repeat(7,minmax(118px,.7fr));
   gap: 9px;
 }
 
@@ -889,7 +889,14 @@ td {
   gap: 5px;
 }
 
-.member-help-tags span {
+.member-profile-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.member-help-tags span,
+.member-profile-tags span {
   border-radius: 999px;
   background: #edf7f3;
   padding: 4px 7px;
@@ -897,6 +904,8 @@ td {
   font-size: 8px;
   font-weight: 800;
 }
+
+.member-profile-tags span { background: #eef3ff; color: #2557b5; }
 
 .admin-member-card footer {
   display: flex;
@@ -934,7 +943,7 @@ td {
 }
 
 @media (max-width: 1180px) {
-  .member-filters { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .member-filters { grid-template-columns: repeat(3,minmax(0,1fr)); }
   .member-search { grid-column: 1 / -1; }
 }
 

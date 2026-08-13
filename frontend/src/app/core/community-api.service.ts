@@ -93,6 +93,7 @@ export class CommunityApiService {
   updateMyProfile(payload: {
     fullName:string; email:string; phoneNumber:string; address:string; photoUrl:string;
     currentPost:string; position:string; school:string; college:string; bestAchievement:string;
+    profileCategory:string; workStatus:string; employmentType:string;
     emailVerificationToken?:string; phoneVerificationToken?:string
   }) { return this.http.patch<ProfileUpdateResponse>(`${API}/users/me/profile`, payload); }
 

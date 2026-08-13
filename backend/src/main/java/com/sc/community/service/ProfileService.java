@@ -56,7 +56,8 @@ public class ProfileService {
         user.setFullName(request.fullName().trim()); user.setEmail(email); user.setPhoneNumber(phone);
         users.save(user);
         directory.saveProfile(user, request.address(), request.photoUrl(), request.currentPost(), request.position(),
-                request.school(), request.college(), request.bestAchievement());
+                request.school(), request.college(), request.bestAchievement(), request.profileCategory(),
+                request.workStatus(), request.employmentType());
         return new ProfileUpdateResponse(directory.responseForUser(user), jwt.generateToken(user));
     }
 }

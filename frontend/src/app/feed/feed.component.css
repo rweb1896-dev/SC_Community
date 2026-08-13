@@ -793,6 +793,37 @@
   font-size: 8px;
 }
 
+.profile-count-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.profile-count-grid div {
+  display: grid;
+  min-height: 48px;
+  align-content: center;
+  gap: 2px;
+  border-radius: 7px;
+  background: #f3f8f6;
+  padding: 7px 5px;
+}
+
+.profile-count-grid strong {
+  color: #13705d;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.profile-count-grid span {
+  overflow: hidden;
+  color: #64736c;
+  font-size: 8px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .community-card {
   gap: 9px;
 }

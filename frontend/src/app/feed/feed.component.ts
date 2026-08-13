@@ -80,7 +80,21 @@ export class FeedComponent implements OnInit, OnDestroy {
 
   get visibleMembers(): UserResponse[] {
     const query = this.searchTerm.trim().toLowerCase();
-    return (query ? this.members.filter((member) => `${member.fullName} ${member.email}`.toLowerCase().includes(query)) : this.members).slice(0, 4);
+    return (query ? this.members.filter((member) => `${member.fullName} ${member.email} ${member.profileCategory || ''} ${member.workStatus || ''} ${member.employmentType || ''}`.toLowerCase().includes(query)) : this.members).slice(0, 4);
+  }
+
+  get profileCounts() {
+    return [
+      { label: 'Doctors', count: this.countMembers('profileCategory', 'DOCTOR') },
+      { label: 'Engineers', count: this.countMembers('profileCategory', 'ENGINEER') },
+      { label: 'Students', count: this.countMembers('profileCategory', 'STUDENT') },
+      { label: 'Teachers', count: this.countMembers('profileCategory', 'TEACHER') },
+      { label: 'Govt job', count: this.countMembers('employmentType', 'GOVT_JOB') },
+      { label: 'Private job', count: this.countMembers('employmentType', 'PRIVATE_JOB') },
+      { label: 'Business', count: this.countMembers('employmentType', 'BUSINESS') },
+      { label: 'Retired', count: this.countMembers('workStatus', 'RETIRED') },
+      { label: 'Working', count: this.countMembers('workStatus', 'WORKING') }
+    ];
   }
 
   constructor(
@@ -90,6 +104,10 @@ export class FeedComponent implements OnInit, OnDestroy {
     private feedSocket: FeedSocketService,
     public i18n: I18nService
   ) {}
+
+  private countMembers(field: 'profileCategory' | 'workStatus' | 'employmentType', value: string): number {
+    return this.members.filter((member) => member[field] === value).length;
+  }
 
   ngOnInit(): void {
     document.body.classList.add('feed-lock');

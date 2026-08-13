@@ -44,13 +44,31 @@ export class App implements OnInit, OnDestroy {
   profileEditorSaving = false;
   profileEditorError = '';
   profileEditorSuccess = '';
-  profileForm = { fullName:'', email:'', phoneNumber:'', address:'', photoUrl:'', currentPost:'', position:'', school:'', college:'', bestAchievement:'' };
+  profileForm = { fullName:'', email:'', phoneNumber:'', address:'', photoUrl:'', currentPost:'', position:'', school:'', college:'', bestAchievement:'', profileCategory:'', workStatus:'', employmentType:'' };
   private profileOriginal = { email:'', phoneNumber:'' };
   profileEmailOtp = ''; profileMobileOtp = '';
   profileEmailToken = ''; profileMobileToken = '';
   profileEmailFeedback = ''; profileMobileFeedback = '';
   profilePhotoUploading = false;
   profilePhotoProgress = 0;
+  private autoProfilePromptedForUser?: number;
+  readonly profileCategoryOptions = [
+    { value: 'DOCTOR', label: 'Doctor' }, { value: 'ENGINEER', label: 'Engineer' },
+    { value: 'STUDENT', label: 'Student' }, { value: 'TEACHER', label: 'Teacher' },
+    { value: 'LAWYER', label: 'Lawyer' }, { value: 'BUSINESS', label: 'Business' },
+    { value: 'GOVERNMENT', label: 'Government service' }, { value: 'COMMUNITY', label: 'Community' },
+    { value: 'OTHER', label: 'Other' }
+  ];
+  readonly workStatusOptions = [
+    { value: 'WORKING', label: 'Working' }, { value: 'STUDENT', label: 'Student' },
+    { value: 'RETIRED', label: 'Retired' }, { value: 'LOOKING', label: 'Looking for work' },
+    { value: 'SELF_EMPLOYED', label: 'Self-employed' }
+  ];
+  readonly employmentTypeOptions = [
+    { value: 'GOVT_JOB', label: 'Govt job' }, { value: 'PRIVATE_JOB', label: 'Private job' },
+    { value: 'BUSINESS', label: 'Business' }, { value: 'FREELANCE', label: 'Freelance' },
+    { value: 'NOT_APPLICABLE', label: 'Not applicable' }
+  ];
   messageOpenRequest = 0;
   private inviteCreatingNew = false;
   private subscriptions = new Subscription();
@@ -68,11 +86,16 @@ export class App implements OnInit, OnDestroy {
     this.subscriptions.add(this.auth.session$.subscribe((session) => {
       if (session) {
         this.refreshMemberInvite(false);
-        if (session.role === 'ROLE_USER' && !session.profileComplete) { this.profileHelpRequired = true; this.openProfileHelp(session.helpFieldIds || []); }
+        if (session.role === 'ROLE_USER' && (session.profileCompletion || 0) < 30 && this.autoProfilePromptedForUser !== session.userId) {
+          this.autoProfilePromptedForUser = session.userId;
+          this.profileHelpOpen = false;
+          setTimeout(() => this.openSelfProfile(), 250);
+        } else if (session.role === 'ROLE_USER' && !session.profileComplete) { this.profileHelpRequired = true; this.openProfileHelp(session.helpFieldIds || []); }
         else this.profileHelpOpen = false;
       } else {
         this.inviteRequest = undefined; this.inviteWorkspaceOpen = false; this.profileHelpOpen = false;
         this.selectedHelpFieldIds = []; this.profileHelpError = '';
+        this.autoProfilePromptedForUser = undefined;
       }
     }));
     this.subscriptions.add(interval(7000).subscribe(() => {
@@ -167,14 +190,15 @@ export class App implements OnInit, OnDestroy {
       this.profileForm.address.trim(), this.profileForm.photoUrl.trim(),
       this.profileForm.currentPost.trim() || this.profileForm.position.trim(),
       this.profileForm.school.trim(), this.profileForm.college.trim(), this.profileForm.bestAchievement.trim(),
+      this.profileForm.profileCategory.trim(), this.profileForm.workStatus.trim() || this.profileForm.employmentType.trim(),
       this.selectedHelpFieldIds.length ? 'help' : ''
     ];
-    return Math.min(100, Math.round(checks.filter(Boolean).length * 10));
+    return Math.min(100, Math.round(checks.filter(Boolean).length * 100 / checks.length));
   }
 
   openSelfProfile():void {
     this.profileOpen=false;this.profileEditorOpen=true;this.profileEditorLoading=true;this.profileEditorError='';this.profileEditorSuccess='';
-    this.api.myProfile().subscribe({next:user=>{this.profileForm={fullName:user.fullName,email:user.email,phoneNumber:user.phoneNumber||'',address:user.address||'',photoUrl:user.photoUrl||'',currentPost:user.currentPost||'',position:user.position||'',school:user.school||'',college:user.college||'',bestAchievement:user.bestAchievement||''};this.selectedHelpFieldIds=[...(user.helpFieldIds||[])];this.profileOriginal={email:user.email,phoneNumber:user.phoneNumber||''};this.resetProfileVerification();this.profileEditorLoading=false;},error:e=>{this.profileEditorError=e.error?.detail||'Profile could not be loaded.';this.profileEditorLoading=false;}});
+    this.api.myProfile().subscribe({next:user=>{this.profileForm={fullName:user.fullName,email:user.email,phoneNumber:user.phoneNumber||'',address:user.address||'',photoUrl:user.photoUrl||'',currentPost:user.currentPost||'',position:user.position||'',school:user.school||'',college:user.college||'',bestAchievement:user.bestAchievement||'',profileCategory:user.profileCategory||'',workStatus:user.workStatus||'',employmentType:user.employmentType||''};this.selectedHelpFieldIds=[...(user.helpFieldIds||[])];this.profileOriginal={email:user.email,phoneNumber:user.phoneNumber||''};this.resetProfileVerification();this.profileEditorLoading=false;},error:e=>{this.profileEditorError=e.error?.detail||'Profile could not be loaded.';this.profileEditorLoading=false;}});
   }
   closeSelfProfile():void{if(!this.profileEditorSaving)this.profileEditorOpen=false;}
   selectProfilePhoto(event: Event): void {
