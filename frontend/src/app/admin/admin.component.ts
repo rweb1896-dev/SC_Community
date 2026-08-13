@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CommunityApiService } from '../core/community-api.service';
-import { Achiever, Broadcast, BroadcastMediaType, BroadcastStatus, CommunityEvent, Dashboard, EventStatus, ExpertiseField, GalleryImage, InviteCode, InviteRequest, ManagedContent, ManagedContentInput, ManagedContentStatus, MemberInviteRequest, Meeting, Post, ProfessionalGroup, UserResponse } from '../core/models';
+import { Achiever, AdminUserResponse, AgeGroup, Broadcast, BroadcastMediaType, BroadcastStatus, CommunityEvent, Dashboard, EventStatus, ExpertiseField, GalleryImage, InviteCode, InviteRequest, ManagedContent, ManagedContentInput, ManagedContentStatus, MemberInviteRequest, Meeting, Post, ProfessionalGroup, UserResponse } from '../core/models';
 import { MeetingSocketService } from '../core/meeting-socket.service';
 import { auditTime, interval, Subscription } from 'rxjs';
 import { LucideAward, LucideBan, LucideBookOpen, LucideCalendarDays, LucideCheck, LucideCopy, LucideImages, LucideMail, LucidePause, LucidePlay, LucidePlus, LucideRadio, LucideRotateCcw, LucideSend, LucideSmartphone, LucideSquare, LucideTrash2, LucideUpload, LucideUserRound, LucideX } from '@lucide/angular';
@@ -20,7 +20,7 @@ import { I18nService } from '../core/i18n.service';
 })
 export class AdminComponent implements OnInit, OnDestroy {
   dashboard?: Dashboard;
-  users: UserResponse[] = [];
+  users: AdminUserResponse[] = [];
   codes: InviteCode[] = [];
   posts: Post[] = [];
   pendingMeetings: Meeting[] = [];
@@ -46,6 +46,8 @@ export class AdminComponent implements OnInit, OnDestroy {
   memberProfileCategoryFilter = 'ALL';
   memberWorkStatusFilter = 'ALL';
   memberEmploymentTypeFilter = 'ALL';
+  memberAgeGroupFilter: AgeGroup | 'ALL' = 'ALL';
+  memberJobSeekerFilter: 'ALL' | 'LOOKING' | 'NOT_LOOKING' = 'ALL';
   invitePanelOpen = false;
   inviteChannel: 'EMAIL' | 'MOBILE' = 'EMAIL';
   inviteRecipient = '';
@@ -91,7 +93,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   readonly workStatusOptions = [
     { value: 'WORKING', label: 'Working' }, { value: 'STUDENT', label: 'Student' },
     { value: 'RETIRED', label: 'Retired' }, { value: 'LOOKING', label: 'Looking for work' },
-    { value: 'SELF_EMPLOYED', label: 'Self-employed' }
+    { value: 'SELF_EMPLOYED', label: 'Self-employed' }, { value: 'UNEMPLOYED', label: 'Unemployed' }
   ];
   readonly employmentTypeOptions = [
     { value: 'GOVT_JOB', label: 'Govt job' }, { value: 'PRIVATE_JOB', label: 'Private job' },
@@ -99,7 +101,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     { value: 'NOT_APPLICABLE', label: 'Not applicable' }
   ];
 
-  get filteredUsers(): UserResponse[] {
+  get filteredUsers(): AdminUserResponse[] {
     const query = this.memberSearch.trim().toLowerCase();
     return this.users.filter((user) => {
       const profileText = [
@@ -113,12 +115,16 @@ export class AdminComponent implements OnInit, OnDestroy {
       const matchesProfileCategory = this.memberProfileCategoryFilter === 'ALL' || user.profileCategory === this.memberProfileCategoryFilter;
       const matchesWorkStatus = this.memberWorkStatusFilter === 'ALL' || user.workStatus === this.memberWorkStatusFilter;
       const matchesEmploymentType = this.memberEmploymentTypeFilter === 'ALL' || user.employmentType === this.memberEmploymentTypeFilter;
+      const matchesAgeGroup = this.memberAgeGroupFilter === 'ALL' || user.ageGroup === this.memberAgeGroupFilter;
+      const matchesJobSeeker = this.memberJobSeekerFilter === 'ALL'
+        || (this.memberJobSeekerFilter === 'LOOKING' && (user.lookingForJob || user.workStatus === 'LOOKING' || user.workStatus === 'UNEMPLOYED'))
+        || (this.memberJobSeekerFilter === 'NOT_LOOKING' && !user.lookingForJob && user.workStatus !== 'LOOKING' && user.workStatus !== 'UNEMPLOYED');
       const completion = user.profileCompletion || 0;
       const matchesCompletion = this.memberCompletionFilter === 'ALL'
         || (this.memberCompletionFilter === 'COMPLETE' && completion >= 80)
         || (this.memberCompletionFilter === 'INCOMPLETE' && completion < 80);
       return matchesQuery && matchesStatus && matchesGroup && matchesHelp && matchesProfileCategory
-        && matchesWorkStatus && matchesEmploymentType && matchesCompletion;
+        && matchesWorkStatus && matchesEmploymentType && matchesAgeGroup && matchesJobSeeker && matchesCompletion;
     });
   }
 
@@ -130,6 +136,31 @@ export class AdminComponent implements OnInit, OnDestroy {
   get memberCompletionAverage(): number {
     if (!this.users.length) return 0;
     return Math.round(this.users.reduce((sum, user) => sum + (user.profileCompletion || 0), 0) / this.users.length);
+  }
+
+  get ageInsights(): { label: string; value: AgeGroup; count: number }[] {
+    return [
+      { label: 'Under 18', value: 'UNDER_18', count: this.users.filter(user => user.ageGroup === 'UNDER_18').length },
+      { label: '18–24', value: '18_24', count: this.users.filter(user => user.ageGroup === '18_24').length },
+      { label: '25–34', value: '25_34', count: this.users.filter(user => user.ageGroup === '25_34').length },
+      { label: '35–44', value: '35_44', count: this.users.filter(user => user.ageGroup === '35_44').length },
+      { label: '45–59', value: '45_59', count: this.users.filter(user => user.ageGroup === '45_59').length },
+      { label: '60+', value: '60_PLUS', count: this.users.filter(user => user.ageGroup === '60_PLUS').length }
+    ];
+  }
+
+  get jobSeekingMembers(): number {
+    return this.users.filter(user => user.lookingForJob || user.workStatus === 'LOOKING' || user.workStatus === 'UNEMPLOYED').length;
+  }
+
+  focusAgeGroup(value: AgeGroup): void { this.memberAgeGroupFilter = value; }
+
+  smartMemberSummary(user: AdminUserResponse): string {
+    const signals = [user.profileCategory, user.currentPost || user.position, user.bestAchievement, ...(user.helpFieldNames || [])].filter(Boolean);
+    if (user.lookingForJob || user.workStatus === 'LOOKING' || user.workStatus === 'UNEMPLOYED') {
+      return `Opportunity match: ${signals.slice(0, 2).join(' · ') || 'complete profile for suitable roles'}`;
+    }
+    return `Best routing: ${signals.slice(0, 3).join(' · ') || 'complete profile to improve matching'}`;
   }
 
   get leaderContentRows(): ManagedContent[] {

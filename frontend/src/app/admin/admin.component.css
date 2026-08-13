@@ -703,7 +703,7 @@ td {
 
 .member-filters {
   display: grid;
-  grid-template-columns: minmax(240px,1.2fr) repeat(7,minmax(118px,.7fr));
+  grid-template-columns: minmax(240px,1.2fr) repeat(9,minmax(118px,.7fr));
   gap: 9px;
 }
 
@@ -749,6 +749,12 @@ td {
   font-size: 9px;
   font-weight: 850;
 }
+.member-ai-insights { display: grid; grid-template-columns: minmax(150px,1.25fr) repeat(6,minmax(74px,.7fr)); gap: 7px; }
+.member-ai-insights > div,.member-ai-insights button { display: grid; align-content: center; gap: 2px; min-height: 62px; border: 1px solid #d9e6df; border-radius: 9px; background: #f8fbf9; padding: 9px; text-align: left; }
+.member-ai-insights > div { background: linear-gradient(135deg,#eaf8f2,#edf3ff); }
+.member-ai-insights button { cursor: pointer; transition: transform 150ms ease, border-color 150ms ease, background 150ms ease; }
+.member-ai-insights button:hover,.member-ai-insights button.active { border-color: #4d9f87; background: #eaf7f2; transform: translateY(-1px); }
+.member-ai-insights strong { color: #16705d; font-size: 17px; line-height: 1; }.member-ai-insights span { color:#3f5d53;font-size:9px;font-weight:900 }.member-ai-insights small { color:#71827b;font-size:8px }
 
 .member-card-grid {
   display: grid;
@@ -906,6 +912,8 @@ td {
 }
 
 .member-profile-tags span { background: #eef3ff; color: #2557b5; }
+.member-profile-tags .job-seeker { background: #fff2d8; color: #9a5a0b; }
+.admin-member-body .member-smart-summary { color: #397166; font-size: 9px; font-weight: 750; }
 
 .admin-member-card footer {
   display: flex;
@@ -945,6 +953,7 @@ td {
 @media (max-width: 1180px) {
   .member-filters { grid-template-columns: repeat(3,minmax(0,1fr)); }
   .member-search { grid-column: 1 / -1; }
+  .member-ai-insights { grid-template-columns: repeat(4,minmax(0,1fr)); }
 }
 
 @media (max-width: 680px) {
@@ -952,6 +961,7 @@ td {
   .member-directory-score { width: 100%; text-align: left; }
   .member-filters { grid-template-columns: 1fr; }
   .member-search { grid-column: auto; }
+  .member-ai-insights { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .admin-member-card { grid-template-columns: 56px minmax(0,1fr); }
   .admin-member-photo { width: 56px; height: 56px; border-radius: 8px; }
   .admin-member-body dl { grid-template-columns: 1fr; }

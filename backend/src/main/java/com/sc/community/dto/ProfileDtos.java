@@ -22,8 +22,10 @@ public final class ProfileDtos {
             @Size(max = 40) String profileCategory,
             @Size(max = 40) String workStatus,
             @Size(max = 40) String employmentType,
+            @Pattern(regexp = "^$|^\\d{4}-\\d{2}-\\d{2}$", message = "Enter date of birth as YYYY-MM-DD") String dateOfBirth,
+            boolean lookingForJob,
             String emailVerificationToken,
             String phoneVerificationToken) { }
 
-    public record ProfileUpdateResponse(UserResponse user, String token) { }
+    public record ProfileUpdateResponse(ProfileResponse user, String token) { }
 }

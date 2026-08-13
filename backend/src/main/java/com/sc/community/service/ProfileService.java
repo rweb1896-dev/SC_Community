@@ -2,6 +2,7 @@ package com.sc.community.service;
 
 import com.sc.community.dto.ProfileDtos.UpdateProfileRequest;
 import com.sc.community.dto.ProfileDtos.ProfileUpdateResponse;
+import com.sc.community.dto.ProfileResponse;
 import com.sc.community.dto.UserResponse;
 import com.sc.community.entity.OtpChannel;
 import com.sc.community.entity.OtpPurpose;
@@ -9,6 +10,7 @@ import com.sc.community.entity.User;
 import com.sc.community.repository.UserRepository;
 import com.sc.community.security.JwtService;
 import jakarta.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.Locale;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -27,7 +29,11 @@ public class ProfileService {
     }
 
     @Transactional
-    public UserResponse me() { return directory.responseForUser(current.verifiedUser()); }
+    public ProfileResponse me() {
+        User user = current.verifiedUser();
+        directory.responseForUser(user);
+        return ProfileResponse.from(user);
+    }
 
     @Transactional
     public ProfileUpdateResponse update(UpdateProfileRequest request) {
@@ -35,6 +41,7 @@ public class ProfileService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         String email = request.email().trim().toLowerCase(Locale.ROOT);
         String phone = request.phoneNumber().replaceAll("[\\s()\\-]", "");
+        String dateOfBirth = validatedDateOfBirth(request.dateOfBirth());
         boolean emailChanged = !email.equalsIgnoreCase(user.getEmail());
         boolean phoneChanged = !phone.equals(user.getPhoneNumber());
         if (emailChanged) {
@@ -57,7 +64,21 @@ public class ProfileService {
         users.save(user);
         directory.saveProfile(user, request.address(), request.photoUrl(), request.currentPost(), request.position(),
                 request.school(), request.college(), request.bestAchievement(), request.profileCategory(),
-                request.workStatus(), request.employmentType());
-        return new ProfileUpdateResponse(directory.responseForUser(user), jwt.generateToken(user));
+                request.workStatus(), request.employmentType(), dateOfBirth, request.lookingForJob());
+        directory.responseForUser(user);
+        return new ProfileUpdateResponse(ProfileResponse.from(user), jwt.generateToken(user));
+    }
+
+    private String validatedDateOfBirth(String value) {
+        if (value == null || value.isBlank()) return "";
+        try {
+            LocalDate dob = LocalDate.parse(value);
+            if (dob.isAfter(LocalDate.now())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Date of birth cannot be in the future");
+            }
+            return dob.toString();
+        } catch (java.time.format.DateTimeParseException exception) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Enter a valid date of birth");
+        }
     }
 }

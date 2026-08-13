@@ -361,6 +361,10 @@ main {
 .profile-editor-modal select { width: 100%; border: 1px solid #d9e0e9; border-radius: 9px; background: #fff; padding: 11px 12px; color: #202a3b; font: inherit; outline: none; }
 .profile-editor-modal select:focus { border-color: #7398e8; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
 .profile-editor-modal label span { color: #2f3b4d; }
+.profile-editor-modal label span small { color: #758094; font-size: 8px; font-weight: 700; }
+.profile-editor-modal .job-search-toggle { align-content: start; }
+.profile-editor-modal .job-search-toggle > span:last-child { display: flex; min-height: 42px; align-items: center; gap: 8px; border: 1px solid #d9e0e9; border-radius: 9px; background: #f8fbff; padding: 0 11px; color: #2859bd; font-size: 10px; font-weight: 800; }
+.profile-editor-modal .job-search-toggle input { width: 16px; height: 16px; padding: 0; accent-color: #2563eb; }
 .profile-editor-modal footer { margin-inline: 24px; padding-bottom: 22px; }
 .profile-editor-modal .profile-editor-summary { margin: 0 24px; }
 .profile-editor-modal .profile-editor-grid,

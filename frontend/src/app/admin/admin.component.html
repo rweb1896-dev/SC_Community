@@ -385,6 +385,8 @@
       <label>Profile type<select name="memberProfileCategoryFilter" [(ngModel)]="memberProfileCategoryFilter"><option value="ALL">All profile types</option><option *ngFor="let item of profileCategoryOptions" [value]="item.value">{{ item.label }}</option></select></label>
       <label>Work status<select name="memberWorkStatusFilter" [(ngModel)]="memberWorkStatusFilter"><option value="ALL">All work status</option><option *ngFor="let item of workStatusOptions" [value]="item.value">{{ item.label }}</option></select></label>
       <label>Employment<select name="memberEmploymentTypeFilter" [(ngModel)]="memberEmploymentTypeFilter"><option value="ALL">All employment</option><option *ngFor="let item of employmentTypeOptions" [value]="item.value">{{ item.label }}</option></select></label>
+      <label>Age group<select name="memberAgeGroupFilter" [(ngModel)]="memberAgeGroupFilter"><option value="ALL">All age groups</option><option value="UNDER_18">Under 18</option><option value="18_24">18–24</option><option value="25_34">25–34</option><option value="35_44">35–44</option><option value="45_59">45–59</option><option value="60_PLUS">60+</option><option value="NOT_ADDED">DOB not added</option></select></label>
+      <label>Job search<select name="memberJobSeekerFilter" [(ngModel)]="memberJobSeekerFilter"><option value="ALL">Everyone</option><option value="LOOKING">Looking for a job</option><option value="NOT_LOOKING">Not looking</option></select></label>
       <label>Help field<select name="memberHelpFilter" [(ngModel)]="memberHelpFilter"><option [ngValue]="'ALL'">All help fields</option><option *ngFor="let field of expertiseFields" [ngValue]="field.id">{{ field.name }}</option></select></label>
       <label>Completion<select name="memberCompletionFilter" [(ngModel)]="memberCompletionFilter"><option value="ALL">Any completion</option><option value="COMPLETE">80% and above</option><option value="INCOMPLETE">Needs update</option></select></label>
     </div>
@@ -393,6 +395,11 @@
       <strong>{{ filteredUsers.length }}</strong>
       <span>matching members out of {{ users.length }}</span>
     </div>
+
+    <section class="member-ai-insights" aria-label="Member intelligence insights">
+      <div><span>Opportunity ready</span><strong>{{ jobSeekingMembers }}</strong><small>members looking for work</small></div>
+      <button type="button" *ngFor="let insight of ageInsights" (click)="focusAgeGroup(insight.value)" [class.active]="memberAgeGroupFilter === insight.value"><strong>{{ insight.count }}</strong><span>{{ insight.label }}</span></button>
+    </section>
 
     <p class="studio-empty" *ngIf="filteredUsers.length === 0">No member matches these filters.</p>
     <div class="member-card-grid">
@@ -408,13 +415,15 @@
           </div>
           <div class="profile-strength"><span><b [style.width.%]="user.profileCompletion || 0"></b></span><small>{{ user.profileCompletion || 0 }}% updated</small></div>
           <p *ngIf="user.bestAchievement">{{ user.bestAchievement }}</p>
-          <div class="member-profile-tags"><span>{{ profileOptionLabel(user.profileCategory) }}</span><span>{{ profileOptionLabel(user.workStatus) }}</span><span>{{ profileOptionLabel(user.employmentType) }}</span></div>
+          <div class="member-profile-tags"><span>{{ profileOptionLabel(user.profileCategory) }}</span><span>{{ profileOptionLabel(user.workStatus) }}</span><span>{{ profileOptionLabel(user.employmentType) }}</span><span *ngIf="user.lookingForJob || user.workStatus === 'LOOKING' || user.workStatus === 'UNEMPLOYED'" class="job-seeker">Looking for a job</span></div>
+          <p class="member-smart-summary">{{ smartMemberSummary(user) }}</p>
           <dl>
             <div><dt>Email</dt><dd>{{ user.email }}</dd></div>
             <div><dt>Mobile</dt><dd>{{ user.phoneNumber || 'Not added' }}</dd></div>
             <div><dt>School</dt><dd>{{ user.school || 'Not added' }}</dd></div>
             <div><dt>College</dt><dd>{{ user.college || 'Not added' }}</dd></div>
             <div><dt>Address</dt><dd>{{ user.address || 'Not added' }}</dd></div>
+            <div><dt>Age group</dt><dd>{{ user.ageGroup === 'NOT_ADDED' ? 'DOB not added' : user.ageGroup }}</dd></div>
           </dl>
           <div class="member-help-tags" *ngIf="user.helpFieldNames.length"><span *ngFor="let fieldName of user.helpFieldNames">{{ fieldName }}</span></div>
         </div>

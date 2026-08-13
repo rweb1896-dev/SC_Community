@@ -154,14 +154,14 @@ public class DirectoryService {
     @Transactional
     public void saveProfile(User user, String address, String photoUrl, String currentPost, String position,
             String school, String college, String bestAchievement, String profileCategory, String workStatus,
-            String employmentType) {
+            String employmentType, String dateOfBirth, boolean lookingForJob) {
         String marker = USER_PROFILE + user.getId();
         Broadcast item = repository.findAllByOrderByCreatedAtDesc().stream()
                 .filter(candidate -> marker.equals(candidate.getTitle())).findFirst()
                 .orElseGet(() -> content(marker, user.getEmail(), "", BroadcastStatus.LIVE));
         item.setHostName(user.getEmail());
         item.setDescription(payload(trim(currentPost), trim(address), trim(position), trim(school), trim(college),
-                profileDetails(bestAchievement, profileCategory, workStatus, employmentType)));
+                profileDetails(bestAchievement, profileCategory, workStatus, employmentType, dateOfBirth, lookingForJob)));
         item.setMediaUrl(trim(photoUrl));
         item.setStatus(BroadcastStatus.LIVE);
         repository.save(item);
@@ -291,7 +291,7 @@ public class DirectoryService {
 
     private int profileCompletion(User user) {
         int completed = 0;
-        int total = 12;
+        int total = 13;
         if (!blank(user.getFullName())) completed++;
         if (!blank(user.getEmail())) completed++;
         if (!blank(user.getPhoneNumber())) completed++;
@@ -303,17 +303,22 @@ public class DirectoryService {
         if (!blank(user.getBestAchievement())) completed++;
         if (!blank(user.getProfileCategory())) completed++;
         if (!blank(user.getWorkStatus()) || !blank(user.getEmploymentType())) completed++;
+        if (!blank(user.getDateOfBirth())) completed++;
         if (user.getHelpFields() != null && !user.getHelpFields().isEmpty()) completed++;
         return Math.min(100, Math.round(completed * 100f / total));
     }
 
-    private String profileDetails(String bestAchievement, String profileCategory, String workStatus, String employmentType) {
+    private String profileDetails(String bestAchievement, String profileCategory, String workStatus, String employmentType,
+            String dateOfBirth, boolean lookingForJob) {
         try {
-            String json = objectMapper.writeValueAsString(Map.of(
-                    "bestAchievement", trim(bestAchievement),
-                    "profileCategory", trim(profileCategory),
-                    "workStatus", trim(workStatus),
-                    "employmentType", trim(employmentType)));
+            Map<String, String> values = new LinkedHashMap<>();
+            values.put("bestAchievement", trim(bestAchievement));
+            values.put("profileCategory", trim(profileCategory));
+            values.put("workStatus", trim(workStatus));
+            values.put("employmentType", trim(employmentType));
+            values.put("dateOfBirth", trim(dateOfBirth));
+            values.put("lookingForJob", Boolean.toString(lookingForJob));
+            String json = objectMapper.writeValueAsString(values);
             return json.length() <= 560 ? json : trim(bestAchievement);
         } catch (JsonProcessingException exception) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Profile details are invalid", exception);
@@ -326,6 +331,8 @@ public class DirectoryService {
             user.setProfileCategory(null);
             user.setWorkStatus(null);
             user.setEmploymentType(null);
+            user.setDateOfBirth(null);
+            user.setLookingForJob(false);
             return;
         }
         try {
@@ -334,11 +341,15 @@ public class DirectoryService {
             user.setProfileCategory(emptyToNull(values.get("profileCategory")));
             user.setWorkStatus(emptyToNull(values.get("workStatus")));
             user.setEmploymentType(emptyToNull(values.get("employmentType")));
+            user.setDateOfBirth(emptyToNull(values.get("dateOfBirth")));
+            user.setLookingForJob(Boolean.parseBoolean(values.getOrDefault("lookingForJob", "false")));
         } catch (JsonProcessingException exception) {
             user.setBestAchievement(emptyToNull(details));
             user.setProfileCategory(null);
             user.setWorkStatus(null);
             user.setEmploymentType(null);
+            user.setDateOfBirth(null);
+            user.setLookingForJob(false);
         }
     }
 

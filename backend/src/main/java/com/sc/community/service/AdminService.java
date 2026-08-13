@@ -2,6 +2,7 @@ package com.sc.community.service;
 
 import com.sc.community.dto.AdminDtos.DashboardResponse;
 import com.sc.community.dto.AdminDtos.InviteCodeResponse;
+import com.sc.community.dto.AdminUserResponse;
 import com.sc.community.dto.UserResponse;
 import com.sc.community.entity.Post;
 import com.sc.community.entity.PostStatus;
@@ -56,8 +57,11 @@ public class AdminService {
         );
     }
 
-    public List<UserResponse> users() {
-        return userRepository.findAll().stream().map(directoryService::responseForUser).toList();
+    public List<AdminUserResponse> users() {
+        return userRepository.findAll().stream().map(user -> {
+            directoryService.responseForUser(user);
+            return AdminUserResponse.from(user);
+        }).toList();
     }
 
     @Transactional

@@ -44,7 +44,7 @@ export class App implements OnInit, OnDestroy {
   profileEditorSaving = false;
   profileEditorError = '';
   profileEditorSuccess = '';
-  profileForm = { fullName:'', email:'', phoneNumber:'', address:'', photoUrl:'', currentPost:'', position:'', school:'', college:'', bestAchievement:'', profileCategory:'', workStatus:'', employmentType:'' };
+  profileForm = { fullName:'', email:'', phoneNumber:'', address:'', photoUrl:'', currentPost:'', position:'', school:'', college:'', bestAchievement:'', profileCategory:'', workStatus:'', employmentType:'', dateOfBirth:'', lookingForJob:false };
   private profileOriginal = { email:'', phoneNumber:'' };
   profileEmailOtp = ''; profileMobileOtp = '';
   profileEmailToken = ''; profileMobileToken = '';
@@ -62,7 +62,7 @@ export class App implements OnInit, OnDestroy {
   readonly workStatusOptions = [
     { value: 'WORKING', label: 'Working' }, { value: 'STUDENT', label: 'Student' },
     { value: 'RETIRED', label: 'Retired' }, { value: 'LOOKING', label: 'Looking for work' },
-    { value: 'SELF_EMPLOYED', label: 'Self-employed' }
+    { value: 'SELF_EMPLOYED', label: 'Self-employed' }, { value: 'UNEMPLOYED', label: 'Unemployed' }
   ];
   readonly employmentTypeOptions = [
     { value: 'GOVT_JOB', label: 'Govt job' }, { value: 'PRIVATE_JOB', label: 'Private job' },
@@ -190,7 +190,7 @@ export class App implements OnInit, OnDestroy {
       this.profileForm.address.trim(), this.profileForm.photoUrl.trim(),
       this.profileForm.currentPost.trim() || this.profileForm.position.trim(),
       this.profileForm.school.trim(), this.profileForm.college.trim(), this.profileForm.bestAchievement.trim(),
-      this.profileForm.profileCategory.trim(), this.profileForm.workStatus.trim() || this.profileForm.employmentType.trim(),
+      this.profileForm.profileCategory.trim(), this.profileForm.workStatus.trim() || this.profileForm.employmentType.trim(), this.profileForm.dateOfBirth.trim(),
       this.selectedHelpFieldIds.length ? 'help' : ''
     ];
     return Math.min(100, Math.round(checks.filter(Boolean).length * 100 / checks.length));
@@ -198,7 +198,7 @@ export class App implements OnInit, OnDestroy {
 
   openSelfProfile():void {
     this.profileOpen=false;this.profileEditorOpen=true;this.profileEditorLoading=true;this.profileEditorError='';this.profileEditorSuccess='';
-    this.api.myProfile().subscribe({next:user=>{this.profileForm={fullName:user.fullName,email:user.email,phoneNumber:user.phoneNumber||'',address:user.address||'',photoUrl:user.photoUrl||'',currentPost:user.currentPost||'',position:user.position||'',school:user.school||'',college:user.college||'',bestAchievement:user.bestAchievement||'',profileCategory:user.profileCategory||'',workStatus:user.workStatus||'',employmentType:user.employmentType||''};this.selectedHelpFieldIds=[...(user.helpFieldIds||[])];this.profileOriginal={email:user.email,phoneNumber:user.phoneNumber||''};this.resetProfileVerification();this.profileEditorLoading=false;},error:e=>{this.profileEditorError=e.error?.detail||'Profile could not be loaded.';this.profileEditorLoading=false;}});
+    this.api.myProfile().subscribe({next:profile=>{const user=profile.user;this.profileForm={fullName:user.fullName,email:user.email,phoneNumber:user.phoneNumber||'',address:user.address||'',photoUrl:user.photoUrl||'',currentPost:user.currentPost||'',position:user.position||'',school:user.school||'',college:user.college||'',bestAchievement:user.bestAchievement||'',profileCategory:user.profileCategory||'',workStatus:user.workStatus||'',employmentType:user.employmentType||'',dateOfBirth:profile.dateOfBirth||'',lookingForJob:!!user.lookingForJob};this.selectedHelpFieldIds=[...(user.helpFieldIds||[])];this.profileOriginal={email:user.email,phoneNumber:user.phoneNumber||''};this.resetProfileVerification();this.profileEditorLoading=false;},error:e=>{this.profileEditorError=e.error?.detail||'Profile could not be loaded.';this.profileEditorLoading=false;}});
   }
   closeSelfProfile():void{if(!this.profileEditorSaving)this.profileEditorOpen=false;}
   selectProfilePhoto(event: Event): void {
@@ -228,7 +228,7 @@ export class App implements OnInit, OnDestroy {
   saveSelfProfile():void{
     const emailChanged=this.profileForm.email.trim().toLowerCase()!==this.profileOriginal.email.toLowerCase(),phoneChanged=this.profileForm.phoneNumber.trim()!==this.profileOriginal.phoneNumber;
     if(emailChanged&&!this.profileEmailToken){this.profileEditorError='Verify the new email before saving.';return;}if(phoneChanged&&!this.profileMobileToken){this.profileEditorError='Verify the new mobile number before saving.';return;}
-    this.profileEditorSaving=true;this.profileEditorError='';this.api.updateMyProfile({...this.profileForm,emailVerificationToken:this.profileEmailToken||undefined,phoneVerificationToken:this.profileMobileToken||undefined}).subscribe({next:result=>{const user=result.user;this.auth.syncProfile(user,result.token);this.profileOriginal={email:user.email,phoneNumber:user.phoneNumber||''};this.profileEditorSuccess='Profile updated successfully.';this.profileEditorSaving=false;this.resetProfileVerification();},error:e=>{this.profileEditorError=e.error?.detail||'Profile could not be updated.';this.profileEditorSaving=false;}});
+    this.profileEditorSaving=true;this.profileEditorError='';this.api.updateMyProfile({...this.profileForm,emailVerificationToken:this.profileEmailToken||undefined,phoneVerificationToken:this.profileMobileToken||undefined}).subscribe({next:result=>{const user=result.user.user;this.auth.syncProfile(user,result.token);this.profileOriginal={email:user.email,phoneNumber:user.phoneNumber||''};this.profileEditorSuccess='Profile updated successfully.';this.profileEditorSaving=false;this.resetProfileVerification();},error:e=>{this.profileEditorError=e.error?.detail||'Profile could not be updated.';this.profileEditorSaving=false;}});
   }
   emailChanged():boolean{return this.profileForm.email.trim().toLowerCase()!==this.profileOriginal.email.toLowerCase();}
   mobileChanged():boolean{return this.profileForm.phoneNumber.trim()!==this.profileOriginal.phoneNumber;}

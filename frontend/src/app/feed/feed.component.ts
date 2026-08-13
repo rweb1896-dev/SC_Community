@@ -63,6 +63,7 @@ export class FeedComponent implements OnInit, OnDestroy {
   showScrollTop = false;
   searchTerm = '';
   activeLeaderIndex = 0;
+  activeNetworkInsight?: { label: string; count: number; field: 'profileCategory' | 'workStatus' | 'employmentType' | 'lookingForJob'; value: string; description: string };
   leaders = [...COMMUNITY_LEADERS];
   private leaderTimer?: ReturnType<typeof setInterval>;
   private readonly subscriptions = new Subscription();
@@ -85,15 +86,15 @@ export class FeedComponent implements OnInit, OnDestroy {
 
   get profileCounts() {
     return [
-      { label: 'Doctors', count: this.countMembers('profileCategory', 'DOCTOR') },
-      { label: 'Engineers', count: this.countMembers('profileCategory', 'ENGINEER') },
-      { label: 'Students', count: this.countMembers('profileCategory', 'STUDENT') },
-      { label: 'Teachers', count: this.countMembers('profileCategory', 'TEACHER') },
-      { label: 'Govt job', count: this.countMembers('employmentType', 'GOVT_JOB') },
-      { label: 'Private job', count: this.countMembers('employmentType', 'PRIVATE_JOB') },
-      { label: 'Business', count: this.countMembers('employmentType', 'BUSINESS') },
-      { label: 'Retired', count: this.countMembers('workStatus', 'RETIRED') },
-      { label: 'Working', count: this.countMembers('workStatus', 'WORKING') }
+      { label: 'Doctors', count: this.countMembers('profileCategory', 'DOCTOR'), field: 'profileCategory' as const, value: 'DOCTOR', description: 'Members who selected Doctor in their profile.' },
+      { label: 'Engineers', count: this.countMembers('profileCategory', 'ENGINEER'), field: 'profileCategory' as const, value: 'ENGINEER', description: 'Members who selected Engineer in their profile.' },
+      { label: 'Students', count: this.countMembers('profileCategory', 'STUDENT'), field: 'profileCategory' as const, value: 'STUDENT', description: 'Members who selected Student in their profile.' },
+      { label: 'Teachers', count: this.countMembers('profileCategory', 'TEACHER'), field: 'profileCategory' as const, value: 'TEACHER', description: 'Members who selected Teacher in their profile.' },
+      { label: 'Govt job', count: this.countMembers('employmentType', 'GOVT_JOB'), field: 'employmentType' as const, value: 'GOVT_JOB', description: 'Members working in government roles.' },
+      { label: 'Private job', count: this.countMembers('employmentType', 'PRIVATE_JOB'), field: 'employmentType' as const, value: 'PRIVATE_JOB', description: 'Members working in private-sector roles.' },
+      { label: 'Business', count: this.countMembers('employmentType', 'BUSINESS'), field: 'employmentType' as const, value: 'BUSINESS', description: 'Members who run or selected business.' },
+      { label: 'Unemployed', count: this.countMembers('workStatus', 'UNEMPLOYED'), field: 'workStatus' as const, value: 'UNEMPLOYED', description: 'Members who selected Unemployed.' },
+      { label: 'Job seekers', count: this.members.filter(member => !!member.lookingForJob || member.workStatus === 'LOOKING' || member.workStatus === 'UNEMPLOYED').length, field: 'lookingForJob' as const, value: 'true', description: 'Members currently open to suitable job opportunities.' }
     ];
   }
 
@@ -104,6 +105,17 @@ export class FeedComponent implements OnInit, OnDestroy {
     private feedSocket: FeedSocketService,
     public i18n: I18nService
   ) {}
+
+  networkInsightMembers() {
+    const insight = this.activeNetworkInsight;
+    if (!insight) return [];
+    if (insight.field === 'lookingForJob') return this.members.filter(member => !!member.lookingForJob || member.workStatus === 'LOOKING' || member.workStatus === 'UNEMPLOYED');
+    return this.members.filter(member => member[insight.field] === insight.value);
+  }
+
+  openNetworkInsight(insight: { label: string; count: number; field: 'profileCategory' | 'workStatus' | 'employmentType' | 'lookingForJob'; value: string; description: string }): void {
+    this.activeNetworkInsight = insight;
+  }
 
   private countMembers(field: 'profileCategory' | 'workStatus' | 'employmentType', value: string): number {
     return this.members.filter((member) => member[field] === value).length;

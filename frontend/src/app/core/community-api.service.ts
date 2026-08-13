@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Achiever, Broadcast, BroadcastMediaType, BroadcastStatus, Category, Comment, CommunityEvent, Dashboard, EventStatus, ExpertiseField, GalleryImage, HelpConversation, HelpMessage, HelpNotification, ImageUploadResponse, InviteCode, InviteRequest, ManagedContent, ManagedContentInput, ManagedContentStatus, Meeting, MeetingAudience, MemberInviteRequest, Message, MyHelpPost, Post, ProfessionalGroup, ProfileUpdateResponse, ReconnectRequest, SupportResponse, UserResponse, UserStatus, VolunteerRequest } from './models';
+import { Achiever, AdminUserResponse, Broadcast, BroadcastMediaType, BroadcastStatus, Category, Comment, CommunityEvent, Dashboard, EventStatus, ExpertiseField, GalleryImage, HelpConversation, HelpMessage, HelpNotification, ImageUploadResponse, InviteCode, InviteRequest, ManagedContent, ManagedContentInput, ManagedContentStatus, Meeting, MeetingAudience, MemberInviteRequest, Message, MyHelpPost, Post, ProfessionalGroup, ProfileResponse, ProfileUpdateResponse, ReconnectRequest, SupportResponse, UserResponse, UserStatus, VolunteerRequest } from './models';
 
 const API = '/api';
 
@@ -75,7 +75,7 @@ export class CommunityApiService {
   }
 
   users() {
-    return this.http.get<UserResponse[]>(`${API}/admin/users`);
+    return this.http.get<AdminUserResponse[]>(`${API}/admin/users`);
   }
 
   verifiedUsers() {
@@ -89,11 +89,11 @@ export class CommunityApiService {
   expertiseFields() { return this.http.get<ExpertiseField[]>(`${API}/public/expertise-fields`); }
   publicAchievers() { return this.http.get<Achiever[]>(`${API}/public/achievers`); }
   updateMyHelpFields(fieldIds: number[]) { return this.http.patch<UserResponse>(`${API}/users/me/help-fields`, { fieldIds }); }
-  myProfile() { return this.http.get<UserResponse>(`${API}/users/me`); }
+  myProfile() { return this.http.get<ProfileResponse>(`${API}/users/me`); }
   updateMyProfile(payload: {
     fullName:string; email:string; phoneNumber:string; address:string; photoUrl:string;
     currentPost:string; position:string; school:string; college:string; bestAchievement:string;
-    profileCategory:string; workStatus:string; employmentType:string;
+    profileCategory:string; workStatus:string; employmentType:string; dateOfBirth:string; lookingForJob:boolean;
     emailVerificationToken?:string; phoneVerificationToken?:string
   }) { return this.http.patch<ProfileUpdateResponse>(`${API}/users/me/profile`, payload); }
 

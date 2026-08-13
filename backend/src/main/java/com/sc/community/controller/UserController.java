@@ -1,6 +1,7 @@
 package com.sc.community.controller;
 
 import com.sc.community.dto.UserResponse;
+import com.sc.community.dto.ProfileResponse;
 import com.sc.community.entity.UserStatus;
 import com.sc.community.repository.UserRepository;
 import com.sc.community.websocket.PresenceService;
@@ -49,7 +50,7 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public UserResponse me() { return profileService.me(); }
+    public ProfileResponse me() { return profileService.me(); }
 
     @PatchMapping("/me/profile")
     public ProfileUpdateResponse updateMyProfile(@Valid @RequestBody UpdateProfileRequest request) {

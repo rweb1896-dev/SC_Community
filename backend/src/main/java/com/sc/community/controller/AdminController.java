@@ -4,6 +4,7 @@ import com.sc.community.dto.AdminDtos.DashboardResponse;
 import com.sc.community.dto.AdminDtos.InviteCodeResponse;
 import com.sc.community.dto.AdminDtos.UpdateProfessionalGroupRequest;
 import com.sc.community.dto.UserResponse;
+import com.sc.community.dto.AdminUserResponse;
 import com.sc.community.dto.InviteRequestDtos.InviteRequestResponse;
 import com.sc.community.entity.UserStatus;
 import com.sc.community.service.AdminService;
@@ -42,7 +43,7 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    public List<UserResponse> users() {
+    public List<AdminUserResponse> users() {
         return adminService.users();
     }
 

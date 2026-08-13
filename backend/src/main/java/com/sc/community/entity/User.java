@@ -84,6 +84,13 @@ public class User {
     @Transient
     private String employmentType;
 
+    /** Kept in the profile directory record, never in the public member response. */
+    @Transient
+    private String dateOfBirth;
+
+    @Transient
+    private boolean lookingForJob;
+
     @Transient
     private int profileCompletion;
 
@@ -137,6 +144,10 @@ public class User {
     public void setWorkStatus(String workStatus) { this.workStatus = workStatus; }
     public String getEmploymentType() { return employmentType; }
     public void setEmploymentType(String employmentType) { this.employmentType = employmentType; }
+    public String getDateOfBirth() { return dateOfBirth; }
+    public void setDateOfBirth(String dateOfBirth) { this.dateOfBirth = dateOfBirth; }
+    public boolean isLookingForJob() { return lookingForJob; }
+    public void setLookingForJob(boolean lookingForJob) { this.lookingForJob = lookingForJob; }
     public int getProfileCompletion() { return profileCompletion; }
     public void setProfileCompletion(int profileCompletion) { this.profileCompletion = profileCompletion; }
     public boolean isProfileComplete() { return role == UserRole.ROLE_ADMIN || (helpFields != null && !helpFields.isEmpty()); }

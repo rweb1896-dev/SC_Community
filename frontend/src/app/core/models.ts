@@ -58,6 +58,7 @@ export interface UserResponse {
   profileCategory?: string;
   workStatus?: string;
   employmentType?: string;
+  lookingForJob?: boolean;
   profileCompletion: number;
   role: UserRole;
   status: UserStatus;
@@ -69,7 +70,10 @@ export interface UserResponse {
   inviteCodeUsed?: string;
   createdAt: string;
 }
-export interface ProfileUpdateResponse { user: UserResponse; token: string; }
+export interface ProfileResponse { user: UserResponse; dateOfBirth?: string; }
+export interface AdminUserResponse extends UserResponse { dateOfBirth?: string; ageGroup: AgeGroup; }
+export type AgeGroup = 'UNDER_18' | '18_24' | '25_34' | '35_44' | '45_59' | '60_PLUS' | 'NOT_ADDED';
+export interface ProfileUpdateResponse { user: ProfileResponse; token: string; }
 
 export interface ExpertiseField {
   id: number;
