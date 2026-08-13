@@ -118,8 +118,8 @@ export class AuthService {
   syncHelpProfile(user: UserResponse): void {
     const session = this.session;
     if (!session) return;
-    const updated: AuthResponse = { ...session, helpFieldIds: user.helpFieldIds,
-      helpFieldNames: user.helpFieldNames, profileComplete: user.profileComplete };
+    const updated: AuthResponse = { ...session, photoUrl: user.photoUrl, helpFieldIds: user.helpFieldIds,
+      helpFieldNames: user.helpFieldNames, profileComplete: user.profileComplete, profileCompletion: user.profileCompletion };
     this.storage()?.setItem(SESSION_KEY, JSON.stringify(updated));
     this.sessionSubject.next(updated);
   }
@@ -128,7 +128,8 @@ export class AuthService {
     const session = this.session;
     if (!session) return;
     const updated: AuthResponse = { ...session, token: token || session.token, fullName: user.fullName, email: user.email,
-      helpFieldIds: user.helpFieldIds, helpFieldNames: user.helpFieldNames, profileComplete: user.profileComplete };
+      photoUrl: user.photoUrl, helpFieldIds: user.helpFieldIds, helpFieldNames: user.helpFieldNames,
+      profileComplete: user.profileComplete, profileCompletion: user.profileCompletion };
     this.storage()?.setItem(SESSION_KEY, JSON.stringify(updated));
     this.sessionSubject.next(updated);
   }
@@ -158,7 +159,8 @@ export class AuthService {
         ...session,
         helpFieldIds: Array.isArray(session.helpFieldIds) ? session.helpFieldIds : [],
         helpFieldNames: Array.isArray(session.helpFieldNames) ? session.helpFieldNames : [],
-        profileComplete: session.role === 'ROLE_ADMIN' || session.profileComplete === true
+        profileComplete: session.role === 'ROLE_ADMIN' || session.profileComplete === true,
+        profileCompletion: typeof session.profileCompletion === 'number' ? session.profileCompletion : session.profileComplete === true ? 100 : 0
       } as AuthResponse;
     } catch {
       storage.removeItem(SESSION_KEY);

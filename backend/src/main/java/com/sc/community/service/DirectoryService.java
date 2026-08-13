@@ -125,6 +125,7 @@ public class DirectoryService {
         User user = userRepository.findById(current.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         saveHelpFields(user, fieldIds);
+        populateProfile(user);
         return UserResponse.from(user);
     }
 
@@ -151,16 +152,18 @@ public class DirectoryService {
     }
 
     @Transactional
-    public void saveProfileAddress(User user, String address) {
+    public void saveProfile(User user, String address, String photoUrl, String currentPost, String position,
+            String school, String college, String bestAchievement) {
         String marker = USER_PROFILE + user.getId();
         Broadcast item = repository.findAllByOrderByCreatedAtDesc().stream()
                 .filter(candidate -> marker.equals(candidate.getTitle())).findFirst()
                 .orElseGet(() -> content(marker, user.getEmail(), "", BroadcastStatus.LIVE));
         item.setHostName(user.getEmail());
-        item.setDescription(payload("", address == null ? "" : address.trim(), "", "", "", ""));
+        item.setDescription(payload(trim(currentPost), trim(address), trim(position), trim(school), trim(college), trim(bestAchievement)));
+        item.setMediaUrl(trim(photoUrl));
         item.setStatus(BroadcastStatus.LIVE);
         repository.save(item);
-        user.setAddress(address == null || address.isBlank() ? null : address.trim());
+        applyProfile(user, item);
     }
 
     @Transactional(readOnly = true)
@@ -169,7 +172,7 @@ public class DirectoryService {
         Broadcast item = repository.findAllByOrderByCreatedAtDesc().stream()
                 .filter(candidate -> marker.equals(candidate.getTitle()) && candidate.getStatus() != BroadcastStatus.ENDED)
                 .findFirst().orElse(null);
-        user.setAddress(item == null ? null : emptyToNull(data(item).get("summary")));
+        applyProfile(user, item);
     }
 
     @Transactional(readOnly = true)
@@ -272,6 +275,34 @@ public class DirectoryService {
         return achiever;
     }
 
+    private void applyProfile(User user, Broadcast item) {
+        Map<String, String> values = item == null ? Map.of() : data(item);
+        user.setCurrentPost(emptyToNull(values.get("byline")));
+        user.setAddress(emptyToNull(values.get("summary")));
+        user.setPosition(emptyToNull(values.get("category")));
+        user.setSchool(emptyToNull(values.get("source")));
+        user.setCollege(emptyToNull(values.get("url")));
+        user.setBestAchievement(emptyToNull(values.get("details")));
+        user.setPhotoUrl(item == null ? null : emptyToNull(item.getMediaUrl()));
+        user.setProfileCompletion(profileCompletion(user));
+    }
+
+    private int profileCompletion(User user) {
+        int completed = 0;
+        int total = 10;
+        if (!blank(user.getFullName())) completed++;
+        if (!blank(user.getEmail())) completed++;
+        if (!blank(user.getPhoneNumber())) completed++;
+        if (!blank(user.getAddress())) completed++;
+        if (!blank(user.getPhotoUrl())) completed++;
+        if (!blank(user.getCurrentPost()) || !blank(user.getPosition())) completed++;
+        if (!blank(user.getSchool())) completed++;
+        if (!blank(user.getCollege())) completed++;
+        if (!blank(user.getBestAchievement())) completed++;
+        if (user.getHelpFields() != null && !user.getHelpFields().isEmpty()) completed++;
+        return Math.min(100, Math.round(completed * 100f / total));
+    }
+
     private Broadcast content(String marker, String hostName, String mediaUrl, BroadcastStatus status) {
         Broadcast item = new Broadcast(); item.setTitle(marker); item.setHostName(hostName);
         item.setMediaUrl(mediaUrl); item.setMediaType(BroadcastMediaType.PODCAST); item.setStatus(status);
@@ -307,4 +338,6 @@ public class DirectoryService {
     private int number(String value, int fallback) { try { return Integer.parseInt(value); } catch (Exception ignored) { return fallback; } }
     private String blankToEmpty(String value) { return value == null ? "" : value.trim(); }
     private String emptyToNull(String value) { return value == null || value.isBlank() ? null : value; }
+    private String trim(String value) { return value == null ? "" : value.trim(); }
+    private boolean blank(String value) { return value == null || value.isBlank(); }
 }

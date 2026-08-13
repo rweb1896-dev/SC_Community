@@ -4,11 +4,12 @@ import { RouterOutlet } from '@angular/router';
 import { AsyncPipe, DatePipe, NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LucideAward, LucideBookOpen, LucideCalendarDays, LucideCheck, LucideChevronDown, LucideClock3, LucideCopy, LucideHouse, LucideImages, LucideKeyRound, LucideLogOut, LucideMessageCircle, LucideNewspaper, LucideRadio, LucideSearch, LucideSend, LucideShare2, LucideShieldCheck, LucideUsersRound, LucideVideo, LucideX } from '@lucide/angular';
+import { LucideAward, LucideBookOpen, LucideCalendarDays, LucideCheck, LucideChevronDown, LucideClock3, LucideCopy, LucideHouse, LucideImages, LucideKeyRound, LucideLogOut, LucideMessageCircle, LucideNewspaper, LucideRadio, LucideSearch, LucideSend, LucideShare2, LucideShieldCheck, LucideUpload, LucideUsersRound, LucideVideo, LucideX } from '@lucide/angular';
 import { AuthService } from './core/auth.service';
 import { CommunityApiService } from './core/community-api.service';
-import { ExpertiseField, MemberInviteRequest } from './core/models';
+import { ExpertiseField, ImageUploadResponse, MemberInviteRequest } from './core/models';
 import { interval, Subscription } from 'rxjs';
+import { HttpEventType, HttpResponse } from '@angular/common/http';
 import { AppLanguage, I18nService } from './core/i18n.service';
 import { TranslatePipe } from './core/translate.pipe';
 import { MessageDockComponent } from './chat/message-dock.component';
@@ -16,7 +17,7 @@ import { UiLocalizationService } from './core/ui-localization.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, AsyncPipe, DatePipe, NgFor, NgIf, FormsModule, TranslatePipe, MessageDockComponent, LucideAward, LucideBookOpen, LucideCalendarDays, LucideCheck, LucideChevronDown, LucideClock3, LucideCopy, LucideHouse, LucideImages, LucideKeyRound, LucideLogOut, LucideMessageCircle, LucideNewspaper, LucideRadio, LucideSearch, LucideSend, LucideShare2, LucideShieldCheck, LucideUsersRound, LucideVideo, LucideX],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, AsyncPipe, DatePipe, NgFor, NgIf, FormsModule, TranslatePipe, MessageDockComponent, LucideAward, LucideBookOpen, LucideCalendarDays, LucideCheck, LucideChevronDown, LucideClock3, LucideCopy, LucideHouse, LucideImages, LucideKeyRound, LucideLogOut, LucideMessageCircle, LucideNewspaper, LucideRadio, LucideSearch, LucideSend, LucideShare2, LucideShieldCheck, LucideUpload, LucideUsersRound, LucideVideo, LucideX],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
@@ -43,11 +44,13 @@ export class App implements OnInit, OnDestroy {
   profileEditorSaving = false;
   profileEditorError = '';
   profileEditorSuccess = '';
-  profileForm = { fullName:'', email:'', phoneNumber:'', address:'' };
+  profileForm = { fullName:'', email:'', phoneNumber:'', address:'', photoUrl:'', currentPost:'', position:'', school:'', college:'', bestAchievement:'' };
   private profileOriginal = { email:'', phoneNumber:'' };
   profileEmailOtp = ''; profileMobileOtp = '';
   profileEmailToken = ''; profileMobileToken = '';
   profileEmailFeedback = ''; profileMobileFeedback = '';
+  profilePhotoUploading = false;
+  profilePhotoProgress = 0;
   messageOpenRequest = 0;
   private inviteCreatingNew = false;
   private subscriptions = new Subscription();
@@ -156,11 +159,40 @@ export class App implements OnInit, OnDestroy {
 
   selectedHelpFields(): ExpertiseField[] { return this.expertiseFields.filter(field => this.selectedHelpFieldIds.includes(field.id)); }
 
+  profilePhoto():string { return this.auth.session?.photoUrl || '/assets/default-profile.svg'; }
+  displayProfilePhoto(value?: string): string { return value && value.trim() ? value.trim() : '/assets/default-profile.svg'; }
+  profileCompletionValue():number {
+    const checks = [
+      this.profileForm.fullName.trim(), this.profileForm.email.trim(), this.profileForm.phoneNumber.trim(),
+      this.profileForm.address.trim(), this.profileForm.photoUrl.trim(),
+      this.profileForm.currentPost.trim() || this.profileForm.position.trim(),
+      this.profileForm.school.trim(), this.profileForm.college.trim(), this.profileForm.bestAchievement.trim(),
+      this.selectedHelpFieldIds.length ? 'help' : ''
+    ];
+    return Math.min(100, Math.round(checks.filter(Boolean).length * 10));
+  }
+
   openSelfProfile():void {
     this.profileOpen=false;this.profileEditorOpen=true;this.profileEditorLoading=true;this.profileEditorError='';this.profileEditorSuccess='';
-    this.api.myProfile().subscribe({next:user=>{this.profileForm={fullName:user.fullName,email:user.email,phoneNumber:user.phoneNumber||'',address:user.address||''};this.profileOriginal={email:user.email,phoneNumber:user.phoneNumber||''};this.resetProfileVerification();this.profileEditorLoading=false;},error:e=>{this.profileEditorError=e.error?.detail||'Profile could not be loaded.';this.profileEditorLoading=false;}});
+    this.api.myProfile().subscribe({next:user=>{this.profileForm={fullName:user.fullName,email:user.email,phoneNumber:user.phoneNumber||'',address:user.address||'',photoUrl:user.photoUrl||'',currentPost:user.currentPost||'',position:user.position||'',school:user.school||'',college:user.college||'',bestAchievement:user.bestAchievement||''};this.selectedHelpFieldIds=[...(user.helpFieldIds||[])];this.profileOriginal={email:user.email,phoneNumber:user.phoneNumber||''};this.resetProfileVerification();this.profileEditorLoading=false;},error:e=>{this.profileEditorError=e.error?.detail||'Profile could not be loaded.';this.profileEditorLoading=false;}});
   }
   closeSelfProfile():void{if(!this.profileEditorSaving)this.profileEditorOpen=false;}
+  selectProfilePhoto(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    if (!['image/jpeg', 'image/png'].includes(file.type)) { this.profileEditorError = 'Only JPG and PNG profile photos are allowed.'; return; }
+    this.profilePhotoUploading = true; this.profilePhotoProgress = 0; this.profileEditorError = '';
+    this.api.uploadPostImage(file).subscribe({
+      next: event => {
+        if (event.type === HttpEventType.UploadProgress && event.total) this.profilePhotoProgress = Math.round(100 * event.loaded / event.total);
+        if (event instanceof HttpResponse) {
+          this.profileForm.photoUrl = (event.body as ImageUploadResponse | null)?.imageUrl || '';
+          this.profilePhotoUploading = false; this.profilePhotoProgress = 100;
+        }
+      },
+      error: e => { this.profileEditorError = e.error?.detail || 'Profile photo could not be uploaded.'; this.profilePhotoUploading = false; }
+    });
+  }
   sendProfileOtp(channel:'EMAIL'|'MOBILE'):void{
     const destination=(channel==='EMAIL'?this.profileForm.email:this.profileForm.phoneNumber).trim();const purpose=channel==='EMAIL'?'PROFILE_EMAIL':'PROFILE_MOBILE';
     this.auth.requestOtp(channel,purpose,destination).subscribe({next:r=>{const message=`Code sent${r.developmentCode?' · OTP: '+r.developmentCode:''}`;if(channel==='EMAIL')this.profileEmailFeedback=message;else this.profileMobileFeedback=message;},error:e=>{const message=e.error?.detail||'OTP could not be sent.';if(channel==='EMAIL')this.profileEmailFeedback=message;else this.profileMobileFeedback=message;}});

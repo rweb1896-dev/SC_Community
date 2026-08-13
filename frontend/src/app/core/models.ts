@@ -18,12 +18,14 @@ export interface AuthResponse {
   userId: number;
   fullName: string;
   email: string;
+  photoUrl?: string;
   role: UserRole;
   status: UserStatus;
   professionalGroup: ProfessionalGroup;
   helpFieldIds: number[];
   helpFieldNames: string[];
   profileComplete: boolean;
+  profileCompletion: number;
 }
 
 export interface OtpRequestResponse {
@@ -47,6 +49,13 @@ export interface UserResponse {
   email: string;
   phoneNumber?: string;
   address?: string;
+  photoUrl?: string;
+  currentPost?: string;
+  position?: string;
+  school?: string;
+  college?: string;
+  bestAchievement?: string;
+  profileCompletion: number;
   role: UserRole;
   status: UserStatus;
   professionalGroup: ProfessionalGroup;

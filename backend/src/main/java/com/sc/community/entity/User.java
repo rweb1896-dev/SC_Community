@@ -57,6 +57,27 @@ public class User {
     @Transient
     private String address;
 
+    @Transient
+    private String photoUrl;
+
+    @Transient
+    private String currentPost;
+
+    @Transient
+    private String position;
+
+    @Transient
+    private String school;
+
+    @Transient
+    private String college;
+
+    @Transient
+    private String bestAchievement;
+
+    @Transient
+    private int profileCompletion;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -89,6 +110,20 @@ public class User {
     public void setHelpFields(Set<ExpertiseField> helpFields) { this.helpFields = helpFields; }
     public String getAddress() { return address; }
     public void setAddress(String address) { this.address = address; }
+    public String getPhotoUrl() { return photoUrl; }
+    public void setPhotoUrl(String photoUrl) { this.photoUrl = photoUrl; }
+    public String getCurrentPost() { return currentPost; }
+    public void setCurrentPost(String currentPost) { this.currentPost = currentPost; }
+    public String getPosition() { return position; }
+    public void setPosition(String position) { this.position = position; }
+    public String getSchool() { return school; }
+    public void setSchool(String school) { this.school = school; }
+    public String getCollege() { return college; }
+    public void setCollege(String college) { this.college = college; }
+    public String getBestAchievement() { return bestAchievement; }
+    public void setBestAchievement(String bestAchievement) { this.bestAchievement = bestAchievement; }
+    public int getProfileCompletion() { return profileCompletion; }
+    public void setProfileCompletion(int profileCompletion) { this.profileCompletion = profileCompletion; }
     public boolean isProfileComplete() { return role == UserRole.ROLE_ADMIN || (helpFields != null && !helpFields.isEmpty()); }
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }

@@ -368,39 +368,62 @@
     </article>
   </section>
 
-  <section class="panel block" *ngIf="workspaceTab === 'members'">
-    <h2>User Management</h2>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Status</th>
-            <th>Professional Group</th>
-            <th>ID Proof</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let user of users">
-            <td>{{ user.fullName }}</td>
-            <td>{{ user.email }}</td>
-            <td><span class="badge">{{ user.status }}</span></td>
-            <td>
-              <select class="group-select" [ngModel]="user.professionalGroup" (ngModelChange)="updateProfessionalGroup(user, $event)">
-                <option *ngFor="let group of professionalGroups" [value]="group.value">{{ group.label }}</option>
-              </select>
-            </td>
-            <td><a *ngIf="user.idProofUrl" [href]="user.idProofUrl" target="_blank">View</a></td>
-            <td class="actions">
-              <button class="btn secondary" type="button" (click)="approve(user)" [disabled]="user.status === 'VERIFIED'">Approve</button>
-              <button class="btn warn" type="button" (click)="block(user)" [disabled]="user.status === 'BLOCKED'">Block</button>
-              <button class="btn secondary" type="button" (click)="unblock(user)" [disabled]="user.status !== 'BLOCKED'">Unblock</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+  <section class="panel block member-directory-panel" *ngIf="workspaceTab === 'members'">
+    <header class="member-directory-heading">
+      <div>
+        <p class="eyebrow">Member intelligence</p>
+        <h2>Professional Member Directory</h2>
+        <span>Search by name, contact, role, school, college, achievement or help category.</span>
+      </div>
+      <div class="member-directory-score"><strong>{{ memberCompletionAverage }}%</strong><small>average profile strength</small></div>
+    </header>
+
+    <div class="member-filters">
+      <label class="member-search">Search members<input name="memberSearch" [(ngModel)]="memberSearch" placeholder="Doctor, UPSC, college, lawyer..." /></label>
+      <label>Status<select name="memberStatusFilter" [(ngModel)]="memberStatusFilter"><option value="ALL">All status</option><option value="PENDING">Pending</option><option value="VERIFIED">Verified</option><option value="BLOCKED">Blocked</option></select></label>
+      <label>Group<select name="memberGroupFilter" [(ngModel)]="memberGroupFilter"><option value="ALL">All groups</option><option *ngFor="let group of professionalGroups" [value]="group.value">{{ group.label }}</option></select></label>
+      <label>Help field<select name="memberHelpFilter" [(ngModel)]="memberHelpFilter"><option [ngValue]="'ALL'">All help fields</option><option *ngFor="let field of expertiseFields" [ngValue]="field.id">{{ field.name }}</option></select></label>
+      <label>Completion<select name="memberCompletionFilter" [(ngModel)]="memberCompletionFilter"><option value="ALL">Any completion</option><option value="COMPLETE">80% and above</option><option value="INCOMPLETE">Needs update</option></select></label>
+    </div>
+
+    <div class="member-directory-meta">
+      <strong>{{ filteredUsers.length }}</strong>
+      <span>matching members out of {{ users.length }}</span>
+    </div>
+
+    <p class="studio-empty" *ngIf="filteredUsers.length === 0">No member matches these filters.</p>
+    <div class="member-card-grid">
+      <article class="admin-member-card" *ngFor="let user of filteredUsers" [class.blocked]="user.status === 'BLOCKED'">
+        <div class="admin-member-photo">
+          <img *ngIf="user.photoUrl" [src]="user.photoUrl" [alt]="user.fullName" />
+          <span *ngIf="!user.photoUrl">{{ user.fullName.charAt(0) }}</span>
+        </div>
+        <div class="admin-member-body">
+          <div class="admin-member-title">
+            <div><strong>{{ user.fullName }}</strong><small>{{ user.currentPost || user.position || 'Community member' }}</small></div>
+            <span class="badge">{{ user.status }}</span>
+          </div>
+          <div class="profile-strength"><span><b [style.width.%]="user.profileCompletion || 0"></b></span><small>{{ user.profileCompletion || 0 }}% updated</small></div>
+          <p *ngIf="user.bestAchievement">{{ user.bestAchievement }}</p>
+          <dl>
+            <div><dt>Email</dt><dd>{{ user.email }}</dd></div>
+            <div><dt>Mobile</dt><dd>{{ user.phoneNumber || 'Not added' }}</dd></div>
+            <div><dt>School</dt><dd>{{ user.school || 'Not added' }}</dd></div>
+            <div><dt>College</dt><dd>{{ user.college || 'Not added' }}</dd></div>
+            <div><dt>Address</dt><dd>{{ user.address || 'Not added' }}</dd></div>
+          </dl>
+          <div class="member-help-tags" *ngIf="user.helpFieldNames.length"><span *ngFor="let fieldName of user.helpFieldNames">{{ fieldName }}</span></div>
+        </div>
+        <footer>
+          <select class="group-select" [ngModel]="user.professionalGroup" (ngModelChange)="updateProfessionalGroup(user, $event)">
+            <option *ngFor="let group of professionalGroups" [value]="group.value">{{ group.label }}</option>
+          </select>
+          <a *ngIf="user.idProofUrl" [href]="user.idProofUrl" target="_blank" rel="noopener noreferrer">ID proof</a>
+          <button class="btn secondary" type="button" (click)="approve(user)" [disabled]="user.status === 'VERIFIED'">Approve</button>
+          <button class="btn warn" type="button" (click)="block(user)" [disabled]="user.status === 'BLOCKED'">Block</button>
+          <button class="btn secondary" type="button" (click)="unblock(user)" [disabled]="user.status !== 'BLOCKED'">Unblock</button>
+        </footer>
+      </article>
     </div>
   </section>
 

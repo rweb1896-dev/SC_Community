@@ -54,7 +54,9 @@ public class ProfileService {
             otp.consumeVerification(request.phoneVerificationToken(), OtpChannel.MOBILE, OtpPurpose.PROFILE_MOBILE, phone);
         }
         user.setFullName(request.fullName().trim()); user.setEmail(email); user.setPhoneNumber(phone);
-        users.save(user); directory.saveProfileAddress(user, request.address());
+        users.save(user);
+        directory.saveProfile(user, request.address(), request.photoUrl(), request.currentPost(), request.position(),
+                request.school(), request.college(), request.bestAchievement());
         return new ProfileUpdateResponse(directory.responseForUser(user), jwt.generateToken(user));
     }
 }

@@ -10,11 +10,13 @@ public record AuthResponse(
         Long userId,
         String fullName,
         String email,
+        String photoUrl,
         UserRole role,
         UserStatus status,
         ProfessionalGroup professionalGroup,
         List<Long> helpFieldIds,
         List<String> helpFieldNames,
-        boolean profileComplete
+        boolean profileComplete,
+        int profileCompletion
 ) {
 }

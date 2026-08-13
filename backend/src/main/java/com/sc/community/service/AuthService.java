@@ -109,6 +109,7 @@ public class AuthService {
             inviteRequest.setUsedAt(java.time.Instant.now());
             challengeRepository.save(inviteRequest);
         }
+        saved.setProfileCompletion(saved.isProfileComplete() ? 40 : 30);
         return UserResponse.from(saved);
     }
 
@@ -130,12 +131,14 @@ public class AuthService {
         }
 
         directoryService.populateHelpFields(user);
+        directoryService.populateProfile(user);
 
         return new AuthResponse(
                 jwtService.generateToken(user),
                 user.getId(),
                 user.getFullName(),
                 user.getEmail(),
+                user.getPhotoUrl(),
                 user.getRole(),
                 user.getStatus(),
                 user.getProfessionalGroup() == null ? ProfessionalGroup.COMMUNITY : user.getProfessionalGroup(),
@@ -143,7 +146,8 @@ public class AuthService {
                         .map(field -> field.getId()).toList(),
                 user.getHelpFields().stream().sorted(java.util.Comparator.comparingInt(field -> field.getDisplayOrder()))
                         .map(field -> field.getName()).toList(),
-                user.isProfileComplete()
+                user.isProfileComplete(),
+                user.getProfileCompletion()
         );
     }
 }

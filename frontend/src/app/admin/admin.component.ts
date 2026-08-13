@@ -38,6 +38,11 @@ export class AdminComponent implements OnInit, OnDestroy {
   memberInviteRequests: MemberInviteRequest[] = [];
   approvedInviteRequest?: InviteRequest;
   approvingInviteRequestId?: number;
+  memberSearch = '';
+  memberStatusFilter: 'ALL' | 'PENDING' | 'VERIFIED' | 'BLOCKED' = 'ALL';
+  memberGroupFilter: ProfessionalGroup | 'ALL' = 'ALL';
+  memberHelpFilter: number | 'ALL' = 'ALL';
+  memberCompletionFilter: 'ALL' | 'COMPLETE' | 'INCOMPLETE' = 'ALL';
   invitePanelOpen = false;
   inviteChannel: 'EMAIL' | 'MOBILE' = 'EMAIL';
   inviteRecipient = '';
@@ -73,6 +78,30 @@ export class AdminComponent implements OnInit, OnDestroy {
     { value: 'EDUCATION', label: 'Education' },
     { value: 'SOCIAL_WORKER', label: 'Social worker' }
   ];
+
+  get filteredUsers(): UserResponse[] {
+    const query = this.memberSearch.trim().toLowerCase();
+    return this.users.filter((user) => {
+      const profileText = [
+        user.fullName, user.email, user.phoneNumber, user.currentPost, user.position,
+        user.school, user.college, user.bestAchievement, user.address, ...(user.helpFieldNames || [])
+      ].filter(Boolean).join(' ').toLowerCase();
+      const matchesQuery = !query || profileText.includes(query);
+      const matchesStatus = this.memberStatusFilter === 'ALL' || user.status === this.memberStatusFilter;
+      const matchesGroup = this.memberGroupFilter === 'ALL' || user.professionalGroup === this.memberGroupFilter;
+      const matchesHelp = this.memberHelpFilter === 'ALL' || (user.helpFieldIds || []).includes(Number(this.memberHelpFilter));
+      const completion = user.profileCompletion || 0;
+      const matchesCompletion = this.memberCompletionFilter === 'ALL'
+        || (this.memberCompletionFilter === 'COMPLETE' && completion >= 80)
+        || (this.memberCompletionFilter === 'INCOMPLETE' && completion < 80);
+      return matchesQuery && matchesStatus && matchesGroup && matchesHelp && matchesCompletion;
+    });
+  }
+
+  get memberCompletionAverage(): number {
+    if (!this.users.length) return 0;
+    return Math.round(this.users.reduce((sum, user) => sum + (user.profileCompletion || 0), 0) / this.users.length);
+  }
 
   get leaderContentRows(): ManagedContent[] {
     return this.mergeDefaults('LEADER', COMMUNITY_LEADERS.map((leader) => ({

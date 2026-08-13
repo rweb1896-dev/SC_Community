@@ -90,7 +90,11 @@ export class CommunityApiService {
   publicAchievers() { return this.http.get<Achiever[]>(`${API}/public/achievers`); }
   updateMyHelpFields(fieldIds: number[]) { return this.http.patch<UserResponse>(`${API}/users/me/help-fields`, { fieldIds }); }
   myProfile() { return this.http.get<UserResponse>(`${API}/users/me`); }
-  updateMyProfile(payload: { fullName:string; email:string; phoneNumber:string; address:string; emailVerificationToken?:string; phoneVerificationToken?:string }) { return this.http.patch<ProfileUpdateResponse>(`${API}/users/me/profile`, payload); }
+  updateMyProfile(payload: {
+    fullName:string; email:string; phoneNumber:string; address:string; photoUrl:string;
+    currentPost:string; position:string; school:string; college:string; bestAchievement:string;
+    emailVerificationToken?:string; phoneVerificationToken?:string
+  }) { return this.http.patch<ProfileUpdateResponse>(`${API}/users/me/profile`, payload); }
 
   adminExpertiseFields() { return this.http.get<ExpertiseField[]>(`${API}/admin/directory/expertise-fields`); }
   createExpertiseField(name: string, description: string, iconKey: string, displayOrder: number) {

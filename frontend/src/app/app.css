@@ -335,3 +335,36 @@ main {
 
 .profile-edit-link{width:100%;min-height:36px;border:1px solid #dbe3ef;border-radius:8px;background:#f7f9fd;color:#285bc2;font-size:10px;font-weight:850}.profile-modal-close{position:absolute;top:18px;right:18px;width:34px;height:34px;border:1px solid #dce3ec;border-radius:50%;background:#fff;color:#566276;font-size:20px}.profile-help-modal{position:relative}.selected-help-chips{display:flex;flex-wrap:wrap;gap:6px}.selected-help-chips button{border:1px solid #bcd7cc;border-radius:999px;background:#edf8f3;padding:6px 9px;color:#176c59;font-size:9px;font-weight:800}.selected-help-chips span{margin-left:4px;font-size:13px}
 .profile-editor-backdrop{position:fixed;inset:0;z-index:95;display:grid;place-items:center;overflow:auto;background:rgba(10,18,32,.64);padding:20px;backdrop-filter:blur(8px)}.profile-editor-modal{display:grid;width:min(620px,100%);max-height:calc(100dvh - 40px);gap:13px;overflow:auto;border-radius:20px;background:#fff;box-shadow:0 32px 90px rgba(8,20,43,.34);padding:25px}.profile-editor-modal>header{display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid #e7ebf1;padding-bottom:14px}.profile-editor-modal header span{color:#15735f;font-size:9px;font-weight:900;text-transform:uppercase}.profile-editor-modal h2{margin:3px 0;font-size:27px}.profile-editor-modal header p{margin:0;color:#758094;font-size:10px}.profile-editor-modal header button{width:34px;height:34px;border:1px solid #dce2eb;border-radius:50%;background:#fff;font-size:20px}.profile-editor-modal label{display:grid;gap:6px;color:#3d4758;font-size:10px;font-weight:850}.profile-editor-modal input,.profile-editor-modal textarea{width:100%;border:1px solid #d9e0e9;border-radius:9px;background:#fff;padding:11px 12px;color:#202a3b;font:inherit;outline:none}.profile-editor-modal textarea{min-height:82px;resize:vertical}.profile-editor-modal input:focus,.profile-editor-modal textarea:focus{border-color:#7398e8;box-shadow:0 0 0 3px rgba(37,99,235,.1)}.verified-profile-field{display:grid;gap:7px}.verify-row{display:grid;grid-template-columns:auto 1fr auto;gap:7px}.verify-row button,.profile-help-shortcut{border:1px solid #b9caef;border-radius:8px;background:#edf3ff;padding:9px 11px;color:#2859bd;font-size:9px;font-weight:850}.verified-profile-field>small{color:#176f5d;font-size:9px}.profile-help-shortcut{width:max-content}.profile-editor-modal>footer{display:flex;justify-content:flex-end;gap:8px;border-top:1px solid #e7ebf1;padding-top:14px}.profile-editor-modal footer button{border:1px solid #d9e0e9;border-radius:9px;background:#fff;padding:10px 16px;font-size:10px;font-weight:850}.profile-editor-modal footer .primary{border-color:#285fcf;background:#285fcf;color:#fff}.profile-editor-error,.profile-editor-success{margin:0;border-radius:8px;padding:9px 11px;font-size:9px}.profile-editor-error{background:#fff0ee;color:#a3342c}.profile-editor-success{background:#eaf8f1;color:#14705c}@media(max-width:700px){.profile-editor-backdrop{align-items:end;padding:8px}.profile-editor-modal{max-height:94dvh;border-radius:18px 18px 10px 10px;padding:19px 15px}.verify-row{grid-template-columns:1fr 1fr}.verify-row input{grid-column:1/-1;grid-row:1}}
+
+.profile-menu-meter { display: grid; gap: 5px; border-top: 1px solid #e6eaf1; padding-top: 10px; }
+.profile-menu-meter > span { overflow: hidden; height: 6px; border-radius: 999px; background: #edf1f7; }
+.profile-menu-meter b { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg,#15803d,#2563eb); }
+.profile-menu-meter small { color: #6d788c; font-size: 9px; font-weight: 800; }
+.profile-editor-modal { width: min(880px, 100%); border-radius: 14px; padding: 0; }
+.profile-editor-modal > header { position: sticky; top: 0; z-index: 1; align-items: center; background: #fff; padding: 22px 24px 16px; }
+.profile-editor-modal > header + p { padding-inline: 24px; }
+.profile-editor-summary { display: grid; grid-template-columns: 210px minmax(0,1fr); gap: 14px; }
+.profile-photo-editor { display: grid; gap: 9px; align-content: start; border: 1px solid #dde5ef; border-radius: 10px; background: #f8fafc; padding: 12px; }
+.profile-photo-editor img { width: 100%; aspect-ratio: 1; border-radius: 8px; object-fit: cover; background: #e7edf5; }
+.profile-photo-editor label { display: inline-flex; min-height: 40px; align-items: center; justify-content: center; gap: 7px; border: 1px solid #bbcaec; border-radius: 8px; background: #fff; color: #285bc2; font-size: 10px; font-weight: 850; cursor: pointer; }
+.profile-photo-editor label input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.profile-photo-editor svg { width: 15px; height: 15px; }
+.profile-completion-card { display: grid; align-content: center; gap: 8px; border: 1px solid #dce5ee; border-radius: 10px; background: linear-gradient(135deg,#f8fbff,#eef8f2); padding: 18px; }
+.profile-completion-card > span { color: #15735f; font-size: 9px; font-weight: 900; text-transform: uppercase; }
+.profile-completion-card strong { color: #1f2c3d; font-size: clamp(32px,5vw,52px); line-height: .95; }
+.profile-completion-card > div { overflow: hidden; height: 9px; border-radius: 999px; background: #dfe8f1; }
+.profile-completion-card b { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg,#0f766e,#2563eb); }
+.profile-completion-card small { color: #657286; font-size: 10px; line-height: 1.55; }
+.profile-editor-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.profile-editor-grid label:nth-child(1),
+.profile-editor-grid label:nth-child(6) { grid-column: 1 / -1; }
+.profile-editor-modal label span { color: #2f3b4d; }
+.profile-editor-modal footer { margin-inline: 24px; padding-bottom: 22px; }
+.profile-editor-modal .profile-editor-summary { margin: 0 24px; }
+.profile-editor-modal .profile-editor-grid,
+.profile-editor-modal .verified-profile-field,
+.profile-editor-modal > label,
+.profile-editor-modal .profile-help-shortcut,
+.profile-editor-modal .profile-editor-success,
+.profile-editor-modal .profile-editor-error { margin-inline: 24px; }
+@media(max-width:700px){.profile-editor-summary,.profile-editor-grid{grid-template-columns:1fr}.profile-editor-modal footer,.profile-editor-modal .profile-editor-summary,.profile-editor-modal .profile-editor-grid,.profile-editor-modal .verified-profile-field,.profile-editor-modal>label,.profile-editor-modal .profile-help-shortcut,.profile-editor-modal .profile-editor-success,.profile-editor-modal .profile-editor-error{margin-inline:15px}.profile-photo-editor{grid-template-columns:82px minmax(0,1fr);align-items:center}.profile-photo-editor img{width:82px}}
