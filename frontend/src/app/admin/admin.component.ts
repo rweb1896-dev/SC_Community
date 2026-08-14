@@ -11,6 +11,8 @@ import { COMMUNITY_BOOKS, PAID_COMMUNITY_BOOKS } from '../core/community-resourc
 import { TranslatePipe } from '../core/translate.pipe';
 import { I18nService } from '../core/i18n.service';
 
+type DirectoryFilterKey = 'SEARCH' | 'STATUS' | 'GROUP' | 'PROFILE_TYPE' | 'WORK_STATUS' | 'EMPLOYMENT' | 'AGE_GROUP' | 'JOB_SEARCH' | 'HELP_FIELD' | 'COMPLETION';
+
 @Component({
   selector: 'app-admin',
   standalone: true,
@@ -48,6 +50,9 @@ export class AdminComponent implements OnInit, OnDestroy {
   memberEmploymentTypeFilter = 'ALL';
   memberAgeGroupFilter: AgeGroup | 'ALL' = 'ALL';
   memberJobSeekerFilter: 'ALL' | 'LOOKING' | 'NOT_LOOKING' = 'ALL';
+  activeDirectoryFilters: DirectoryFilterKey[] = ['SEARCH'];
+  directoryFilterToAdd: DirectoryFilterKey | '' = '';
+  selectedMember?: AdminUserResponse;
   invitePanelOpen = false;
   inviteChannel: 'EMAIL' | 'MOBILE' = 'EMAIL';
   inviteRecipient = '';
@@ -100,6 +105,13 @@ export class AdminComponent implements OnInit, OnDestroy {
     { value: 'BUSINESS', label: 'Business' }, { value: 'FREELANCE', label: 'Freelance' },
     { value: 'NOT_APPLICABLE', label: 'Not applicable' }
   ];
+  readonly directoryFilterOptions: { key: DirectoryFilterKey; label: string }[] = [
+    { key: 'SEARCH', label: 'Search members' }, { key: 'STATUS', label: 'Status' },
+    { key: 'GROUP', label: 'Group' }, { key: 'PROFILE_TYPE', label: 'Profile type' },
+    { key: 'WORK_STATUS', label: 'Work status' }, { key: 'EMPLOYMENT', label: 'Employment' },
+    { key: 'AGE_GROUP', label: 'Age group' }, { key: 'JOB_SEARCH', label: 'Job search' },
+    { key: 'HELP_FIELD', label: 'Help field' }, { key: 'COMPLETION', label: 'Profile completion' }
+  ];
 
   get filteredUsers(): AdminUserResponse[] {
     const query = this.memberSearch.trim().toLowerCase();
@@ -108,19 +120,19 @@ export class AdminComponent implements OnInit, OnDestroy {
         user.fullName, user.email, user.phoneNumber, user.currentPost, user.position,
         user.school, user.college, user.bestAchievement, user.address, user.profileCategory, user.workStatus, user.employmentType, ...(user.helpFieldNames || [])
       ].filter(Boolean).join(' ').toLowerCase();
-      const matchesQuery = !query || profileText.includes(query);
-      const matchesStatus = this.memberStatusFilter === 'ALL' || user.status === this.memberStatusFilter;
-      const matchesGroup = this.memberGroupFilter === 'ALL' || user.professionalGroup === this.memberGroupFilter;
-      const matchesHelp = this.memberHelpFilter === 'ALL' || (user.helpFieldIds || []).includes(Number(this.memberHelpFilter));
-      const matchesProfileCategory = this.memberProfileCategoryFilter === 'ALL' || user.profileCategory === this.memberProfileCategoryFilter;
-      const matchesWorkStatus = this.memberWorkStatusFilter === 'ALL' || user.workStatus === this.memberWorkStatusFilter;
-      const matchesEmploymentType = this.memberEmploymentTypeFilter === 'ALL' || user.employmentType === this.memberEmploymentTypeFilter;
-      const matchesAgeGroup = this.memberAgeGroupFilter === 'ALL' || user.ageGroup === this.memberAgeGroupFilter;
-      const matchesJobSeeker = this.memberJobSeekerFilter === 'ALL'
+      const matchesQuery = !this.hasDirectoryFilter('SEARCH') || !query || profileText.includes(query);
+      const matchesStatus = !this.hasDirectoryFilter('STATUS') || this.memberStatusFilter === 'ALL' || user.status === this.memberStatusFilter;
+      const matchesGroup = !this.hasDirectoryFilter('GROUP') || this.memberGroupFilter === 'ALL' || user.professionalGroup === this.memberGroupFilter;
+      const matchesHelp = !this.hasDirectoryFilter('HELP_FIELD') || this.memberHelpFilter === 'ALL' || (user.helpFieldIds || []).includes(Number(this.memberHelpFilter));
+      const matchesProfileCategory = !this.hasDirectoryFilter('PROFILE_TYPE') || this.memberProfileCategoryFilter === 'ALL' || user.profileCategory === this.memberProfileCategoryFilter;
+      const matchesWorkStatus = !this.hasDirectoryFilter('WORK_STATUS') || this.memberWorkStatusFilter === 'ALL' || user.workStatus === this.memberWorkStatusFilter;
+      const matchesEmploymentType = !this.hasDirectoryFilter('EMPLOYMENT') || this.memberEmploymentTypeFilter === 'ALL' || user.employmentType === this.memberEmploymentTypeFilter;
+      const matchesAgeGroup = !this.hasDirectoryFilter('AGE_GROUP') || this.memberAgeGroupFilter === 'ALL' || user.ageGroup === this.memberAgeGroupFilter;
+      const matchesJobSeeker = !this.hasDirectoryFilter('JOB_SEARCH') || this.memberJobSeekerFilter === 'ALL'
         || (this.memberJobSeekerFilter === 'LOOKING' && (user.lookingForJob || user.workStatus === 'LOOKING' || user.workStatus === 'UNEMPLOYED'))
         || (this.memberJobSeekerFilter === 'NOT_LOOKING' && !user.lookingForJob && user.workStatus !== 'LOOKING' && user.workStatus !== 'UNEMPLOYED');
       const completion = user.profileCompletion || 0;
-      const matchesCompletion = this.memberCompletionFilter === 'ALL'
+      const matchesCompletion = !this.hasDirectoryFilter('COMPLETION') || this.memberCompletionFilter === 'ALL'
         || (this.memberCompletionFilter === 'COMPLETE' && completion >= 80)
         || (this.memberCompletionFilter === 'INCOMPLETE' && completion < 80);
       return matchesQuery && matchesStatus && matchesGroup && matchesHelp && matchesProfileCategory
@@ -153,7 +165,45 @@ export class AdminComponent implements OnInit, OnDestroy {
     return this.users.filter(user => user.lookingForJob || user.workStatus === 'LOOKING' || user.workStatus === 'UNEMPLOYED').length;
   }
 
-  focusAgeGroup(value: AgeGroup): void { this.memberAgeGroupFilter = value; }
+  hasDirectoryFilter(key: DirectoryFilterKey): boolean { return this.activeDirectoryFilters.includes(key); }
+
+  directoryFilterLabel(key: DirectoryFilterKey): string {
+    return this.directoryFilterOptions.find((item) => item.key === key)?.label || key;
+  }
+
+  addDirectoryFilter(key: DirectoryFilterKey | ''): void {
+    if (key && !this.activeDirectoryFilters.includes(key)) this.activeDirectoryFilters = [...this.activeDirectoryFilters, key];
+    this.directoryFilterToAdd = '';
+  }
+
+  removeDirectoryFilter(key: DirectoryFilterKey): void {
+    this.activeDirectoryFilters = this.activeDirectoryFilters.filter((item) => item !== key);
+    if (key === 'SEARCH') this.memberSearch = '';
+    if (key === 'STATUS') this.memberStatusFilter = 'ALL';
+    if (key === 'GROUP') this.memberGroupFilter = 'ALL';
+    if (key === 'PROFILE_TYPE') this.memberProfileCategoryFilter = 'ALL';
+    if (key === 'WORK_STATUS') this.memberWorkStatusFilter = 'ALL';
+    if (key === 'EMPLOYMENT') this.memberEmploymentTypeFilter = 'ALL';
+    if (key === 'AGE_GROUP') this.memberAgeGroupFilter = 'ALL';
+    if (key === 'JOB_SEARCH') this.memberJobSeekerFilter = 'ALL';
+    if (key === 'HELP_FIELD') this.memberHelpFilter = 'ALL';
+    if (key === 'COMPLETION') this.memberCompletionFilter = 'ALL';
+  }
+
+  clearDirectoryFilters(): void { [...this.activeDirectoryFilters].forEach((key) => this.removeDirectoryFilter(key)); }
+
+  focusAgeGroup(value: AgeGroup): void {
+    this.addDirectoryFilter('AGE_GROUP');
+    this.memberAgeGroupFilter = value;
+  }
+
+  focusJobSeekers(): void {
+    this.addDirectoryFilter('JOB_SEARCH');
+    this.memberJobSeekerFilter = 'LOOKING';
+  }
+
+  openMemberDetails(user: AdminUserResponse): void { this.selectedMember = user; }
+  closeMemberDetails(): void { this.selectedMember = undefined; }
 
   smartMemberSummary(user: AdminUserResponse): string {
     const signals = [user.profileCategory, user.currentPost || user.position, user.bestAchievement, ...(user.helpFieldNames || [])].filter(Boolean);
