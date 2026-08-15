@@ -14,7 +14,6 @@
   <nav class="member-nav" *ngIf="auth.session$ | async as session" [class.admin-nav]="session.role === 'ROLE_ADMIN'" [class.open]="menuOpen">
     <a *ngIf="session.role !== 'ROLE_ADMIN'" routerLink="/feed" routerLinkActive="active" (click)="closeMenu()"><svg lucideHouse aria-hidden="true"></svg><span>{{ 'nav.home' | translate }}</span></a>
     <a *ngIf="session.role !== 'ROLE_ADMIN'" routerLink="/profile" routerLinkActive="active" (click)="closeMenu()"><svg lucideUsersRound aria-hidden="true"></svg><span>My profile</span></a>
-    <a *ngIf="session.role !== 'ROLE_ADMIN'" routerLink="/blogs" routerLinkActive="active" (click)="closeMenu()"><svg lucideNewspaper aria-hidden="true"></svg><span>Blogs</span></a>
     <a *ngIf="session.role !== 'ROLE_ADMIN'" routerLink="/debates" routerLinkActive="active" (click)="closeMenu()"><svg lucideMessageCircle aria-hidden="true"></svg><span>Debate</span></a>
     <button *ngIf="session.role !== 'ROLE_ADMIN'" class="nav-messages" type="button" (click)="openMessages()"><svg lucideMessageCircle aria-hidden="true"></svg><span>{{ 'nav.messages' | translate }}</span></button>
     <a *ngIf="session.role !== 'ROLE_ADMIN'" routerLink="/meetings" routerLinkActive="active" (click)="closeMenu()"><svg lucideVideo aria-hidden="true"></svg><span>{{ 'nav.meetings' | translate }}</span></a>

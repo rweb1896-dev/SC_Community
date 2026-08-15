@@ -55,8 +55,8 @@ export const routes: Routes = [
   },
   {
     path: 'blogs',
-    loadComponent: () => import('./blogs/member-blogs.component').then((module) => module.MemberBlogsComponent),
-    canActivate: [memberGuard]
+    redirectTo: 'profile',
+    pathMatch: 'full'
   },
   {
     path: 'debates',

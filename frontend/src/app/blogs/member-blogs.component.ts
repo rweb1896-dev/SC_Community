@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { LucideBookOpen, LucideMic, LucideMicOff, LucidePenLine, LucideX } from '@lucide/angular';
@@ -15,6 +15,7 @@ import { I18nService } from '../core/i18n.service';
   styleUrl: './member-blogs.component.css'
 })
 export class MemberBlogsComponent implements OnInit, OnDestroy {
+  @Input() embedded = false;
   blogs: MemberBlog[] = [];
   tab: 'ALL' | 'MINE' = 'ALL';
   loading = true;
@@ -31,7 +32,7 @@ export class MemberBlogsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.voiceSupported = !!((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
-    this.load();
+    this.load(this.embedded ? 'MINE' : 'ALL');
   }
   ngOnDestroy(): void { this.recognition?.stop(); }
 
