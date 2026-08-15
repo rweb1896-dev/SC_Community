@@ -23,5 +23,11 @@ public final class CommentDtos {
                     comment.getCreatedAt()
             );
         }
+
+        public static CommentResponse anonymous(Comment comment) {
+            return new CommentResponse(
+                    comment.getId(), comment.getPost().getId(), comment.getUser().getId(),
+                    "Member #" + comment.getUser().getId(), comment.getCommentText(), comment.getCreatedAt());
+        }
     }
 }

@@ -13,6 +13,9 @@
   </button>
   <nav class="member-nav" *ngIf="auth.session$ | async as session" [class.admin-nav]="session.role === 'ROLE_ADMIN'" [class.open]="menuOpen">
     <a *ngIf="session.role !== 'ROLE_ADMIN'" routerLink="/feed" routerLinkActive="active" (click)="closeMenu()"><svg lucideHouse aria-hidden="true"></svg><span>{{ 'nav.home' | translate }}</span></a>
+    <a *ngIf="session.role !== 'ROLE_ADMIN'" routerLink="/profile" routerLinkActive="active" (click)="closeMenu()"><svg lucideUsersRound aria-hidden="true"></svg><span>My profile</span></a>
+    <a *ngIf="session.role !== 'ROLE_ADMIN'" routerLink="/blogs" routerLinkActive="active" (click)="closeMenu()"><svg lucideNewspaper aria-hidden="true"></svg><span>Blogs</span></a>
+    <a *ngIf="session.role !== 'ROLE_ADMIN'" routerLink="/debates" routerLinkActive="active" (click)="closeMenu()"><svg lucideMessageCircle aria-hidden="true"></svg><span>Debate</span></a>
     <button *ngIf="session.role !== 'ROLE_ADMIN'" class="nav-messages" type="button" (click)="openMessages()"><svg lucideMessageCircle aria-hidden="true"></svg><span>{{ 'nav.messages' | translate }}</span></button>
     <a *ngIf="session.role !== 'ROLE_ADMIN'" routerLink="/meetings" routerLinkActive="active" (click)="closeMenu()"><svg lucideVideo aria-hidden="true"></svg><span>{{ 'nav.meetings' | translate }}</span></a>
     <button *ngIf="session.role !== 'ROLE_ADMIN'" class="nav-invite" type="button" (click)="openInviteWorkspace()"><svg lucideKeyRound aria-hidden="true"></svg><span>{{ 'nav.invite' | translate }}</span><i *ngIf="inviteRequest?.status === 'PENDING'"></i></button>
@@ -33,7 +36,7 @@
           </div>
         </div>
         <div class="profile-menu-meter" *ngIf="session.role === 'ROLE_USER'"><span><b [style.width.%]="session.profileCompletion || 0"></b></span><small>{{ session.profileCompletion || 0 }}% profile updated</small></div>
-        <button class="profile-edit-link" type="button" (click)="openSelfProfile()">View and edit profile</button>
+        <a class="profile-edit-link" routerLink="/profile" (click)="profileOpen=false;closeMenu()">View and edit profile</a>
         <div class="profile-help-summary" *ngIf="session.role === 'ROLE_USER'">
           <span>I can help with</span>
           <div><small *ngFor="let fieldName of session.helpFieldNames">{{ fieldName }}</small></div>
@@ -141,6 +144,7 @@
         <label><span>Employment type</span><select name="profileEmploymentType" [(ngModel)]="profileForm.employmentType"><option value="">Select type</option><option *ngFor="let item of employmentTypeOptions" [value]="item.value">{{ item.label }}</option></select></label>
         <label><span>Date of birth <small>Private · only visible to you and admin</small></span><input type="date" name="profileDateOfBirth" [(ngModel)]="profileForm.dateOfBirth" /></label>
         <label class="job-search-toggle"><span>Job search</span><span><input type="checkbox" name="profileLookingForJob" [(ngModel)]="profileForm.lookingForJob" /> I am looking for a job</span></label>
+        <label class="job-search-toggle privacy-toggle"><span>Profile privacy</span><span><input type="checkbox" name="profilePublic" [(ngModel)]="profileForm.profilePublic" /> Make my profile public</span><small>Your profile is private by default. Debate discussions never link to your profile.</small></label>
         <label><span>Current post</span><input maxlength="80" name="profileCurrentPost" placeholder="Teacher, Doctor, Advocate..." [(ngModel)]="profileForm.currentPost" /></label>
         <label><span>Position / role</span><input maxlength="100" name="profilePosition" placeholder="Senior resident, founder, principal..." [(ngModel)]="profileForm.position" /></label>
         <label><span>School</span><input maxlength="120" name="profileSchool" [(ngModel)]="profileForm.school" /></label>

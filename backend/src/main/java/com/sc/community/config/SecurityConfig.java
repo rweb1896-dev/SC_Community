@@ -62,7 +62,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/error", "/index.html", "/favicon.svg", "/assets/**", "/*.js", "/*.css",
                                 "/community", "/login", "/leaders", "/leaders/**", "/achievers", "/library", "/events", "/live",
-                                "/feed", "/chat", "/meetings", "/meetings/**", "/admin").permitAll()
+                                "/feed", "/profile", "/member", "/member/**", "/blogs", "/debates", "/chat", "/meetings", "/meetings/**", "/admin").permitAll()
                         .requestMatchers("/api/auth/**", "/api/health", "/api/public/**", "/ws/**", "/ws-native/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/meetings/**").authenticated()

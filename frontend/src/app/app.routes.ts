@@ -44,6 +44,26 @@ export const routes: Routes = [
     canActivate: [memberGuard]
   },
   {
+    path: 'profile',
+    loadComponent: () => import('./profile/member-profile.component').then((module) => module.MemberProfileComponent),
+    canActivate: [memberGuard]
+  },
+  {
+    path: 'member/:userId',
+    loadComponent: () => import('./profile/public-member-profile.component').then((module) => module.PublicMemberProfileComponent),
+    canActivate: [memberGuard]
+  },
+  {
+    path: 'blogs',
+    loadComponent: () => import('./blogs/member-blogs.component').then((module) => module.MemberBlogsComponent),
+    canActivate: [memberGuard]
+  },
+  {
+    path: 'debates',
+    loadComponent: () => import('./debates/debate-room.component').then((module) => module.DebateRoomComponent),
+    canActivate: [memberGuard]
+  },
+  {
     path: 'chat',
     redirectTo: 'feed',
     pathMatch: 'full'

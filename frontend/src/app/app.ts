@@ -44,7 +44,7 @@ export class App implements OnInit, OnDestroy {
   profileEditorSaving = false;
   profileEditorError = '';
   profileEditorSuccess = '';
-  profileForm = { fullName:'', email:'', phoneNumber:'', address:'', photoUrl:'', currentPost:'', position:'', school:'', college:'', bestAchievement:'', profileCategory:'', workStatus:'', employmentType:'', dateOfBirth:'', lookingForJob:false };
+  profileForm = { fullName:'', email:'', phoneNumber:'', address:'', photoUrl:'', currentPost:'', position:'', school:'', college:'', bestAchievement:'', profileCategory:'', workStatus:'', employmentType:'', dateOfBirth:'', lookingForJob:false, profilePublic:false };
   private profileOriginal = { email:'', phoneNumber:'' };
   profileEmailOtp = ''; profileMobileOtp = '';
   profileEmailToken = ''; profileMobileToken = '';
@@ -198,7 +198,7 @@ export class App implements OnInit, OnDestroy {
 
   openSelfProfile():void {
     this.profileOpen=false;this.profileEditorOpen=true;this.profileEditorLoading=true;this.profileEditorError='';this.profileEditorSuccess='';
-    this.api.myProfile().subscribe({next:profile=>{const user=profile.user;this.profileForm={fullName:user.fullName,email:user.email,phoneNumber:user.phoneNumber||'',address:user.address||'',photoUrl:user.photoUrl||'',currentPost:user.currentPost||'',position:user.position||'',school:user.school||'',college:user.college||'',bestAchievement:user.bestAchievement||'',profileCategory:user.profileCategory||'',workStatus:user.workStatus||'',employmentType:user.employmentType||'',dateOfBirth:profile.dateOfBirth||'',lookingForJob:!!user.lookingForJob};this.selectedHelpFieldIds=[...(user.helpFieldIds||[])];this.profileOriginal={email:user.email,phoneNumber:user.phoneNumber||''};this.resetProfileVerification();this.profileEditorLoading=false;},error:e=>{this.profileEditorError=e.error?.detail||'Profile could not be loaded.';this.profileEditorLoading=false;}});
+    this.api.myProfile().subscribe({next:profile=>{const user=profile.user;this.profileForm={fullName:user.fullName,email:user.email,phoneNumber:user.phoneNumber||'',address:user.address||'',photoUrl:user.photoUrl||'',currentPost:user.currentPost||'',position:user.position||'',school:user.school||'',college:user.college||'',bestAchievement:user.bestAchievement||'',profileCategory:user.profileCategory||'',workStatus:user.workStatus||'',employmentType:user.employmentType||'',dateOfBirth:profile.dateOfBirth||'',lookingForJob:!!user.lookingForJob,profilePublic:!!profile.profilePublic};this.selectedHelpFieldIds=[...(user.helpFieldIds||[])];this.profileOriginal={email:user.email,phoneNumber:user.phoneNumber||''};this.resetProfileVerification();this.profileEditorLoading=false;},error:e=>{this.profileEditorError=e.error?.detail||'Profile could not be loaded.';this.profileEditorLoading=false;}});
   }
   closeSelfProfile():void{if(!this.profileEditorSaving)this.profileEditorOpen=false;}
   selectProfilePhoto(event: Event): void {

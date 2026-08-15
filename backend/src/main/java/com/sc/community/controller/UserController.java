@@ -2,6 +2,7 @@ package com.sc.community.controller;
 
 import com.sc.community.dto.UserResponse;
 import com.sc.community.dto.ProfileResponse;
+import com.sc.community.dto.PublicMemberProfileResponse;
 import com.sc.community.entity.UserStatus;
 import com.sc.community.repository.UserRepository;
 import com.sc.community.websocket.PresenceService;
@@ -15,6 +16,7 @@ import java.util.Set;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -51,6 +53,9 @@ public class UserController {
 
     @GetMapping("/me")
     public ProfileResponse me() { return profileService.me(); }
+
+    @GetMapping("/{userId}/public-profile")
+    public PublicMemberProfileResponse publicProfile(@PathVariable Long userId) { return profileService.publicProfile(userId); }
 
     @PatchMapping("/me/profile")
     public ProfileUpdateResponse updateMyProfile(@Valid @RequestBody UpdateProfileRequest request) {

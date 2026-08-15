@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Achiever, AdminUserResponse, Broadcast, BroadcastMediaType, BroadcastStatus, Category, Comment, CommunityEvent, Dashboard, EventStatus, ExpertiseField, GalleryImage, HelpConversation, HelpMessage, HelpNotification, ImageUploadResponse, InviteCode, InviteRequest, ManagedContent, ManagedContentInput, ManagedContentStatus, Meeting, MeetingAudience, MemberInviteRequest, Message, MyHelpPost, Post, ProfessionalGroup, ProfileResponse, ProfileUpdateResponse, ReconnectRequest, SupportResponse, UserResponse, UserStatus, VolunteerRequest } from './models';
+import { Achiever, AdminUserResponse, Broadcast, BroadcastMediaType, BroadcastStatus, Category, Comment, CommunityEvent, Dashboard, DebateComment, DebateTopic, EventStatus, ExpertiseField, GalleryImage, HelpConversation, HelpMessage, HelpNotification, ImageUploadResponse, InviteCode, InviteRequest, ManagedContent, ManagedContentInput, ManagedContentStatus, Meeting, MeetingAudience, MemberBlog, MemberInviteRequest, Message, MyHelpPost, Post, ProfessionalGroup, ProfileResponse, ProfileUpdateResponse, PublicMemberProfile, ReconnectRequest, SupportResponse, UserResponse, UserStatus, VolunteerRequest } from './models';
 
 const API = '/api';
 
@@ -90,12 +90,35 @@ export class CommunityApiService {
   publicAchievers() { return this.http.get<Achiever[]>(`${API}/public/achievers`); }
   updateMyHelpFields(fieldIds: number[]) { return this.http.patch<UserResponse>(`${API}/users/me/help-fields`, { fieldIds }); }
   myProfile() { return this.http.get<ProfileResponse>(`${API}/users/me`); }
+  publicMemberProfile(userId: number) { return this.http.get<PublicMemberProfile>(`${API}/users/${userId}/public-profile`); }
   updateMyProfile(payload: {
     fullName:string; email:string; phoneNumber:string; address:string; photoUrl:string;
     currentPost:string; position:string; school:string; college:string; bestAchievement:string;
-    profileCategory:string; workStatus:string; employmentType:string; dateOfBirth:string; lookingForJob:boolean;
+    profileCategory:string; workStatus:string; employmentType:string; dateOfBirth:string; lookingForJob:boolean; profilePublic:boolean;
     emailVerificationToken?:string; phoneVerificationToken?:string
   }) { return this.http.patch<ProfileUpdateResponse>(`${API}/users/me/profile`, payload); }
+
+  blogs(mine = false) { return this.http.get<MemberBlog[]>(`${API}/member-space/blogs${mine ? '/mine' : ''}`); }
+  createBlog(title: string, body: string, imageUrl = '') {
+    return this.http.post<MemberBlog>(`${API}/member-space/blogs`, { title, body, imageUrl });
+  }
+  updateBlog(blogId: number, title: string, body: string, imageUrl = '') {
+    return this.http.patch<MemberBlog>(`${API}/member-space/blogs/${blogId}`, { title, body, imageUrl });
+  }
+  deleteBlog(blogId: number) { return this.http.delete<void>(`${API}/member-space/blogs/${blogId}`); }
+
+  debates() { return this.http.get<DebateTopic[]>(`${API}/member-space/debates`); }
+  createDebate(title: string, body: string, imageUrl = '') {
+    return this.http.post<DebateTopic>(`${API}/member-space/debates`, { title, body, imageUrl });
+  }
+  updateDebate(debateId: number, title: string, body: string, imageUrl = '') {
+    return this.http.patch<DebateTopic>(`${API}/member-space/debates/${debateId}`, { title, body, imageUrl });
+  }
+  deleteDebate(debateId: number) { return this.http.delete<void>(`${API}/member-space/debates/${debateId}`); }
+  debateComments(debateId: number) { return this.http.get<DebateComment[]>(`${API}/member-space/debates/${debateId}/comments`); }
+  addDebateComment(debateId: number, commentText: string) {
+    return this.http.post<DebateComment>(`${API}/member-space/debates/${debateId}/comments`, { commentText });
+  }
 
   adminExpertiseFields() { return this.http.get<ExpertiseField[]>(`${API}/admin/directory/expertise-fields`); }
   createExpertiseField(name: string, description: string, iconKey: string, displayOrder: number) {

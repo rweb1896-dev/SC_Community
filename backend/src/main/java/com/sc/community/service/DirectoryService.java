@@ -154,14 +154,14 @@ public class DirectoryService {
     @Transactional
     public void saveProfile(User user, String address, String photoUrl, String currentPost, String position,
             String school, String college, String bestAchievement, String profileCategory, String workStatus,
-            String employmentType, String dateOfBirth, boolean lookingForJob) {
+            String employmentType, String dateOfBirth, boolean lookingForJob, boolean profilePublic) {
         String marker = USER_PROFILE + user.getId();
         Broadcast item = repository.findAllByOrderByCreatedAtDesc().stream()
                 .filter(candidate -> marker.equals(candidate.getTitle())).findFirst()
                 .orElseGet(() -> content(marker, user.getEmail(), "", BroadcastStatus.LIVE));
         item.setHostName(user.getEmail());
         item.setDescription(payload(trim(currentPost), trim(address), trim(position), trim(school), trim(college),
-                profileDetails(bestAchievement, profileCategory, workStatus, employmentType, dateOfBirth, lookingForJob)));
+                profileDetails(bestAchievement, profileCategory, workStatus, employmentType, dateOfBirth, lookingForJob, profilePublic)));
         item.setMediaUrl(trim(photoUrl));
         item.setStatus(BroadcastStatus.LIVE);
         repository.save(item);
@@ -309,7 +309,7 @@ public class DirectoryService {
     }
 
     private String profileDetails(String bestAchievement, String profileCategory, String workStatus, String employmentType,
-            String dateOfBirth, boolean lookingForJob) {
+            String dateOfBirth, boolean lookingForJob, boolean profilePublic) {
         try {
             Map<String, String> values = new LinkedHashMap<>();
             values.put("bestAchievement", trim(bestAchievement));
@@ -318,6 +318,7 @@ public class DirectoryService {
             values.put("employmentType", trim(employmentType));
             values.put("dateOfBirth", trim(dateOfBirth));
             values.put("lookingForJob", Boolean.toString(lookingForJob));
+            values.put("profilePublic", Boolean.toString(profilePublic));
             String json = objectMapper.writeValueAsString(values);
             return json.length() <= 560 ? json : trim(bestAchievement);
         } catch (JsonProcessingException exception) {
@@ -333,6 +334,7 @@ public class DirectoryService {
             user.setEmploymentType(null);
             user.setDateOfBirth(null);
             user.setLookingForJob(false);
+            user.setProfilePublic(false);
             return;
         }
         try {
@@ -343,6 +345,7 @@ public class DirectoryService {
             user.setEmploymentType(emptyToNull(values.get("employmentType")));
             user.setDateOfBirth(emptyToNull(values.get("dateOfBirth")));
             user.setLookingForJob(Boolean.parseBoolean(values.getOrDefault("lookingForJob", "false")));
+            user.setProfilePublic(Boolean.parseBoolean(values.getOrDefault("profilePublic", "false")));
         } catch (JsonProcessingException exception) {
             user.setBestAchievement(emptyToNull(details));
             user.setProfileCategory(null);
@@ -350,6 +353,7 @@ public class DirectoryService {
             user.setEmploymentType(null);
             user.setDateOfBirth(null);
             user.setLookingForJob(false);
+            user.setProfilePublic(false);
         }
     }
 

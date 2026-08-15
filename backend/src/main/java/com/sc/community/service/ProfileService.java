@@ -3,10 +3,12 @@ package com.sc.community.service;
 import com.sc.community.dto.ProfileDtos.UpdateProfileRequest;
 import com.sc.community.dto.ProfileDtos.ProfileUpdateResponse;
 import com.sc.community.dto.ProfileResponse;
+import com.sc.community.dto.PublicMemberProfileResponse;
 import com.sc.community.dto.UserResponse;
 import com.sc.community.entity.OtpChannel;
 import com.sc.community.entity.OtpPurpose;
 import com.sc.community.entity.User;
+import com.sc.community.entity.UserStatus;
 import com.sc.community.repository.UserRepository;
 import com.sc.community.security.JwtService;
 import jakarta.transaction.Transactional;
@@ -33,6 +35,17 @@ public class ProfileService {
         User user = current.verifiedUser();
         directory.responseForUser(user);
         return ProfileResponse.from(user);
+    }
+
+    @Transactional
+    public PublicMemberProfileResponse publicProfile(Long userId) {
+        User user = users.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Member profile not found"));
+        directory.responseForUser(user);
+        if (user.getStatus() != UserStatus.VERIFIED || !user.isProfilePublic()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This member keeps their profile private");
+        }
+        return PublicMemberProfileResponse.from(user);
     }
 
     @Transactional
@@ -64,7 +77,7 @@ public class ProfileService {
         users.save(user);
         directory.saveProfile(user, request.address(), request.photoUrl(), request.currentPost(), request.position(),
                 request.school(), request.college(), request.bestAchievement(), request.profileCategory(),
-                request.workStatus(), request.employmentType(), dateOfBirth, request.lookingForJob());
+                request.workStatus(), request.employmentType(), dateOfBirth, request.lookingForJob(), request.profilePublic());
         directory.responseForUser(user);
         return new ProfileUpdateResponse(ProfileResponse.from(user), jwt.generateToken(user));
     }

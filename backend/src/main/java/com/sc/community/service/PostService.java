@@ -57,6 +57,7 @@ public class PostService {
         List<Post> posts = categoryId == null
                 ? postRepository.findByStatusOrderByCreatedAtDesc(PostStatus.ACTIVE)
                 : postRepository.findByCategoryIdAndStatusOrderByCreatedAtDesc(categoryId, PostStatus.ACTIVE);
+        posts = posts.stream().filter(post -> !CommunitySpaceMarkers.isDebateContent(post.getContent())).toList();
         if (posts.isEmpty()) return List.of();
         Long currentUserId = currentUserService.currentUser().getId();
         List<Long> postIds = posts.stream().map(Post::getId).toList();
@@ -109,7 +110,11 @@ public class PostService {
 
     @Transactional
     public List<CommentResponse> comments(Long postId) {
-        return commentRepository.findByPostIdOrderByCreatedAtAsc(postId).stream().map(CommentResponse::from).toList();
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+        boolean anonymous = CommunitySpaceMarkers.isDebateContent(post.getContent());
+        return commentRepository.findByPostIdOrderByCreatedAtAsc(postId).stream()
+                .map(comment -> anonymous ? CommentResponse.anonymous(comment) : CommentResponse.from(comment)).toList();
     }
 
     @Transactional

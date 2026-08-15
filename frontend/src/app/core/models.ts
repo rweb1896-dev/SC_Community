@@ -70,10 +70,26 @@ export interface UserResponse {
   inviteCodeUsed?: string;
   createdAt: string;
 }
-export interface ProfileResponse { user: UserResponse; dateOfBirth?: string; }
+export interface ProfileResponse { user: UserResponse; dateOfBirth?: string; profilePublic: boolean; }
 export interface AdminUserResponse extends UserResponse { dateOfBirth?: string; ageGroup: AgeGroup; }
 export type AgeGroup = 'UNDER_18' | '18_24' | '25_34' | '35_44' | '45_59' | '60_PLUS' | 'NOT_ADDED';
 export interface ProfileUpdateResponse { user: ProfileResponse; token: string; }
+export interface PublicMemberProfile {
+  id: number;
+  fullName: string;
+  photoUrl?: string;
+  currentPost?: string;
+  position?: string;
+  school?: string;
+  college?: string;
+  bestAchievement?: string;
+  profileCategory?: string;
+  workStatus?: string;
+  employmentType?: string;
+  lookingForJob: boolean;
+  helpFieldNames: string[];
+  profileCompletion: number;
+}
 
 export interface ExpertiseField {
   id: number;
@@ -133,6 +149,38 @@ export interface Comment {
   userId: number;
   authorName: string;
   commentText: string;
+  createdAt: string;
+}
+
+export interface MemberBlog {
+  id: number;
+  mine: boolean;
+  authorLabel: string;
+  title: string;
+  body: string;
+  imageUrl?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DebateTopic {
+  id: number;
+  mine: boolean;
+  authorId: number;
+  authorLabel: string;
+  title: string;
+  body: string;
+  imageUrl?: string;
+  createdAt: string;
+  commentCount: number;
+}
+
+export interface DebateComment {
+  id: number;
+  postId: number;
+  userId: number;
+  authorLabel: string;
+  message: string;
   createdAt: string;
 }
 

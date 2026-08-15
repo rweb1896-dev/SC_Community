@@ -1,0 +1,52 @@
+<section class="profile-page">
+  <header class="profile-hero">
+    <div>
+      <p>Member workspace</p>
+      <h1>My profile</h1>
+      <span>Build a trusted professional profile, manage visibility and share your writing.</span>
+    </div>
+    <div class="profile-actions"><a routerLink="/blogs"><svg lucidePenLine></svg>My blogs</a><a routerLink="/debates"><svg lucideSparkles></svg>Open debate</a></div>
+  </header>
+
+  <p class="page-error" *ngIf="error" role="alert">{{ error }}</p>
+  <section class="loading-card" *ngIf="loading">Loading your profile…</section>
+
+  <form *ngIf="!loading" (ngSubmit)="save()" class="profile-layout">
+    <aside class="identity-card">
+      <div class="portrait"><img *ngIf="form.photoUrl" [src]="form.photoUrl" [alt]="form.fullName + ' profile photo'" /><span *ngIf="!form.photoUrl">{{ form.fullName.slice(0, 1) || 'M' }}</span></div>
+      <label class="photo-picker"><input type="file" accept="image/jpeg,image/png" (change)="choosePhoto($event)" /><svg lucideCamera></svg>{{ uploading ? 'Uploading ' + uploadProgress + '%' : 'Add / change photo' }}</label>
+      <label class="url-field"><span>Photo URL</span><input name="photoUrl" [(ngModel)]="form.photoUrl" placeholder="https://…" /></label>
+      <div class="strength"><span>Profile strength</span><strong>{{ completion }}%</strong><i><b [style.width.%]="completion"></b></i><small>More details make it easier to route useful help and opportunities.</small></div>
+      <div class="visibility-card" [class.public]="form.profilePublic"><svg *ngIf="form.profilePublic" lucideShieldCheck></svg><svg *ngIf="!form.profilePublic" lucideLockKeyhole></svg><div><strong>{{ form.profilePublic ? 'Public profile' : 'Private profile' }}</strong><small>{{ form.profilePublic ? 'Members may view the profile details you chose to share.' : 'Your profile does not open from community discussions.' }}</small></div></div>
+      <button *ngIf="form.profilePublic" type="button" class="copy-profile-link" (click)="copyPublicProfileLink()">Copy public profile link</button>
+    </aside>
+
+    <main class="profile-form-card">
+      <header><div><span>Personal profile</span><h2>Professional details</h2></div><small>Fields marked private are visible only to you and the admin.</small></header>
+      <div class="form-grid">
+        <label><span>Full name</span><input required maxlength="120" name="fullName" [(ngModel)]="form.fullName" /></label>
+        <label><span>Profile category</span><select name="profileCategory" [(ngModel)]="form.profileCategory"><option value="">Select category</option><option *ngFor="let category of profileCategories" [value]="category">{{ label(category) }}</option></select></label>
+        <label><span>Current post</span><input maxlength="80" name="currentPost" [(ngModel)]="form.currentPost" placeholder="Doctor, teacher, entrepreneur…" /></label>
+        <label><span>Position / role</span><input maxlength="100" name="position" [(ngModel)]="form.position" placeholder="Senior resident, founder, principal…" /></label>
+        <label><span>Work status</span><select name="workStatus" [(ngModel)]="form.workStatus"><option value="">Select status</option><option *ngFor="let status of workStatuses" [value]="status">{{ label(status) }}</option></select></label>
+        <label><span>Employment type</span><select name="employmentType" [(ngModel)]="form.employmentType"><option value="">Select type</option><option *ngFor="let type of employmentTypes" [value]="type">{{ label(type) }}</option></select></label>
+        <label><span>School</span><input maxlength="120" name="school" [(ngModel)]="form.school" /></label>
+        <label><span>College</span><input maxlength="120" name="college" [(ngModel)]="form.college" /></label>
+        <label><span>Date of birth <small>Private</small></span><input type="date" name="dateOfBirth" [(ngModel)]="form.dateOfBirth" /></label>
+        <label class="wide"><span>Address</span><textarea maxlength="240" name="address" [(ngModel)]="form.address" placeholder="City, district or current address"></textarea></label>
+        <label class="wide"><span>Best achievement</span><textarea maxlength="260" name="bestAchievement" [(ngModel)]="form.bestAchievement" placeholder="Rank, award, project, publication or contribution"></textarea></label>
+      </div>
+
+      <section class="verification-block"><div><strong>Contact verification</strong><span>Email and mobile changes are verified before they are saved.</span></div>
+        <label><span>Email address</span><input required type="email" name="email" [(ngModel)]="form.email" (ngModelChange)="emailToken='';emailFeedback=''" /></label>
+        <div class="otp-row" *ngIf="emailChanged()"><button type="button" (click)="sendOtp('EMAIL')">Send OTP</button><input name="emailOtp" [(ngModel)]="emailCode" maxlength="8" placeholder="Email OTP" /><button type="button" (click)="verifyOtp('EMAIL')">Verify</button></div><small *ngIf="emailFeedback">{{ emailFeedback }}</small>
+        <label><span>Mobile number</span><input required name="phoneNumber" [(ngModel)]="form.phoneNumber" (ngModelChange)="mobileToken='';mobileFeedback=''" /></label>
+        <div class="otp-row" *ngIf="mobileChanged()"><button type="button" (click)="sendOtp('MOBILE')">Send OTP</button><input name="mobileOtp" [(ngModel)]="mobileCode" maxlength="8" placeholder="Mobile OTP" /><button type="button" (click)="verifyOtp('MOBILE')">Verify</button></div><small *ngIf="mobileFeedback">{{ mobileFeedback }}</small>
+      </section>
+
+      <section class="privacy-block"><div><svg lucideLockKeyhole></svg><div><strong>Profile privacy</strong><span>Your profile is private by default. Debate topics and replies always show only your member ID, never a profile link.</span></div></div><label><input type="checkbox" name="profilePublic" [(ngModel)]="form.profilePublic" /> Make my profile public</label><label><input type="checkbox" name="lookingForJob" [(ngModel)]="form.lookingForJob" /> I am looking for a job</label></section>
+      <p class="page-success" *ngIf="success">{{ success }}</p>
+      <footer><a routerLink="/feed">Back to home</a><button [disabled]="saving || uploading">{{ saving ? 'Saving profile…' : 'Save profile' }}</button></footer>
+    </main>
+  </form>
+</section>

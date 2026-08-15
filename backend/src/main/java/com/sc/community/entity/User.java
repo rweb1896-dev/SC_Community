@@ -91,6 +91,10 @@ public class User {
     @Transient
     private boolean lookingForJob;
 
+    /** Profile details remain private unless the member explicitly turns this on. */
+    @Transient
+    private boolean profilePublic;
+
     @Transient
     private int profileCompletion;
 
@@ -148,6 +152,8 @@ public class User {
     public void setDateOfBirth(String dateOfBirth) { this.dateOfBirth = dateOfBirth; }
     public boolean isLookingForJob() { return lookingForJob; }
     public void setLookingForJob(boolean lookingForJob) { this.lookingForJob = lookingForJob; }
+    public boolean isProfilePublic() { return profilePublic; }
+    public void setProfilePublic(boolean profilePublic) { this.profilePublic = profilePublic; }
     public int getProfileCompletion() { return profileCompletion; }
     public void setProfileCompletion(int profileCompletion) { this.profileCompletion = profileCompletion; }
     public boolean isProfileComplete() { return role == UserRole.ROLE_ADMIN || (helpFields != null && !helpFields.isEmpty()); }
