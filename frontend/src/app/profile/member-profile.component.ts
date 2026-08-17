@@ -4,7 +4,6 @@ import { HttpEventType, HttpResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { LucideCamera, LucideLockKeyhole, LucideShieldCheck, LucideSparkles } from '@lucide/angular';
-import { MemberBlogsComponent } from '../blogs/member-blogs.component';
 import { AuthService } from '../core/auth.service';
 import { CommunityApiService } from '../core/community-api.service';
 import { ImageUploadResponse, OtpChannel, OtpPurpose } from '../core/models';
@@ -19,7 +18,7 @@ type ProfileForm = {
 @Component({
   selector: 'app-member-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, MemberBlogsComponent, LucideCamera, LucideLockKeyhole, LucideShieldCheck, LucideSparkles],
+  imports: [CommonModule, FormsModule, RouterLink, LucideCamera, LucideLockKeyhole, LucideShieldCheck, LucideSparkles],
   templateUrl: './member-profile.component.html',
   styleUrl: './member-profile.component.css'
 })

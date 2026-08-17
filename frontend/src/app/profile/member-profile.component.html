@@ -3,9 +3,9 @@
     <div>
       <p>Member workspace</p>
       <h1>My profile</h1>
-      <span>Build a trusted professional profile, manage visibility and share your writing.</span>
+      <span>Build a trusted professional profile and manage your visibility.</span>
     </div>
-    <div class="profile-actions"><a href="#my-blogs">My blogs</a><a routerLink="/debates"><svg lucideSparkles></svg>Open debate</a></div>
+    <div class="profile-actions"><a routerLink="/blogs" [queryParams]="{ tab: 'mine' }">My blogs</a><a routerLink="/debates"><svg lucideSparkles></svg>Open debate</a></div>
   </header>
 
   <p class="page-error" *ngIf="error" role="alert">{{ error }}</p>
@@ -49,5 +49,4 @@
       <footer><a routerLink="/feed">Back to home</a><button [disabled]="saving || uploading">{{ saving ? 'Saving profile…' : 'Save profile' }}</button></footer>
     </main>
   </form>
-  <section class="profile-blogs" *ngIf="!loading"><app-member-blogs [embedded]="true"></app-member-blogs></section>
 </section>

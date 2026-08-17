@@ -1,5 +1,5 @@
 <section class="debate-page">
-  <header class="debate-hero"><div><p>Open community room</p><h1>Debate &amp; discussion</h1><span>Discuss current issues, exchange views and learn respectfully.</span></div><div><a routerLink="/blogs">Community blogs</a><button type="button" (click)="openComposer()"><svg lucidePenLine></svg>Start a topic</button></div></header>
+  <header class="debate-hero"><div><p>Open community room</p><h1>Debate &amp; discussion</h1><span>Discuss current issues, exchange views and learn respectfully.</span></div><div class="debate-actions"><a routerLink="/blogs">Community blogs</a><button type="button" (click)="openComposer()"><svg lucidePenLine></svg>Start a topic</button></div></header>
   <section class="privacy-note"><svg lucideLockKeyhole></svg><div><strong>Private profile by design</strong><span>Every topic and reply displays only a member ID. There are no profile links from this discussion room.</span></div></section>
   <p class="error" *ngIf="error" role="alert">{{ error }}</p>
   <section class="loading" *ngIf="loading">Opening the debate room…</section>

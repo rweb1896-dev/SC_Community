@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideBookOpen, LucideMic, LucideMicOff, LucidePenLine, LucideX } from '@lucide/angular';
 import { CommunityApiService } from '../core/community-api.service';
 import { MemberBlog } from '../core/models';
 import { I18nService } from '../core/i18n.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-member-blogs',
@@ -15,7 +16,6 @@ import { I18nService } from '../core/i18n.service';
   styleUrl: './member-blogs.component.css'
 })
 export class MemberBlogsComponent implements OnInit, OnDestroy {
-  @Input() embedded = false;
   blogs: MemberBlog[] = [];
   tab: 'ALL' | 'MINE' = 'ALL';
   loading = true;
@@ -27,14 +27,17 @@ export class MemberBlogsComponent implements OnInit, OnDestroy {
   listening = false;
   form = { title: '', body: '', imageUrl: '' };
   private recognition?: any;
+  private readonly subscriptions = new Subscription();
 
-  constructor(private api: CommunityApiService, private i18n: I18nService) { }
+  constructor(private api: CommunityApiService, private i18n: I18nService, private route: ActivatedRoute, private router: Router) { }
 
   ngOnInit(): void {
     this.voiceSupported = !!((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
-    this.load(this.embedded ? 'MINE' : 'ALL');
+    this.subscriptions.add(this.route.queryParamMap.subscribe((params) => {
+      this.load(params.get('tab') === 'mine' ? 'MINE' : 'ALL');
+    }));
   }
-  ngOnDestroy(): void { this.recognition?.stop(); }
+  ngOnDestroy(): void { this.recognition?.stop(); this.subscriptions.unsubscribe(); }
 
   load(tab = this.tab): void {
     this.tab = tab; this.loading = true; this.error = '';
@@ -42,6 +45,15 @@ export class MemberBlogsComponent implements OnInit, OnDestroy {
       next: blogs => { this.blogs = blogs; this.loading = false; },
       error: error => { this.error = error.error?.detail || 'Blogs could not be loaded.'; this.loading = false; }
     });
+  }
+
+  selectTab(tab: 'ALL' | 'MINE'): void {
+    const requested = tab === 'MINE' ? 'mine' : null;
+    if ((this.route.snapshot.queryParamMap.get('tab') || null) === requested) {
+      this.load(tab);
+      return;
+    }
+    this.router.navigate([], { relativeTo: this.route, queryParams: { tab: requested }, queryParamsHandling: 'merge' });
   }
 
   openComposer(blog?: MemberBlog): void {
