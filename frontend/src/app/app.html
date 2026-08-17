@@ -13,8 +13,6 @@
   </button>
   <nav class="member-nav" *ngIf="auth.session$ | async as session" [class.admin-nav]="session.role === 'ROLE_ADMIN'" [class.open]="menuOpen">
     <a *ngIf="session.role !== 'ROLE_ADMIN'" routerLink="/feed" routerLinkActive="active" (click)="closeMenu()"><svg lucideHouse aria-hidden="true"></svg><span>{{ 'nav.home' | translate }}</span></a>
-    <a *ngIf="session.role !== 'ROLE_ADMIN'" routerLink="/blogs" routerLinkActive="active" (click)="closeMenu()"><svg lucideNewspaper aria-hidden="true"></svg><span>Blogs</span></a>
-    <a *ngIf="session.role !== 'ROLE_ADMIN'" routerLink="/debates" routerLinkActive="active" (click)="closeMenu()"><svg lucideMessageCircle aria-hidden="true"></svg><span>Debate</span></a>
     <button *ngIf="session.role !== 'ROLE_ADMIN'" class="nav-messages" type="button" (click)="openMessages()"><svg lucideMessageCircle aria-hidden="true"></svg><span>{{ 'nav.messages' | translate }}</span></button>
     <a *ngIf="session.role !== 'ROLE_ADMIN'" routerLink="/meetings" routerLinkActive="active" (click)="closeMenu()"><svg lucideVideo aria-hidden="true"></svg><span>{{ 'nav.meetings' | translate }}</span></a>
     <button *ngIf="session.role !== 'ROLE_ADMIN'" class="nav-invite" type="button" (click)="openInviteWorkspace()"><svg lucideKeyRound aria-hidden="true"></svg><span>{{ 'nav.invite' | translate }}</span><i *ngIf="inviteRequest?.status === 'PENDING'"></i></button>
@@ -36,7 +34,6 @@
         </div>
         <div class="profile-menu-meter" *ngIf="session.role === 'ROLE_USER'"><span><b [style.width.%]="session.profileCompletion || 0"></b></span><small>{{ session.profileCompletion || 0 }}% profile updated</small></div>
         <a class="profile-edit-link" routerLink="/profile" (click)="profileOpen=false;closeMenu()">My profile · view and edit</a>
-        <a *ngIf="session.role === 'ROLE_USER'" class="profile-blogs-link" routerLink="/blogs" [queryParams]="{ tab: 'mine' }" (click)="profileOpen=false;closeMenu()">My blogs</a>
         <div class="profile-help-summary" *ngIf="session.role === 'ROLE_USER'">
           <span>I can help with</span>
           <div><small *ngFor="let fieldName of session.helpFieldNames">{{ fieldName }}</small></div>
@@ -166,6 +163,11 @@
 <main>
   <router-outlet />
 </main>
+
+<aside class="member-workspace-dock" *ngIf="auth.session?.role === 'ROLE_USER'" aria-label="Community writing workspaces">
+  <a routerLink="/blogs" routerLinkActive="active" (click)="closeMenu()"><svg lucideNewspaper aria-hidden="true"></svg><span><small>Write &amp; read</small>Blogs</span></a>
+  <a routerLink="/debates" routerLinkActive="active" (click)="closeMenu()"><svg lucideMessageCircle aria-hidden="true"></svg><span><small>Discuss openly</small>Debate</span></a>
+</aside>
 
 @if (auth.session?.role === 'ROLE_USER') {
   @defer (when auth.session?.role === 'ROLE_USER') {

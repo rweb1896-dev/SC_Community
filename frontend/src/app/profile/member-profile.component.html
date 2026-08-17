@@ -5,7 +5,6 @@
       <h1>My profile</h1>
       <span>Build a trusted professional profile and manage your visibility.</span>
     </div>
-    <div class="profile-actions"><a routerLink="/blogs" [queryParams]="{ tab: 'mine' }">My blogs</a><a routerLink="/debates"><svg lucideSparkles></svg>Open debate</a></div>
   </header>
 
   <p class="page-error" *ngIf="error" role="alert">{{ error }}</p>
