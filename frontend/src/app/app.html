@@ -13,8 +13,8 @@
   </button>
   <nav class="member-nav" *ngIf="auth.session$ | async as session" [class.admin-nav]="session.role === 'ROLE_ADMIN'" [class.open]="menuOpen">
     <a *ngIf="session.role !== 'ROLE_ADMIN'" routerLink="/feed" routerLinkActive="active" (click)="closeMenu()"><svg lucideHouse aria-hidden="true"></svg><span>{{ 'nav.home' | translate }}</span></a>
-    <button *ngIf="session.role !== 'ROLE_ADMIN'" class="nav-messages" type="button" (click)="openMessages()"><svg lucideMessageCircle aria-hidden="true"></svg><span>{{ 'nav.messages' | translate }}</span></button>
     <a *ngIf="session.role !== 'ROLE_ADMIN'" routerLink="/meetings" routerLinkActive="active" (click)="closeMenu()"><svg lucideVideo aria-hidden="true"></svg><span>{{ 'nav.meetings' | translate }}</span></a>
+    <button *ngIf="session.role !== 'ROLE_ADMIN'" class="nav-messages" type="button" (click)="openMessages()"><svg lucideMessageCircle aria-hidden="true"></svg><span>{{ 'nav.messages' | translate }}</span></button>
     <button *ngIf="session.role !== 'ROLE_ADMIN'" class="nav-invite" type="button" (click)="openInviteWorkspace()"><svg lucideKeyRound aria-hidden="true"></svg><span>{{ 'nav.invite' | translate }}</span><i *ngIf="inviteRequest?.status === 'PENDING'"></i></button>
     <span *ngIf="session.role === 'ROLE_ADMIN'" class="admin-session-label"><svg lucideShieldCheck aria-hidden="true"></svg>Secure admin workspace</span>
     <label class="language-select"><select aria-label="Language" [ngModel]="i18n.language()" (ngModelChange)="changeLanguage($event)"><option value="en">English</option><option value="hi">हिन्दी</option></select></label>

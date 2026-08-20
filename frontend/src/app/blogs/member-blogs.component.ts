@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { LucideBookOpen, LucideMic, LucideMicOff, LucidePenLine, LucideX } from '@lucide/angular';
 import { CommunityApiService } from '../core/community-api.service';
 import { MemberBlog } from '../core/models';
@@ -11,7 +11,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-member-blogs',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, LucideBookOpen, LucideMic, LucideMicOff, LucidePenLine, LucideX],
+  imports: [CommonModule, FormsModule, LucideBookOpen, LucideMic, LucideMicOff, LucidePenLine, LucideX],
   templateUrl: './member-blogs.component.html',
   styleUrl: './member-blogs.component.css'
 })

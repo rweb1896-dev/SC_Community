@@ -101,6 +101,9 @@ public class User {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
+    @Column(name = "last_login_at")
+    private Instant lastLoginAt;
+
     @PrePersist
     void prePersist() {
         createdAt = Instant.now();
@@ -159,4 +162,6 @@ public class User {
     public boolean isProfileComplete() { return role == UserRole.ROLE_ADMIN || (helpFields != null && !helpFields.isEmpty()); }
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
+    public Instant getLastLoginAt() { return lastLoginAt; }
+    public void setLastLoginAt(Instant lastLoginAt) { this.lastLoginAt = lastLoginAt; }
 }

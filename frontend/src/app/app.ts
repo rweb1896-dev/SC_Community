@@ -86,7 +86,7 @@ export class App implements OnInit, OnDestroy {
     this.subscriptions.add(this.auth.session$.subscribe((session) => {
       if (session) {
         this.refreshMemberInvite(false);
-        if (session.role === 'ROLE_USER' && (session.profileCompletion || 0) < 30 && this.autoProfilePromptedForUser !== session.userId) {
+        if (session.role === 'ROLE_USER' && (session.profileCompletion || 0) < 45 && this.autoProfilePromptedForUser !== session.userId) {
           this.autoProfilePromptedForUser = session.userId;
           this.profileHelpOpen = false;
           setTimeout(() => this.openSelfProfile(), 250);

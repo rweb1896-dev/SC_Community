@@ -69,6 +69,7 @@ export interface UserResponse {
   idProofUrl?: string;
   inviteCodeUsed?: string;
   createdAt: string;
+  lastLoginAt?: string;
 }
 export interface ProfileResponse { user: UserResponse; dateOfBirth?: string; profilePublic: boolean; }
 export interface AdminUserResponse extends UserResponse { dateOfBirth?: string; ageGroup: AgeGroup; }

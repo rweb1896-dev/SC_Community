@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { LucideLockKeyhole, LucideMessageCircle, LucideMessagesSquare, LucidePenLine, LucideX } from '@lucide/angular';
 import { CommunityApiService } from '../core/community-api.service';
 import { DebateComment, DebateTopic } from '../core/models';
@@ -9,7 +8,7 @@ import { DebateComment, DebateTopic } from '../core/models';
 @Component({
   selector: 'app-debate-room',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, LucideLockKeyhole, LucideMessageCircle, LucideMessagesSquare, LucidePenLine, LucideX],
+  imports: [CommonModule, FormsModule, LucideLockKeyhole, LucideMessageCircle, LucideMessagesSquare, LucidePenLine, LucideX],
   templateUrl: './debate-room.component.html',
   styleUrl: './debate-room.component.css'
 })

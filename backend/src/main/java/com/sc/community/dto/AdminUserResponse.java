@@ -17,7 +17,7 @@ public record AdminUserResponse(
         String profileCategory, String workStatus, String employmentType, boolean lookingForJob,
         String dateOfBirth, String ageGroup, int profileCompletion, UserRole role, UserStatus status,
         ProfessionalGroup professionalGroup, List<Long> helpFieldIds, List<String> helpFieldNames,
-        boolean profileComplete, String idProofUrl, String inviteCodeUsed, Instant createdAt) {
+        boolean profileComplete, String idProofUrl, String inviteCodeUsed, Instant createdAt, Instant lastLoginAt) {
     public static AdminUserResponse from(User user) {
         return new AdminUserResponse(user.getId(), user.getFullName(), user.getEmail(), user.getPhoneNumber(),
                 user.getAddress(), user.getPhotoUrl(), user.getCurrentPost(), user.getPosition(), user.getSchool(),
@@ -27,7 +27,8 @@ public record AdminUserResponse(
                 user.getProfessionalGroup() == null ? ProfessionalGroup.COMMUNITY : user.getProfessionalGroup(),
                 user.getHelpFields().stream().sorted(Comparator.comparingInt(field -> field.getDisplayOrder())).map(field -> field.getId()).toList(),
                 user.getHelpFields().stream().sorted(Comparator.comparingInt(field -> field.getDisplayOrder())).map(field -> field.getName()).toList(),
-                user.isProfileComplete(), user.getIdProofUrl(), user.getInviteCodeUsed(), user.getCreatedAt());
+                user.isProfileComplete(), user.getIdProofUrl(), user.getInviteCodeUsed(), user.getCreatedAt(),
+                user.getLastLoginAt());
     }
     private static String ageGroup(String value) {
         if (value == null || value.isBlank()) return "NOT_ADDED";

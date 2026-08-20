@@ -33,7 +33,8 @@ public record UserResponse(
         boolean profileComplete,
         String idProofUrl,
         String inviteCodeUsed,
-        Instant createdAt
+        Instant createdAt,
+        Instant lastLoginAt
 ) {
     public static UserResponse from(User user) {
         return new UserResponse(
@@ -63,7 +64,8 @@ public record UserResponse(
                 user.isProfileComplete(),
                 user.getIdProofUrl(),
                 user.getInviteCodeUsed(),
-                user.getCreatedAt()
+                user.getCreatedAt(),
+                user.getLastLoginAt()
         );
     }
 }

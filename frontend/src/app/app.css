@@ -392,3 +392,107 @@ main {
 .profile-editor-modal .profile-editor-success,
 .profile-editor-modal .profile-editor-error { margin-inline: 24px; }
 @media(max-width:700px){.profile-editor-summary,.profile-editor-grid{grid-template-columns:1fr}.profile-editor-modal footer,.profile-editor-modal .profile-editor-summary,.profile-editor-modal .profile-editor-grid,.profile-editor-modal .verified-profile-field,.profile-editor-modal>label,.profile-editor-modal .profile-help-shortcut,.profile-editor-modal .profile-editor-success,.profile-editor-modal .profile-editor-error{margin-inline:15px}.profile-photo-editor{grid-template-columns:82px minmax(0,1fr);align-items:center}.profile-photo-editor img{width:82px}}
+
+.member-nav {
+  flex: 0 1 auto;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.member-nav > a,
+.member-nav > .nav-messages,
+.member-nav > .nav-invite {
+  height: 42px;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 0 12px;
+  white-space: nowrap;
+}
+
+.member-nav > a.active {
+  border-color: #dbe5ff;
+  background: #eaf0ff;
+  color: #1d4ed8;
+}
+
+.member-nav > a:hover {
+  background: #eef2fb;
+  color: #2457bd;
+}
+
+.member-nav > .nav-invite {
+  border-color: #cdd9fa;
+  background: #f3f6ff;
+  color: #2457bd;
+}
+
+.member-nav > .nav-invite:hover {
+  border-color: #a9bff5;
+  background: #eaf0ff;
+}
+
+@media (max-width: 1360px) and (min-width: 701px) {
+  .topbar {
+    gap: 12px;
+    padding-inline: clamp(16px, 2vw, 32px);
+  }
+
+  .global-search {
+    flex-basis: 280px;
+    max-width: 360px;
+  }
+
+  .member-nav {
+    gap: 4px;
+  }
+
+  .member-nav > a,
+  .member-nav > .nav-messages,
+  .member-nav > .nav-invite {
+    padding-inline: 9px;
+    font-size: 11px;
+  }
+
+  .member-nav > a span,
+  .member-nav > .nav-messages span,
+  .member-nav > .nav-invite span {
+    display: inline;
+  }
+
+  .language-select select {
+    width: 96px;
+  }
+}
+
+@media (max-width: 1160px) and (min-width: 701px) {
+  .member-nav > a span,
+  .member-nav > .nav-messages span,
+  .member-nav > .nav-invite span {
+    display: none;
+  }
+
+  .member-nav > a,
+  .member-nav > .nav-messages,
+  .member-nav > .nav-invite {
+    width: 42px;
+    padding-inline: 0;
+  }
+
+  .nav-invite i {
+    top: 6px;
+    right: 6px;
+  }
+}
+
+@media (max-width: 700px) {
+  .member-nav > a,
+  .member-nav > .nav-messages,
+  .member-nav > .nav-invite {
+    width: 100%;
+    justify-content: flex-start;
+    padding-inline: 12px;
+  }
+}

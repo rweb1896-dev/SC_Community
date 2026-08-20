@@ -7,3 +7,5 @@
 .blogs-hero a:focus-visible,.blogs-hero button:focus-visible,.blog-tabs button:focus-visible,.blog-card footer button:focus-visible,.empty button:focus-visible { outline:3px solid rgba(79,70,229,.28); outline-offset:2px; }
 @media(max-width:720px){.blogs-hero{align-items:start;flex-direction:column}.blogs-actions{display:grid!important;width:100%;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px!important}.blogs-actions>*{width:100%;min-width:0}.blogs-hero a,.blogs-hero button{padding-inline:12px}.blog-card footer{justify-content:flex-start}.composer footer{align-items:stretch;flex-direction:column}.composer footer button{width:100%;min-height:46px;justify-content:center}}
 @media(max-width:390px){.blogs-actions{grid-template-columns:1fr}.blogs-hero h1{font-size:32px}}
+.blogs-actions { justify-content: flex-end; }
+@media(max-width:720px){.blogs-actions{display:flex!important;width:100%;grid-template-columns:none}.blogs-actions button{width:100%;}}

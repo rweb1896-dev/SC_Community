@@ -758,6 +758,7 @@ td {
   display: grid;
   grid-template-columns: 72px minmax(0,1fr);
   gap: 12px;
+  min-width: 0;
   border: 1px solid #dfe7e3;
   border-radius: 10px;
   background: #fff;
@@ -916,17 +917,21 @@ td {
   flex-wrap: wrap;
   align-items: center;
   gap: 7px;
+  min-width: 0;
   border-top: 1px solid #e6ece8;
   padding-top: 10px;
 }
 
 .admin-member-card footer .group-select {
+  flex: 1 1 145px;
   min-width: 145px;
   height: 38px;
 }
 
 .admin-member-card footer a {
   display: inline-flex;
+  flex: 1 1 88px;
+  justify-content: center;
   min-height: 38px;
   align-items: center;
   border: 1px solid #d5e1dc;
@@ -939,6 +944,7 @@ td {
 }
 
 .admin-member-card footer .btn {
+  flex: 1 1 88px;
   min-height: 38px;
   border-radius: 8px;
   padding-inline: 10px;

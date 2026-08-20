@@ -5,3 +5,5 @@
 .debate-hero a:focus-visible,.debate-hero button:focus-visible,.topic>footer button:focus-visible,.reply-box button:focus-visible,.empty button:focus-visible { outline:3px solid rgba(180,87,42,.26); outline-offset:2px; }
 @media(max-width:720px){.debate-hero{align-items:start;flex-direction:column}.debate-actions{display:grid!important;width:100%;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px!important}.debate-actions>*{width:100%;min-width:0}.debate-hero a,.debate-hero button{padding-inline:12px}.topic>footer{display:flex;flex-wrap:wrap;gap:7px}.topic>footer>span{flex:1}.topic>footer button:first-child{width:100%;justify-content:center;border-radius:8px;background:#fcf1ea}.reply-box button{min-height:46px}.composer footer{align-items:stretch;flex-direction:column}.composer footer button{width:100%;min-height:46px;justify-content:center}}
 @media(max-width:390px){.debate-actions{grid-template-columns:1fr}.debate-hero h1{font-size:32px}}
+.debate-actions { justify-content: flex-end; }
+@media(max-width:720px){.debate-actions{display:flex!important;width:100%;grid-template-columns:none}.debate-actions button{width:100%;}}
