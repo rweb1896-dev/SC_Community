@@ -17,6 +17,7 @@ import com.sc.community.entity.User;
 import com.sc.community.entity.UserRole;
 import com.sc.community.repository.BroadcastRepository;
 import com.sc.community.repository.UserRepository;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -40,6 +41,7 @@ public class DirectoryService {
     private static final String ACHIEVER = ROOT + "ACHIEVER:";
     private static final String USER_HELP = ROOT + "USER_HELP:";
     private static final String USER_PROFILE = ROOT + "USER_PROFILE:";
+    private static final String USER_LOGIN = ROOT + "USER_LOGIN:";
 
     private final BroadcastRepository repository;
     private final UserRepository userRepository;
@@ -148,7 +150,35 @@ public class DirectoryService {
     public UserResponse responseForUser(User user) {
         populateHelpFields(user);
         populateProfile(user);
+        populateLastLogin(user);
         return UserResponse.from(user);
+    }
+
+    @Transactional
+    public void recordLastLogin(User user, Instant loginAt) {
+        String marker = USER_LOGIN + user.getId();
+        Broadcast item = repository.findTopByTitleOrderByCreatedAtDesc(marker).orElseGet(Broadcast::new);
+        item.setTitle(marker);
+        item.setHostName(user.getFullName());
+        item.setMediaUrl("");
+        item.setMediaType(BroadcastMediaType.PODCAST);
+        item.setDescription(loginAt.toString());
+        if (item.getId() == null) item.setStatus(BroadcastStatus.LIVE);
+        repository.save(item);
+        user.setLastLoginAt(loginAt);
+    }
+
+    @Transactional(readOnly = true)
+    public void populateLastLogin(User user) {
+        if (user == null || user.getId() == null) return;
+        user.setLastLoginAt(repository.findTopByTitleOrderByCreatedAtDesc(USER_LOGIN + user.getId())
+                .map(Broadcast::getDescription).flatMap(this::parseInstant).orElse(null));
+    }
+
+    @Transactional(readOnly = true)
+    public void populateLastLogins(List<User> users) {
+        Map<Long, Instant> values = lastLoginMap();
+        users.forEach(user -> user.setLastLoginAt(values.get(user.getId())));
     }
 
     @Transactional
@@ -382,6 +412,27 @@ public class DirectoryService {
         catch (JsonProcessingException exception) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Directory data is invalid", exception);
         }
+    }
+
+    private Map<Long, Instant> lastLoginMap() {
+        Map<Long, Instant> values = new LinkedHashMap<>();
+        repository.findAllByOrderByCreatedAtDesc().stream()
+                .filter(item -> item.getTitle().startsWith(USER_LOGIN))
+                .forEach(item -> parseLong(item.getTitle().substring(USER_LOGIN.length()))
+                        .flatMap(userId -> parseInstant(item.getDescription())
+                                .map(loginAt -> Map.entry(userId, loginAt)))
+                        .ifPresent(entry -> values.putIfAbsent(entry.getKey(), entry.getValue())));
+        return values;
+    }
+
+    private java.util.Optional<Long> parseLong(String value) {
+        try { return java.util.Optional.of(Long.parseLong(value)); }
+        catch (RuntimeException ignored) { return java.util.Optional.empty(); }
+    }
+
+    private java.util.Optional<Instant> parseInstant(String value) {
+        try { return value == null || value.isBlank() ? java.util.Optional.empty() : java.util.Optional.of(Instant.parse(value)); }
+        catch (RuntimeException ignored) { return java.util.Optional.empty(); }
     }
 
     private String slug(String value) {

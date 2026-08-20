@@ -58,10 +58,10 @@ public class AdminService {
     }
 
     public List<AdminUserResponse> users() {
-        return userRepository.findAll().stream().map(user -> {
-            directoryService.responseForUser(user);
-            return AdminUserResponse.from(user);
-        }).toList();
+        List<User> users = userRepository.findAll();
+        users.forEach(directoryService::responseForUser);
+        directoryService.populateLastLogins(users);
+        return users.stream().map(AdminUserResponse::from).toList();
     }
 
     @Transactional

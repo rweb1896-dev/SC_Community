@@ -101,7 +101,7 @@ public class User {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    @Column(name = "last_login_at")
+    @Transient
     private Instant lastLoginAt;
 
     @PrePersist

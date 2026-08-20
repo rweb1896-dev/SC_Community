@@ -130,8 +130,7 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
         }
 
-        user.setLastLoginAt(java.time.Instant.now());
-        userRepository.save(user);
+        directoryService.recordLastLogin(user, java.time.Instant.now());
 
         directoryService.populateHelpFields(user);
         directoryService.populateProfile(user);
